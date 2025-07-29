@@ -1,0 +1,121 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 0 0% 3.9%;
+  }
+
+  .dark {
+    --background: 0 0% 3.9%;
+    --foreground: 0 0% 98%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-void-800;
+  }
+  
+  body {
+    @apply bg-void-950 text-white;
+    background-image: 
+      radial-gradient(ellipse at top, rgba(168, 85, 247, 0.1), transparent),
+      radial-gradient(ellipse at bottom, rgba(59, 130, 246, 0.1), transparent);
+  }
+}
+
+/* Quantum glow effects */
+.quantum-glow {
+  filter: drop-shadow(0 0 10px rgba(59, 130, 246, 0.5));
+}
+
+.consciousness-glow {
+  filter: drop-shadow(0 0 15px rgba(168, 85, 247, 0.6));
+}
+
+.threat-glow {
+  filter: drop-shadow(0 0 20px rgba(239, 68, 68, 0.7));
+}
+
+/* Void portal effect */
+.void-portal {
+  background: radial-gradient(circle at center, 
+    rgba(13, 13, 20, 0.9) 0%,
+    rgba(26, 26, 40, 0.8) 30%,
+    rgba(64, 64, 99, 0.4) 60%,
+    transparent 100%
+  );
+  animation: void-portal-spin 20s linear infinite;
+}
+
+@keyframes void-portal-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-void-900;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-void-600 rounded-full;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  @apply bg-void-500;
+}
+
+/* Glass morphism */
+.glass {
+  @apply bg-void-900/30 backdrop-blur-md border border-void-700/50;
+}
+
+.glass-hover {
+  @apply hover:bg-void-800/40 hover:border-void-600/60 transition-all duration-300;
+}
+
+/* Consciousness field animation */
+.consciousness-field {
+  position: relative;
+  overflow: hidden;
+}
+
+.consciousness-field::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: conic-gradient(
+    from 0deg at 50% 50%,
+    transparent,
+    rgba(168, 85, 247, 0.1),
+    transparent,
+    rgba(59, 130, 246, 0.1),
+    transparent
+  );
+  animation: consciousness-rotate 10s linear infinite;
+}
+
+@keyframes consciousness-rotate {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}

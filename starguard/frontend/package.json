@@ -1,0 +1,46 @@
+{
+  "name": "@starguard/frontend",
+  "version": "1.0.0",
+  "description": "STARGUARD Frontend - Quantum Security Consciousness Visualization",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "type-check": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@react-three/drei": "^9.92.0",
+    "@react-three/fiber": "^8.15.0",
+    "@react-three/postprocessing": "^2.15.0",
+    "@starguard/shared": "^1.0.0",
+    "@tanstack/react-query": "^5.14.0",
+    "axios": "^1.6.0",
+    "caniuse-lite": "^1.0.30001727",
+    "clsx": "^2.1.0",
+    "critters": "^0.0.23",
+    "framer-motion": "^10.16.0",
+    "lucide-react": "^0.303.0",
+    "next": "14.0.4",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "recharts": "^2.10.0",
+    "socket.io-client": "^4.6.0",
+    "tailwind-merge": "^2.2.0",
+    "three": "^0.160.0",
+    "zustand": "^4.4.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.0",
+    "@types/react": "^18.2.0",
+    "@types/react-dom": "^18.2.0",
+    "@types/three": "^0.160.0",
+    "autoprefixer": "^10.4.16",
+    "eslint": "^8.55.0",
+    "eslint-config-next": "14.0.4",
+    "postcss": "^8.4.32",
+    "tailwindcss": "^3.4.0",
+    "typescript": "^5.3.0"
+  }
+}

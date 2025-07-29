@@ -1,0 +1,72 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: starguard-postgres
+    environment:
+      POSTGRES_USER: starguard
+      POSTGRES_PASSWORD: starguard
+      POSTGRES_DB: starguard
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U starguard"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: starguard-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Optional: pgAdmin for database management
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: starguard-pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@starguard.local
+      PGADMIN_DEFAULT_PASSWORD: starguard
+    ports:
+      - "5050:80"
+    depends_on:
+      - postgres
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+
+  # Optional: RedisInsight for Redis management
+  redisinsight:
+    image: redislabs/redisinsight:latest
+    container_name: starguard-redisinsight
+    ports:
+      - "8001:8001"
+    volumes:
+      - redisinsight_data:/db
+    depends_on:
+      - redis
+
+volumes:
+  postgres_data:
+    name: starguard_postgres_data
+  redis_data:
+    name: starguard_redis_data
+  pgadmin_data:
+    name: starguard_pgadmin_data
+  redisinsight_data:
+    name: starguard_redisinsight_data
+
+networks:
+  default:
+    name: starguard_network

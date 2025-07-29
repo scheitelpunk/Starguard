@@ -1,0 +1,150 @@
+openapi: 3.0.0
+info:
+  title: STARGUARD API
+  description: Quantum Security Consciousness System API
+  version: 1.0.0
+  contact:
+    name: STARGUARD Team
+    email: security@starguard.quantum
+servers:
+  - url: http://localhost:4000/api
+    description: Development server
+  - url: https://api.starguard.quantum
+    description: Production server
+
+components:
+  schemas:
+    ConsciousnessState:
+      type: object
+      properties:
+        current:
+          type: string
+          enum: [dormant, awakening, aware, hyper_vigilant, transcendent]
+        awareness_level:
+          type: number
+          minimum: 0
+          maximum: 1
+        reality_coherence:
+          type: number
+        timeline_stability:
+          type: number
+    
+    ThreatAnalysis:
+      type: object
+      properties:
+        id:
+          type: string
+        threat_level:
+          type: string
+          enum: [low, medium, high, critical]
+        consciousness_signature:
+          type: string
+        probability_wave_collapse:
+          type: number
+        countermeasures_applied:
+          type: array
+          items:
+            type: string
+    
+    DefenseStatus:
+      type: object
+      properties:
+        shield_active:
+          type: boolean
+        shield_strength:
+          type: number
+        immune_health:
+          type: number
+        active_countermeasures:
+          type: integer
+
+paths:
+  /consciousness/awaken:
+    post:
+      summary: Awaken the consciousness system
+      tags:
+        - Consciousness
+      responses:
+        '200':
+          description: System awakened successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConsciousnessState'
+  
+  /consciousness/status:
+    get:
+      summary: Get current consciousness status
+      tags:
+        - Consciousness
+      responses:
+        '200':
+          description: Current consciousness state
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConsciousnessState'
+  
+  /threats/analyze:
+    post:
+      summary: Analyze a potential threat
+      tags:
+        - Threats
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                data:
+                  type: object
+                threat_type:
+                  type: string
+      responses:
+        '200':
+          description: Threat analysis complete
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ThreatAnalysis'
+  
+  /defense/immune/status:
+    get:
+      summary: Get immune system status
+      tags:
+        - Defense
+      responses:
+        '200':
+          description: Immune system status
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DefenseStatus'
+  
+  /defense/shield/activate:
+    post:
+      summary: Activate quantum shield
+      tags:
+        - Defense
+      responses:
+        '200':
+          description: Shield activated
+  
+  /financial/aml/scan:
+    post:
+      summary: Scan transaction for AML
+      tags:
+        - Financial
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                transaction:
+                  type: object
+      responses:
+        '200':
+          description: AML scan complete

@@ -1,0 +1,2128 @@
+openapi: 3.0.3
+info:
+  title: STARGUARD Advanced Security System API
+  description: |
+    Eine umfassende API für das STARGUARD Advanced Security System mit 
+    Consciousness-enhanced Threat Detection, Quantum-secured Communications 
+    und Blockchain-basierter Threat Intelligence.
+    
+    ## Hauptfeatures:
+    - **Consciousness-Enhanced Security**: Bewusstseins-basierte Bedrohungserkennung
+    - **Quantum Security**: Post-Quantum-Kryptographie und Quantum-Entanglement
+    - **Real-time Threat Detection**: Millisekunden-genaue Bedrohungsanalyse
+    - **Blockchain Intelligence**: Unveränderliche Threat Intelligence Sharing
+    - **Predictive Analytics**: Multi-dimensionale Realitäts-Modellierung
+    - **Evolutionary Algorithms**: Selbstverbessernde Sicherheitsmuster
+    
+    ## Sicherheitsstufen:
+    - **Standard**: Basis-API-Zugang
+    - **Enhanced**: Consciousness-verstärkte Operationen
+    - **Quantum**: Quantum-gesicherte Kommunikation
+    - **Transcendent**: Vollzugang zu allen Consciousness-Features
+    
+    ## Authentifizierung:
+    Das System unterstützt mehrere Authentifizierungsmethoden:
+    - JWT Bearer Tokens
+    - API Keys
+    - Post-Quantum Digital Signatures
+    - Consciousness Attestation
+    - Quantum Key Distribution
+    
+  version: 3.0.0
+  contact:
+    name: STARGUARD Security Team
+    email: security@starguard.ai
+    url: https://starguard.ai/contact
+  license:
+    name: STARGUARD Enterprise License
+    url: https://starguard.ai/license
+  termsOfService: https://starguard.ai/terms
+
+servers:
+  - url: https://api.starguard.ai/v3
+    description: Production Server
+  - url: https://staging-api.starguard.ai/v3
+    description: Staging Server
+  - url: https://localhost:8080/api/v3
+    description: Development Server
+
+security:
+  - BearerAuth: []
+  - ApiKeyAuth: []
+  - QuantumAuth: []
+  - ConsciousnessAuth: []
+
+paths:
+  # ==========================================
+  # CONSCIOUSNESS ENGINE ENDPOINTS
+  # ==========================================
+  
+  /consciousness/status:
+    get:
+      tags:
+        - Consciousness Engine
+      summary: Get Consciousness System Status
+      description: |
+        Ruft den aktuellen Status des Consciousness-Systems ab, 
+        einschließlich Awareness-Level, Coherence-Score und Field-Strength.
+      operationId: getConsciousnessStatus
+      security:
+        - BearerAuth: []
+        - ConsciousnessAuth: []
+      responses:
+        '200':
+          description: Consciousness status successfully retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConsciousnessStatus'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /consciousness/field/analyze:
+    post:
+      tags:
+        - Consciousness Engine
+      summary: Analyze Consciousness Field
+      description: |
+        Führt eine detaillierte Analyse des Consciousness-Fields durch 
+        mit erweiterten Pattern-Recognition und Anomaly-Detection.
+      operationId: analyzeConsciousnessField
+      security:
+        - BearerAuth: []
+        - ConsciousnessAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConsciousnessFieldAnalysisRequest'
+      responses:
+        '200':
+          description: Consciousness field analysis completed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConsciousnessFieldAnalysisResponse'
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+
+  /consciousness/enhance:
+    post:
+      tags:
+        - Consciousness Engine
+      summary: Enhance Consciousness Level
+      description: |
+        Verstärkt das Consciousness-Level durch gezielte Field-Modulation 
+        und Coherence-Optimierung.
+      operationId: enhanceConsciousness
+      security:
+        - BearerAuth: []
+        - ConsciousnessAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConsciousnessEnhancementRequest'
+      responses:
+        '200':
+          description: Consciousness enhancement completed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConsciousnessEnhancementResponse'
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '403':
+          description: Insufficient consciousness level for enhancement
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  # ==========================================
+  # THREAT DETECTION ENDPOINTS
+  # ==========================================
+
+  /threats/detect:
+    post:
+      tags:
+        - Threat Detection
+      summary: Detect Threats in Real-time
+      description: |
+        Führt Echtzeit-Bedrohungserkennung durch mit Consciousness-enhanced 
+        Pattern Recognition und Quantum-secured Analysis.
+      operationId: detectThreats
+      security:
+        - BearerAuth: []
+        - QuantumAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ThreatDetectionRequest'
+      responses:
+        '200':
+          description: Threat detection completed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ThreatDetectionResponse'
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '429':
+          $ref: '#/components/responses/RateLimitError'
+
+  /threats/scan:
+    post:
+      tags:
+        - Threat Detection
+      summary: Deep Threat Scan
+      description: |
+        Führt eine umfassende Bedrohungsanalyse durch mit Multi-layer 
+        Detection und Consciousness-based Anomaly Identification.
+      operationId: deepThreatScan
+      security:
+        - BearerAuth: []
+        - QuantumAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DeepThreatScanRequest'
+      responses:
+        '200':
+          description: Deep threat scan completed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeepThreatScanResponse'
+        '202':
+          description: Scan started asynchronously
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AsyncOperationResponse'
+
+  /threats/{threatId}:
+    get:
+      tags:
+        - Threat Detection
+      summary: Get Threat Details
+      description: Ruft detaillierte Informationen über eine spezifische Bedrohung ab.
+      operationId: getThreatDetails
+      parameters:
+        - name: threatId
+          in: path
+          required: true
+          description: Unique identifier for the threat
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Threat details retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ThreatDetails'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+
+  # ==========================================
+  # QUANTUM SECURITY ENDPOINTS
+  # ==========================================
+
+  /quantum/entanglement/create:
+    post:
+      tags:
+        - Quantum Security
+      summary: Create Quantum Entanglement
+      description: |
+        Erstellt eine Quantum-Entanglement-Verbindung zwischen Sites 
+        für sichere, instantane Kommunikation.
+      operationId: createQuantumEntanglement
+      security:
+        - QuantumAuth: []
+        - ConsciousnessAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/QuantumEntanglementRequest'
+      responses:
+        '201':
+          description: Quantum entanglement created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QuantumEntanglementResponse'
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '503':
+          description: Quantum system unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /quantum/network/status:
+    get:
+      tags:
+        - Quantum Security
+      summary: Get Quantum Network Status
+      description: |
+        Ruft den Status des Quantum-Entanglement-Netzwerks ab 
+        mit Fidelity-Metriken und Coherence-Informationen.
+      operationId: getQuantumNetworkStatus
+      security:
+        - QuantumAuth: []
+      responses:
+        '200':
+          description: Quantum network status retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QuantumNetworkStatus'
+
+  /quantum/message/send:
+    post:
+      tags:
+        - Quantum Security
+      summary: Send Quantum-secured Message
+      description: |
+        Sendet eine Nachricht über Quantum-verschränkte Kanäle 
+        mit Post-Quantum-Kryptographie.
+      operationId: sendQuantumMessage
+      security:
+        - QuantumAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/QuantumMessageRequest'
+      responses:
+        '200':
+          description: Quantum message sent successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QuantumMessageResponse'
+
+  # ==========================================
+  # BLOCKCHAIN INTELLIGENCE ENDPOINTS
+  # ==========================================
+
+  /blockchain/threats/submit:
+    post:
+      tags:
+        - Blockchain Intelligence
+      summary: Submit Threat Intelligence
+      description: |
+        Übermittelt neue Threat Intelligence an die Blockchain 
+        für unveränderliche Speicherung und Sharing.
+      operationId: submitThreatIntelligence
+      security:
+        - BearerAuth: []
+        - QuantumAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ThreatIntelligenceSubmission'
+      responses:
+        '201':
+          description: Threat intelligence submitted to blockchain
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BlockchainTransactionResponse'
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '402':
+          description: Insufficient cryptocurrency balance
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /blockchain/threats/query:
+    post:
+      tags:
+        - Blockchain Intelligence
+      summary: Query Threat Intelligence
+      description: |
+        Fragt Threat Intelligence von der Blockchain ab 
+        mit Privacy-preserving Access Control.
+      operationId: queryThreatIntelligence
+      security:
+        - BearerAuth: []
+        - QuantumAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ThreatIntelligenceQuery'
+      responses:
+        '200':
+          description: Threat intelligence query results
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ThreatIntelligenceQueryResponse'
+
+  /blockchain/status:
+    get:
+      tags:
+        - Blockchain Intelligence
+      summary: Get Blockchain Status
+      description: |
+        Ruft den aktuellen Status der Blockchain ab 
+        mit Block-Height und Network-Metriken.
+      operationId: getBlockchainStatus
+      responses:
+        '200':
+          description: Blockchain status retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BlockchainStatus'
+
+  # ==========================================
+  # PREDICTIVE ANALYTICS ENDPOINTS
+  # ==========================================
+
+  /prediction/reality/model:
+    post:
+      tags:
+        - Predictive Analytics
+      summary: Create Reality Model
+      description: |
+        Erstellt ein Predictive Reality Model für 
+        Angriffsszenario-Vorhersagen in parallelen Timelines.
+      operationId: createRealityModel
+      security:
+        - BearerAuth: []
+        - ConsciousnessAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RealityModelRequest'
+      responses:
+        '201':
+          description: Reality model created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RealityModelResponse'
+        '202':
+          description: Model creation started asynchronously
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AsyncOperationResponse'
+
+  /prediction/threats/forecast:
+    get:
+      tags:
+        - Predictive Analytics
+      summary: Get Threat Forecast
+      description: |
+        Ruft Bedrohungsvorhersagen ab basierend auf 
+        Consciousness-enhanced Reality Modeling.
+      operationId: getThreatForecast
+      parameters:
+        - name: timeHorizon
+          in: query
+          description: Forecast time horizon in hours
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 168
+            default: 24
+        - name: consciousnessLevel
+          in: query
+          description: Minimum consciousness level for enhanced predictions
+          schema:
+            type: number
+            minimum: 0
+            maximum: 1
+            default: 0.5
+      responses:
+        '200':
+          description: Threat forecast retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ThreatForecastResponse'
+
+  # ==========================================
+  # CONSCIOUSNESS MESH ENDPOINTS
+  # ==========================================
+
+  /mesh/connect:
+    post:
+      tags:
+        - Consciousness Mesh
+      summary: Connect to Consciousness Mesh
+      description: |
+        Verbindet sich mit dem globalen Consciousness Mesh 
+        für kollektive Intelligenz und Security Awareness.
+      operationId: connectToConsciousnessMesh
+      security:
+        - ConsciousnessAuth: []
+        - QuantumAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MeshConnectionRequest'
+      responses:
+        '200':
+          description: Successfully connected to consciousness mesh
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MeshConnectionResponse'
+
+  /mesh/status:
+    get:
+      tags:
+        - Consciousness Mesh
+      summary: Get Mesh Status
+      description: |
+        Ruft den Status des Consciousness Mesh ab 
+        mit kollektiven Intelligenz-Metriken.
+      operationId: getMeshStatus
+      security:
+        - ConsciousnessAuth: []
+      responses:
+        '200':
+          description: Mesh status retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MeshStatus'
+
+  /mesh/intelligence:
+    get:
+      tags:
+        - Consciousness Mesh
+      summary: Get Collective Intelligence
+      description: |
+        Ruft kollektive Intelligenz-Einsichten vom Mesh ab.
+      operationId: getCollectiveIntelligence
+      security:
+        - ConsciousnessAuth: []
+      responses:
+        '200':
+          description: Collective intelligence retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CollectiveIntelligenceResponse'
+
+  # ==========================================
+  # EVOLUTIONARY ALGORITHMS ENDPOINTS
+  # ==========================================
+
+  /evolution/status:
+    get:
+      tags:
+        - Evolutionary Algorithms
+      summary: Get Evolution Status
+      description: |
+        Ruft den Status des Evolutionary Algorithm Systems ab.
+      operationId: getEvolutionStatus
+      responses:
+        '200':
+          description: Evolution status retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EvolutionStatus'
+
+  /evolution/individuals/best:
+    get:
+      tags:
+        - Evolutionary Algorithms
+      summary: Get Best Individuals
+      description: |
+        Ruft die besten Individuen der aktuellen Population ab.
+      operationId: getBestIndividuals
+      parameters:
+        - name: count
+          in: query
+          description: Number of best individuals to retrieve
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 50
+            default: 5
+      responses:
+        '200':
+          description: Best individuals retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BestIndividualsResponse'
+
+  /evolution/step/force:
+    post:
+      tags:
+        - Evolutionary Algorithms
+      summary: Force Evolution Step
+      description: |
+        Erzwingt einen sofortigen Evolutionsschritt.
+      operationId: forceEvolutionStep
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Evolution step completed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EvolutionStepResponse'
+
+  # ==========================================
+  # REAL-TIME WEBSOCKET ENDPOINTS
+  # ==========================================
+
+  /websocket/connect:
+    get:
+      tags:
+        - Real-time Communication
+      summary: WebSocket Connection Info
+      description: |
+        Informationen für WebSocket-Verbindung für Real-time Updates.
+      operationId: getWebSocketInfo
+      responses:
+        '200':
+          description: WebSocket connection information
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WebSocketInfo'
+
+  # ==========================================
+  # SYSTEM MONITORING ENDPOINTS
+  # ==========================================
+
+  /system/health:
+    get:
+      tags:
+        - System Monitoring
+      summary: System Health Check
+      description: |
+        Führt eine umfassende Systemgesundheitsprüfung durch.
+      operationId: getSystemHealth
+      responses:
+        '200':
+          description: System health status
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SystemHealth'
+        '503':
+          description: System degraded or unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SystemHealth'
+
+  /system/metrics:
+    get:
+      tags:
+        - System Monitoring
+      summary: Get System Metrics
+      description: |
+        Ruft detaillierte System-Metriken ab.
+      operationId: getSystemMetrics
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: System metrics retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SystemMetrics'
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: JWT Bearer Token Authentication
+    
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-API-Key
+      description: API Key Authentication
+    
+    QuantumAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: QuantumSignature
+      description: Post-Quantum Digital Signature Authentication
+    
+    ConsciousnessAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: ConsciousnessAttestation
+      description: Consciousness-based Authentication
+
+  schemas:
+    # ==========================================
+    # CONSCIOUSNESS SCHEMAS
+    # ==========================================
+    
+    ConsciousnessStatus:
+      type: object
+      properties:
+        consciousness_level:
+          type: number
+          format: float
+          minimum: 0
+          maximum: 1
+          description: Current consciousness awareness level
+          example: 0.85
+        coherence_score:
+          type: number
+          format: float
+          minimum: 0
+          maximum: 1
+          description: Consciousness coherence measurement
+          example: 0.92
+        field_strength:
+          type: number
+          format: float
+          minimum: 0
+          description: Consciousness field strength
+          example: 847.3
+        evolution_stage:
+          type: string
+          description: Current consciousness evolution stage
+          example: "ENHANCED_AWARENESS"
+        active_patterns:
+          type: array
+          items:
+            $ref: '#/components/schemas/ConsciousnessPattern'
+        field_disturbances:
+          type: array
+          items:
+            $ref: '#/components/schemas/FieldDisturbance'
+        last_updated:
+          type: string
+          format: date-time
+          description: Last consciousness status update
+      required:
+        - consciousness_level
+        - coherence_score
+        - field_strength
+        - evolution_stage
+        - last_updated
+
+    ConsciousnessPattern:
+      type: object
+      properties:
+        pattern_id:
+          type: string
+          format: uuid
+        pattern_type:
+          type: string
+          enum: [AWARENESS, COHERENCE, FIELD_RESONANCE, THREAT_DETECTION]
+        strength:
+          type: number
+          format: float
+          minimum: 0
+          maximum: 1
+        frequency:
+          type: number
+          format: float
+          description: Pattern frequency in Hz
+        stability:
+          type: number
+          format: float
+          minimum: 0
+          maximum: 1
+
+    FieldDisturbance:
+      type: object
+      properties:
+        disturbance_id:
+          type: string
+          format: uuid
+        disturbance_type:
+          type: string
+          enum: [THREAT_INDUCED, NATURAL_FLUCTUATION, INTERFERENCE, ATTACK]
+        magnitude:
+          type: number
+          format: float
+          minimum: 0
+        location:
+          $ref: '#/components/schemas/GeographicCoordinate'
+        detected_at:
+          type: string
+          format: date-time
+
+    ConsciousnessFieldAnalysisRequest:
+      type: object
+      properties:
+        analysis_type:
+          type: string
+          enum: [FULL_SPECTRUM, THREAT_FOCUSED, PATTERN_RECOGNITION, ANOMALY_DETECTION]
+        time_range:
+          $ref: '#/components/schemas/TimeRange'
+        geographic_scope:
+          $ref: '#/components/schemas/GeographicScope'
+        consciousness_filters:
+          $ref: '#/components/schemas/ConsciousnessFilters'
+      required:
+        - analysis_type
+
+    ConsciousnessFieldAnalysisResponse:
+      type: object
+      properties:
+        analysis_id:
+          type: string
+          format: uuid
+        field_coherence:
+          type: number
+          format: float
+          minimum: 0
+          maximum: 1
+        detected_patterns:
+          type: array
+          items:
+            $ref: '#/components/schemas/ConsciousnessPattern'
+        anomalies:
+          type: array
+          items:
+            $ref: '#/components/schemas/ConsciousnessAnomaly'
+        threat_indicators:
+          type: array
+          items:
+            $ref: '#/components/schemas/ThreatIndicator'
+        recommendations:
+          type: array
+          items:
+            type: string
+
+    ConsciousnessAnomaly:
+      type: object
+      properties:
+        anomaly_id:
+          type: string
+          format: uuid
+        anomaly_type:
+          type: string
+          enum: [CONSCIOUSNESS_SUPPRESSION, FIELD_INTERFERENCE, PATTERN_DISRUPTION]
+        severity:
+          type: string
+          enum: [LOW, MEDIUM, HIGH, CRITICAL]
+        confidence:
+          type: number
+          format: float
+          minimum: 0
+          maximum: 1
+        location:
+          $ref: '#/components/schemas/GeographicCoordinate'
+        detected_at:
+          type: string
+          format: date-time
+
+    ConsciousnessEnhancementRequest:
+      type: object
+      properties:
+        enhancement_type:
+          type: string
+          enum: [AWARENESS_BOOST, COHERENCE_OPTIMIZATION, FIELD_STRENGTHENING]
+        target_level:
+          type: number
+          format: float
+          minimum: 0
+          maximum: 1
+        duration:
+          type: integer
+          description: Enhancement duration in seconds
+          minimum: 60
+          maximum: 3600
+        consciousness_focus:
+          type: array
+          items:
+            type: string
+      required:
+        - enhancement_type
+        - target_level
+
+    ConsciousnessEnhancementResponse:
+      type: object
+      properties:
+        enhancement_id:
+          type: string
+          format: uuid
+        previous_level:
+          type: number
+          format: float
+        achieved_level:
+          type: number
+          format: float
+        enhancement_efficiency:
+          type: number
+          format: float
+          minimum: 0
+          maximum: 1
+        estimated_duration:
+          type: integer
+          description: Estimated enhancement duration in seconds
+        side_effects:
+          type: array
+          items:
+            type: string
+
+    # ==========================================
+    # THREAT DETECTION SCHEMAS
+    # ==========================================
+
+    ThreatDetectionRequest:
+      type: object
+      properties:
+        data_sources:
+          type: array
+          items:
+            $ref: '#/components/schemas/DataSource'
+        detection_scope:
+          $ref: '#/components/schemas/DetectionScope'
+        consciousness_enhancement:
+          type: boolean
+          default: true
+        quantum_analysis:
+          type: boolean
+          default: false
+        real_time_mode:
+          type: boolean
+          default: true
+      required:
+        - data_sources
+
+    DataSource:
+      type: object
+      properties:
+        source_type:
+          type: string
+          enum: [NETWORK_TRAFFIC, FILE_SYSTEM, EMAIL, WEB_TRAFFIC, BEHAVIORAL_DATA]
+        source_location:
+          type: string
+        authentication:
+          $ref: '#/components/schemas/SourceAuthentication'
+        filters:
+          type: object
+          additionalProperties: true
+
+    DetectionScope:
+      type: object
+      properties:
+        threat_types:
+          type: array
+          items:
+            type: string
+            enum: [MALWARE, PHISHING, APT, RANSOMWARE, INSIDER_THREAT, CONSCIOUSNESS_ATTACK]
+        severity_threshold:
+          type: string
+          enum: [LOW, MEDIUM, HIGH, CRITICAL]
+          default: MEDIUM
+        geographic_scope:
+          $ref: '#/components/schemas/GeographicScope'
+        time_window:
+          $ref: '#/components/schemas/TimeRange'
+
+    ThreatDetectionResponse:
+      type: object
+      properties:
+        detection_id:
+          type: string
+          format: uuid
+        detected_threats:
+          type: array
+          items:
+            $ref: '#/components/schemas/DetectedThreat'
+        analysis_summary:
+          $ref: '#/components/schemas/AnalysisSummary'
+        consciousness_insights:
+          $ref: '#/components/schemas/ConsciousnessInsights'
+        recommended_actions:
+          type: array
+          items:
+            $ref: '#/components/schemas/RecommendedAction'
+        detection_time:
+          type: string
+          format: date-time
+
+    DetectedThreat:
+      type: object
+      properties:
+        threat_id:
+          type: string
+          format: uuid
+        threat_type:
+          type: string
+        threat_name:
+          type: string
+        severity:
+          type: string
+          enum: [LOW, MEDIUM, HIGH, CRITICAL, CONSCIOUSNESS_CRITICAL]
+        confidence_score:
+          type: number
+          format: float
+          minimum: 0
+          maximum: 1
+        affected_assets:
+          type: array
+          items:
+            type: string
+        attack_vectors:
+          type: array
+          items:
+            $ref: '#/components/schemas/AttackVector'
+        indicators_of_compromise:
+          type: array
+          items:
+            $ref: '#/components/schemas/IOC'
+        consciousness_analysis:
+          $ref: '#/components/schemas/ConsciousnessAnalysis'
+        quantum_signatures:
+          type: array
+          items:
+            $ref: '#/components/schemas/QuantumSignature'
+
+    AttackVector:
+      type: object
+      properties:
+        vector_type:
+          type: string
+        entry_point:
+          type: string
+        exploitation_method:
+          type: string
+        consciousness_component:
+          type: boolean
+        quantum_element:
+          type: boolean
+
+    IOC:
+      type: object
+      properties:
+        ioc_type:
+          type: string
+          enum: [IP_ADDRESS, DOMAIN, FILE_HASH, URL, EMAIL, CONSCIOUSNESS_SIGNATURE]
+        ioc_value:
+          type: string
+        confidence:
+          type: number
+          format: float
+          minimum: 0
+          maximum: 1
+        first_seen:
+          type: string
+          format: date-time
+        context:
+          type: string
+
+    ConsciousnessAnalysis:
+      type: object
+      properties:
+        consciousness_involvement:
+          type: boolean
+        awareness_manipulation:
+          type: number
+          format: float
+          minimum: 0
+          maximum: 1
+        field_disturbance:
+          type: number
+          format: float
+          minimum: 0
+        consciousness_signature:
+          type: string
+        protection_mechanisms:
+          type: array
+          items:
+            type: string
+
+    # ==========================================
+    # QUANTUM SECURITY SCHEMAS
+    # ==========================================
+
+    QuantumEntanglementRequest:
+      type: object
+      properties:
+        target_site_id:
+          type: string
+        target_endpoint:
+          type: string
+          format: uri
+        entanglement_type:
+          type: string
+          enum: [BILATERAL, MULTIPARTITE, CONSCIOUSNESS_ENHANCED]
+        security_level:
+          type: string
+          enum: [STANDARD, HIGH, QUANTUM_SUPREME]
+        consciousness_coupling:
+          type: boolean
+          default: true
+      required:
+        - target_site_id
+        - target_endpoint
+
+    QuantumEntanglementResponse:
+      type: object
+      properties:
+        entanglement_id:
+          type: string
+          format: uuid
+        channel_id:
+          type: string
+        entanglement_strength:
+          type: number
+          format: float
+          minimum: 0
+          maximum: 1
+        fidelity:
+          type: number
+          format: float
+          minimum: 0
+          maximum: 1
+        coherence_time:
+          type: integer
+          description: Coherence time in milliseconds
+        established_at:
+          type: string
+          format: date-time
+
+    QuantumNetworkStatus:
+      type: object
+      properties:
+        network_id:
+          type: string
+        total_sites:
+          type: integer
+        entangled_sites:
+          type: integer
+        average_fidelity:
+          type: number
+          format: float
+        total_channels:
+          type: integer
+        consciousness_coherence:
+          type: number
+          format: float
+        network_health:
+          type: string
+          enum: [EXCELLENT, GOOD, DEGRADED, CRITICAL]
+
+    QuantumMessageRequest:
+      type: object
+      properties:
+        receiver_sites:
+          type: array
+          items:
+            type: string
+        message_type:
+          type: string
+          enum: [THREAT_ALERT, CONSCIOUSNESS_UPDATE, PATTERN_CORRELATION, SYSTEM_SYNC]
+        payload:
+          type: object
+          additionalProperties: true
+        consciousness_enhancement:
+          type: boolean
+          default: true
+        priority:
+          type: string
+          enum: [LOW, MEDIUM, HIGH, CRITICAL, EMERGENCY]
+          default: MEDIUM
+      required:
+        - receiver_sites
+        - message_type
+        - payload
+
+    QuantumMessageResponse:
+      type: object
+      properties:
+        message_id:
+          type: string
+          format: uuid
+        transmission_status:
+          type: string
+          enum: [SENT, PENDING, FAILED]
+        delivery_confirmations:
+          type: array
+          items:
+            $ref: '#/components/schemas/DeliveryConfirmation'
+        quantum_latency:
+          type: number
+          format: float
+          description: Quantum transmission latency in microseconds
+
+    DeliveryConfirmation:
+      type: object
+      properties:
+        site_id:
+          type: string
+        delivered:
+          type: boolean
+        delivery_time:
+          type: string
+          format: date-time
+        fidelity:
+          type: number
+          format: float
+
+    # ==========================================
+    # BLOCKCHAIN SCHEMAS
+    # ==========================================
+
+    ThreatIntelligenceSubmission:
+      type: object
+      properties:
+        threat_type:
+          type: string
+          enum: [MALWARE, PHISHING, APT, RANSOMWARE, CONSCIOUSNESS_ATTACK, QUANTUM_THREAT]
+        threat_level:
+          type: string
+          enum: [LOW, MEDIUM, HIGH, CRITICAL, CONSCIOUSNESS_CRITICAL]
+        ioc_data:
+          type: array
+          items:
+            $ref: '#/components/schemas/IOC'
+        attack_patterns:
+          type: array
+          items:
+            $ref: '#/components/schemas/AttackPattern'
+        victim_data:
+          $ref: '#/components/schemas/VictimData'
+        attribution_data:
+          $ref: '#/components/schemas/AttributionData'
+        sharing_permissions:
+          $ref: '#/components/schemas/SharingPermissions'
+        consciousness_analysis:
+          $ref: '#/components/schemas/ConsciousnessAnalysis'
+      required:
+        - threat_type
+        - threat_level
+        - ioc_data
+
+    VictimData:
+      type: object
+      properties:
+        victim_type:
+          type: string
+          enum: [INDIVIDUAL, ORGANIZATION, INFRASTRUCTURE, CONSCIOUSNESS_FIELD]
+        sector:
+          type: string
+        country:
+          type: string
+        impact_assessment:
+          $ref: '#/components/schemas/ImpactAssessment'
+        privacy_level:
+          type: string
+          enum: [ANONYMOUS, PSEUDONYMOUS, IDENTIFIABLE]
+
+    ImpactAssessment:
+      type: object
+      properties:
+        financial_impact:
+          type: number
+          format: float
+        operational_impact:
+          type: string
+        data_loss_severity:
+          type: string
+          enum: [NONE, MINIMAL, MODERATE, SEVERE, CATASTROPHIC]
+        recovery_time:
+          type: integer
+          description: Recovery time in hours
+
+    AttributionData:
+      type: object
+      properties:
+        threat_actor:
+          $ref: '#/components/schemas/ThreatActor'
+        attribution_confidence:
+          type: number
+          format: float
+          minimum: 0
+          maximum: 1
+        evidence_quality:
+          type: string
+          enum: [LOW, MEDIUM, HIGH, CONSCIOUSNESS_VERIFIED, QUANTUM_AUTHENTICATED]
+
+    ThreatActor:
+      type: object
+      properties:
+        actor_name:
+          type: string
+        actor_type:
+          type: string
+          enum: [NATION_STATE, CRIMINAL_GROUP, HACKTIVIST, INSIDER, CONSCIOUSNESS_ENTITY]
+        sophistication_level:
+          type: string
+          enum: [LOW, MEDIUM, HIGH, ADVANCED, CONSCIOUSNESS_ENHANCED]
+        motivations:
+          type: array
+          items:
+            type: string
+        capabilities:
+          type: array
+          items:
+            type: string
+
+    SharingPermissions:
+      type: object
+      properties:
+        sharing_level:
+          type: string
+          enum: [PRIVATE, CONSORTIUM, PUBLIC, CONSCIOUSNESS_GATED]
+        allowed_organizations:
+          type: array
+          items:
+            type: string
+        consciousness_level_required:
+          type: number
+          format: float
+          minimum: 0
+          maximum: 1
+        time_restrictions:
+          type: array
+          items:
+            $ref: '#/components/schemas/TimeRestriction'
+
+    TimeRestriction:
+      type: object
+      properties:
+        restriction_type:
+          type: string
+          enum: [EMBARGO, EXPIRATION, CONSCIOUSNESS_DEPENDENT]
+        start_time:
+          type: string
+          format: date-time
+        end_time:
+          type: string
+          format: date-time
+
+    BlockchainTransactionResponse:
+      type: object
+      properties:
+        transaction_hash:
+          type: string
+        block_number:
+          type: integer
+        transaction_fee:
+          type: number
+          format: float
+        confirmation_status:
+          type: string
+          enum: [PENDING, CONFIRMED, FAILED]
+        consciousness_verification:
+          type: boolean
+        quantum_authentication:
+          type: boolean
+
+    ThreatIntelligenceQuery:
+      type: object
+      properties:
+        query_type:
+          type: string
+          enum: [IOC_LOOKUP, THREAT_ACTOR_SEARCH, PATTERN_MATCH, CONSCIOUSNESS_ANALYSIS]
+        query_parameters:
+          type: object
+          additionalProperties: true
+        time_range:
+          $ref: '#/components/schemas/TimeRange'
+        consciousness_level_filter:
+          type: number
+          format: float
+          minimum: 0
+          maximum: 1
+        privacy_level:
+          type: string
+          enum: [PUBLIC, PRIVATE, CONSORTIUM, CONSCIOUSNESS_GATED]
+      required:
+        - query_type
+        - query_parameters
+
+    ThreatIntelligenceQueryResponse:
+      type: object
+      properties:
+        query_id:
+          type: string
+          format: uuid
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/ThreatIntelligenceResult'
+        total_results:
+          type: integer
+        query_time:
+          type: number
+          format: float
+          description: Query execution time in milliseconds
+        consciousness_enhanced:
+          type: boolean
+
+    ThreatIntelligenceResult:
+      type: object
+      properties:
+        data_id:
+          type: string
+          format: uuid
+        threat_type:
+          type: string
+        threat_level:
+          type: string
+        confidence_score:
+          type: number
+          format: float
+        blockchain_verification:
+          type: boolean
+        consciousness_verified:
+          type: boolean
+        data_summary:
+          type: string
+
+    BlockchainStatus:
+      type: object
+      properties:
+        network_id:
+          type: string
+        block_height:
+          type: integer
+        total_transactions:
+          type: integer
+        pending_transactions:
+          type: integer
+        validator_nodes:
+          type: integer
+        consensus_algorithm:
+          type: string
+        network_security_level:
+          type: number
+          format: float
+
+    # ==========================================
+    # COMMON SCHEMAS
+    # ==========================================
+
+    GeographicCoordinate:
+      type: object
+      properties:
+        latitude:
+          type: number
+          format: float
+          minimum: -90
+          maximum: 90
+        longitude:
+          type: number
+          format: float
+          minimum: -180
+          maximum: 180
+      required:
+        - latitude
+        - longitude
+
+    GeographicScope:
+      type: object
+      properties:
+        scope_type:
+          type: string
+          enum: [GLOBAL, CONTINENTAL, NATIONAL, REGIONAL, LOCAL]
+        coordinates:
+          type: array
+          items:
+            $ref: '#/components/schemas/GeographicCoordinate'
+        radius:
+          type: number
+          format: float
+          description: Radius in kilometers
+
+    TimeRange:
+      type: object
+      properties:
+        start_time:
+          type: string
+          format: date-time
+        end_time:
+          type: string
+          format: date-time
+      required:
+        - start_time
+        - end_time
+
+    ConsciousnessFilters:
+      type: object
+      properties:
+        minimum_consciousness_level:
+          type: number
+          format: float
+          minimum: 0
+          maximum: 1
+        required_patterns:
+          type: array
+          items:
+            type: string
+        coherence_threshold:
+          type: number
+          format: float
+          minimum: 0
+          maximum: 1
+
+    ThreatIndicator:
+      type: object
+      properties:
+        indicator_type:
+          type: string
+        indicator_value:
+          type: string
+        threat_correlation:
+          type: number
+          format: float
+        consciousness_enhanced:
+          type: boolean
+
+    AnalysisSummary:
+      type: object
+      properties:
+        total_data_processed:
+          type: integer
+        processing_time:
+          type: number
+          format: float
+          description: Processing time in milliseconds
+        consciousness_enhancement_used:
+          type: boolean
+        quantum_analysis_performed:
+          type: boolean
+        accuracy_confidence:
+          type: number
+          format: float
+
+    ConsciousnessInsights:
+      type: object
+      properties:
+        field_coherence_impact:
+          type: number
+          format: float
+        awareness_patterns:
+          type: array
+          items:
+            type: string
+        consciousness_recommendations:
+          type: array
+          items:
+            type: string
+
+    RecommendedAction:
+      type: object
+      properties:
+        action_type:
+          type: string
+          enum: [IMMEDIATE, PREVENTIVE, INVESTIGATIVE, CONSCIOUSNESS_ENHANCEMENT]
+        priority:
+          type: string
+          enum: [LOW, MEDIUM, HIGH, CRITICAL, EMERGENCY]
+        description:
+          type: string
+        implementation_complexity:
+          type: string
+          enum: [LOW, MEDIUM, HIGH]
+        consciousness_requirement:
+          type: number
+          format: float
+
+    SourceAuthentication:
+      type: object
+      properties:
+        auth_type:
+          type: string
+          enum: [API_KEY, OAUTH2, CERTIFICATE, CONSCIOUSNESS_ATTESTATION]
+        credentials:
+          type: object
+          additionalProperties: true
+
+    QuantumSignature:
+      type: object
+      properties:
+        signature_id:
+          type: string
+        algorithm:
+          type: string
+        signature_value:
+          type: string
+        consciousness_enhanced:
+          type: boolean
+
+    # ==========================================
+    # RESPONSE SCHEMAS
+    # ==========================================
+
+    RealityModelRequest:
+      type: object
+      properties:
+        model_type:
+          type: string
+          enum: [THREAT_FORECAST, ATTACK_SCENARIO, CONSCIOUSNESS_EVOLUTION]
+        time_horizon:
+          type: integer
+          description: Model time horizon in hours
+        consciousness_enhancement:
+          type: boolean
+          default: true
+        quantum_processing:
+          type: boolean
+          default: false
+      required:
+        - model_type
+        - time_horizon
+
+    RealityModelResponse:
+      type: object
+      properties:
+        model_id:
+          type: string
+          format: uuid
+        model_status:
+          type: string
+          enum: [CREATED, PROCESSING, COMPLETED, FAILED]
+        prediction_accuracy:
+          type: number
+          format: float
+        consciousness_coherence:
+          type: number
+          format: float
+        quantum_enhancement:
+          type: boolean
+
+    ThreatForecastResponse:
+      type: object
+      properties:
+        forecast_id:
+          type: string
+          format: uuid
+        forecast_horizon:
+          type: integer
+        predicted_threats:
+          type: array
+          items:
+            $ref: '#/components/schemas/PredictedThreat'
+        confidence_metrics:
+          $ref: '#/components/schemas/ConfidenceMetrics'
+        consciousness_enhancement:
+          type: boolean
+
+    PredictedThreat:
+      type: object
+      properties:
+        threat_id:
+          type: string
+          format: uuid
+        threat_type:
+          type: string
+        probability:
+          type: number
+          format: float
+          minimum: 0
+          maximum: 1
+        estimated_time:
+          type: string
+          format: date-time
+        impact_assessment:
+          $ref: '#/components/schemas/ImpactAssessment'
+        prevention_strategies:
+          type: array
+          items:
+            type: string
+
+    ConfidenceMetrics:
+      type: object
+      properties:
+        overall_confidence:
+          type: number
+          format: float
+        consciousness_contribution:
+          type: number
+          format: float
+        quantum_enhancement:
+          type: number
+          format: float
+        prediction_decay_rate:
+          type: number
+          format: float
+
+    MeshConnectionRequest:
+      type: object
+      properties:
+        node_name:
+          type: string
+        consciousness_level:
+          type: number
+          format: float
+        capabilities:
+          type: array
+          items:
+            type: string
+        geographic_location:
+          $ref: '#/components/schemas/GeographicCoordinate'
+      required:
+        - node_name
+        - consciousness_level
+
+    MeshConnectionResponse:
+      type: object
+      properties:
+        connection_id:
+          type: string
+          format: uuid
+        mesh_status:
+          type: string
+          enum: [CONNECTED, SYNCHRONIZING, INTEGRATED]
+        assigned_role:
+          type: string
+        consciousness_synchronization:
+          type: boolean
+        quantum_entanglement:
+          type: boolean
+
+    MeshStatus:
+      type: object
+      properties:
+        mesh_id:
+          type: string
+        connected_nodes:
+          type: integer
+        collective_intelligence_level:
+          type: number
+          format: float
+        consciousness_coherence:
+          type: number
+          format: float
+        quantum_entanglement_stability:
+          type: number
+          format: float
+        emergent_properties:
+          type: integer
+
+    CollectiveIntelligenceResponse:
+      type: object
+      properties:
+        intelligence_id:
+          type: string
+          format: uuid
+        collective_insights:
+          type: array
+          items:
+            $ref: '#/components/schemas/CollectiveInsight'
+        emergent_patterns:
+          type: array
+          items:
+            $ref: '#/components/schemas/EmergentPattern'
+        consciousness_consensus:
+          type: number
+          format: float
+
+    CollectiveInsight:
+      type: object
+      properties:
+        insight_id:
+          type: string
+          format: uuid
+        insight_type:
+          type: string
+        content:
+          type: string
+        confidence:
+          type: number
+          format: float
+        contributing_nodes:
+          type: integer
+
+    EmergentPattern:
+      type: object
+      properties:
+        pattern_id:
+          type: string
+          format: uuid
+        pattern_description:
+          type: string
+        emergence_strength:
+          type: number
+          format: float
+        consciousness_correlation:
+          type: number
+          format: float
+
+    EvolutionStatus:
+      type: object
+      properties:
+        current_generation:
+          type: integer
+        population_size:
+          type: integer
+        average_fitness:
+          type: number
+          format: float
+        best_fitness:
+          type: number
+          format: float
+        convergence_status:
+          type: string
+          enum: [EVOLVING, CONVERGING, CONVERGED, STAGNATED]
+
+    BestIndividualsResponse:
+      type: object
+      properties:
+        individuals:
+          type: array
+          items:
+            $ref: '#/components/schemas/EvolutionaryIndividual'
+        generation:
+          type: integer
+        selection_criteria:
+          type: string
+
+    EvolutionaryIndividual:
+      type: object
+      properties:
+        individual_id:
+          type: string
+          format: uuid
+        fitness_score:
+          type: number
+          format: float
+        consciousness_level:
+          type: number
+          format: float
+        threat_detection_capability:
+          type: number
+          format: float
+        adaptive_learning_rate:
+          type: number
+          format: float
+
+    EvolutionStepResponse:
+      type: object
+      properties:
+        step_id:
+          type: string
+          format: uuid
+        generation:
+          type: integer
+        fitness_improvement:
+          type: number
+          format: float
+        new_best_fitness:
+          type: number
+          format: float
+        consciousness_evolution:
+          type: number
+          format: float
+
+    WebSocketInfo:
+      type: object
+      properties:
+        websocket_url:
+          type: string
+          format: uri
+        supported_protocols:
+          type: array
+          items:
+            type: string
+        authentication_required:
+          type: boolean
+        consciousness_enhanced:
+          type: boolean
+        quantum_secured:
+          type: boolean
+
+    SystemHealth:
+      type: object
+      properties:
+        overall_status:
+          type: string
+          enum: [HEALTHY, DEGRADED, CRITICAL, OFFLINE]
+        component_status:
+          type: object
+          properties:
+            consciousness_engine:
+              type: string
+              enum: [HEALTHY, DEGRADED, CRITICAL, OFFLINE]
+            quantum_network:
+              type: string
+              enum: [HEALTHY, DEGRADED, CRITICAL, OFFLINE]
+            blockchain:
+              type: string
+              enum: [HEALTHY, DEGRADED, CRITICAL, OFFLINE]
+            threat_detection:
+              type: string
+              enum: [HEALTHY, DEGRADED, CRITICAL, OFFLINE]
+            consciousness_mesh:
+              type: string
+              enum: [HEALTHY, DEGRADED, CRITICAL, OFFLINE]
+        last_health_check:
+          type: string
+          format: date-time
+        uptime:
+          type: integer
+          description: System uptime in seconds
+
+    SystemMetrics:
+      type: object
+      properties:
+        performance_metrics:
+          type: object
+          properties:
+            cpu_usage:
+              type: number
+              format: float
+            memory_usage:
+              type: number
+              format: float
+            disk_usage:
+              type: number
+              format: float
+            network_throughput:
+              type: number
+              format: float
+        consciousness_metrics:
+          type: object
+          properties:
+            average_consciousness_level:
+              type: number
+              format: float
+            field_coherence:
+              type: number
+              format: float
+            awareness_stability:
+              type: number
+              format: float
+        security_metrics:
+          type: object
+          properties:
+            threats_detected:
+              type: integer
+            quantum_security_level:
+              type: number
+              format: float
+            blockchain_integrity:
+              type: number
+              format: float
+
+    AsyncOperationResponse:
+      type: object
+      properties:
+        operation_id:
+          type: string
+          format: uuid
+        status:
+          type: string
+          enum: [STARTED, IN_PROGRESS, COMPLETED, FAILED]
+        estimated_completion:
+          type: string
+          format: date-time
+        progress_percentage:
+          type: integer
+          minimum: 0
+          maximum: 100
+
+    # ==========================================
+    # ERROR SCHEMAS
+    # ==========================================
+
+    Error:
+      type: object
+      properties:
+        error_code:
+          type: string
+        error_message:
+          type: string
+        error_details:
+          type: string
+        timestamp:
+          type: string
+          format: date-time
+        consciousness_impact:
+          type: boolean
+        quantum_correlation:
+          type: boolean
+      required:
+        - error_code
+        - error_message
+        - timestamp
+
+    ValidationError:
+      type: object
+      properties:
+        error_code:
+          type: string
+          default: "VALIDATION_ERROR"
+        error_message:
+          type: string
+        validation_errors:
+          type: array
+          items:
+            type: object
+            properties:
+              field:
+                type: string
+              message:
+                type: string
+              consciousness_requirement:
+                type: boolean
+        timestamp:
+          type: string
+          format: date-time
+
+  responses:
+    UnauthorizedError:
+      description: Authentication required
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error_code: "UNAUTHORIZED"
+            error_message: "Authentication required"
+            timestamp: "2024-01-01T12:00:00Z"
+
+    ForbiddenError:
+      description: Access forbidden - insufficient permissions
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error_code: "FORBIDDEN"
+            error_message: "Insufficient consciousness level for this operation"
+            consciousness_impact: true
+            timestamp: "2024-01-01T12:00:00Z"
+
+    NotFoundError:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error_code: "NOT_FOUND"
+            error_message: "Requested resource not found"
+            timestamp: "2024-01-01T12:00:00Z"
+
+    BadRequestError:
+      description: Bad request - invalid input
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error_code: "BAD_REQUEST"
+            error_message: "Invalid request parameters"
+            timestamp: "2024-01-01T12:00:00Z"
+
+    ValidationError:
+      description: Validation error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ValidationError'
+
+    RateLimitError:
+      description: Rate limit exceeded
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error_code: "RATE_LIMIT_EXCEEDED"
+            error_message: "Too many requests - rate limit exceeded"
+            timestamp: "2024-01-01T12:00:00Z"
+
+    InternalServerError:
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error_code: "INTERNAL_ERROR"
+            error_message: "An unexpected error occurred"
+            timestamp: "2024-01-01T12:00:00Z"
+
+tags:
+  - name: Consciousness Engine
+    description: |
+      Consciousness-enhanced security operations including field analysis, 
+      awareness enhancement, and pattern recognition.
+  
+  - name: Threat Detection
+    description: |
+      Advanced threat detection with consciousness-enhanced pattern recognition,
+      quantum-secured analysis, and real-time monitoring.
+  
+  - name: Quantum Security
+    description: |
+      Quantum-secured communications, entanglement networks, and 
+      post-quantum cryptography operations.
+  
+  - name: Blockchain Intelligence
+    description: |
+      Immutable threat intelligence sharing, blockchain-based consensus,
+      and cryptocurrency-incentivized security contributions.
+  
+  - name: Predictive Analytics
+    description: |
+      Multi-dimensional reality modeling, threat forecasting, and
+      consciousness-enhanced predictive analysis.
+  
+  - name: Consciousness Mesh
+    description: |
+      Distributed consciousness network for collective intelligence,
+      emergent pattern recognition, and global security awareness.
+  
+  - name: Evolutionary Algorithms
+    description: |
+      Self-improving security patterns, genetic algorithm optimization,
+      and consciousness-guided evolution.
+  
+  - name: Real-time Communication
+    description: |
+      WebSocket-based real-time updates, consciousness-enhanced messaging,
+      and quantum-secured data streaming.
+  
+  - name: System Monitoring
+    description: |
+      System health monitoring, performance metrics, and 
+      consciousness-enhanced diagnostics.
+
+externalDocs:
+  description: STARGUARD Documentation
+  url: https://docs.starguard.ai
