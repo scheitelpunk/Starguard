@@ -1,5 +1,5 @@
 import { renderHook, act } from '@testing-library/react';
-import { useConsciousnessStore } from '@/stores/consciousnessStore';
+import { useConsciousnessStore } from '../../stores/consciousnessStore';
 import { CONSCIOUSNESS_STATES, IQuantumSecurityConsciousness, IConsciousnessState } from '@starguard/shared';
 
 describe('consciousnessStore', () => {

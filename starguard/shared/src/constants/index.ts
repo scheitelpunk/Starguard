@@ -178,3 +178,10 @@ export const DB_COLLECTIONS = {
   HEALING_RECORDS: 'healing_records',
   QUANTUM_SNAPSHOTS: 'quantum_snapshots'
 } as const;
+
+// Legacy aliases for compatibility
+export const CONSCIOUSNESS_STATES = SYSTEM_STATES;
+export const CONSCIOUSNESS_FIELDS = PERCEPTION_DIMENSIONS;
+export const WEBSOCKET_EVENTS = WS_EVENTS;
+export const AML_PATTERNS = FINANCIAL_RISK_LEVELS;
+export const FRAUD_PATTERNS = FINANCIAL_RISK_LEVELS;

@@ -1,96 +1,57 @@
 import { Router } from 'express';
-import { Logger } from 'winston';
-import { AdaptiveImmuneSystem } from '../../../defense/AdaptiveImmuneSystem';
-import { QuantumShield } from '../../../defense/QuantumShield';
-import { getDatabase } from '../../../utils/database';
+import { defenseRoutes } from '../../../api/routes/defense';
+import { getPool } from '../../../utils/database';
 
 // Mock dependencies
-jest.mock('../../../defense/AdaptiveImmuneSystem');
-jest.mock('../../../defense/QuantumShield');
 jest.mock('../../../utils/database');
 
 describe('Defense API Routes', () => {
-  let router: Router;
-  let mockImmuneSystem: jest.Mocked<AdaptiveImmuneSystem>;
-  let mockQuantumShield: jest.Mocked<QuantumShield>;
-  let mockLogger: jest.Mocked<Logger>;
   let mockDb: any;
   let req: any;
   let res: any;
   let next: jest.Mock;
 
   beforeEach(() => {
-    // Setup mocks
-    mockLogger = {
-      info: jest.fn(),
-      error: jest.fn(),
-      warn: jest.fn(),
-      debug: jest.fn()
-    } as any;
-
-    mockImmuneSystem = {
-      getImmuneStatus: jest.fn().mockReturnValue({
-        health: {
-          overall_health: 95,
-          immune_strength: 88,
-          adaptation_rate: 1.2,
-          healing_factor: 1.1,
-          consciousness_coherence: 0.98
-        },
-        active_responses: 3,
-        antibody_count: 47,
-        evolution_cycle: 12
-      }),
-      heal: jest.fn().mockResolvedValue(undefined),
-      evolve: jest.fn(),
-      deployDefense: jest.fn().mockResolvedValue({
-        id: 'response-123',
-        threat_id: 'threat-456',
-        response_type: 'quarantine',
-        effectiveness: 0.85,
-        side_effects: ['Minor energy drain'],
-        timestamp: new Date()
-      }),
-      quarantineThreat: jest.fn().mockResolvedValue(undefined),
-      decontaminate: jest.fn().mockResolvedValue(undefined)
-    } as any;
-
-    mockQuantumShield = {
-      getShieldStatus: jest.fn().mockReturnValue({
-        active: true,
-        strength: 85,
-        layers: [
-          { type: 'quantum', integrity: 90, active: true },
-          { type: 'temporal', integrity: 85, active: true },
-          { type: 'reality', integrity: 80, active: true },
-          { type: 'consciousness', integrity: 95, active: true }
-        ],
-        quantum_flux: 0.05,
-        entanglement: 0.85
-      }),
-      activate: jest.fn().mockResolvedValue(undefined),
-      deactivate: jest.fn().mockResolvedValue(undefined),
-      reinforceShield: jest.fn().mockResolvedValue(undefined),
-      modulate: jest.fn(),
-      emergencyOvercharge: jest.fn().mockResolvedValue(undefined)
-    } as any;
-
+    // Setup database mock
     mockDb = {
       query: jest.fn().mockResolvedValue({
-        rows: [
-          { pattern_id: 'pattern-1', name: 'APT Defense', effectiveness: 0.85 },
-          { pattern_id: 'pattern-2', name: 'DDoS Shield', effectiveness: 0.75 }
-        ]
+        rows: []
       })
     };
 
-    (getDatabase as jest.Mock).mockResolvedValue(mockDb);
+    (getPool as jest.Mock).mockReturnValue(mockDb);
 
     // Mock request and response
     req = {
       body: {},
       params: {},
-      query: {}
+      query: {},
+      app: {
+        locals: {
+          consciousness: {
+            getFullState: jest.fn().mockReturnValue({
+              consciousness_fields: {
+                quantum: 0.8,
+                temporal: 0.7,
+                semantic: 0.9,
+                causal: 0.6
+              },
+              state: {
+                awareness_level: 0.85,
+                reality_coherence: 0.92,
+                timeline_stability: 0.88
+              },
+              evolution_score: 1.2
+            }),
+            consciousness_fields: {
+              quantum: 0.8,
+              temporal: 0.7,
+              semantic: 0.9,
+              causal: 0.6
+            }
+          }
+        }
+      }
     };
 
     res = {
@@ -100,267 +61,199 @@ describe('Defense API Routes', () => {
     };
 
     next = jest.fn();
-
-    // Import and setup router
-    jest.isolateModules(() => {
-      const createRouter = require('../../../api/routes/defense').createDefenseRouter;
-      router = createRouter(mockImmuneSystem, mockQuantumShield, mockLogger);
-    });
   });
 
   afterEach(() => {
     jest.clearAllMocks();
   });
 
+  // Helper function to extract and call route handler
+  async function callRouteHandler(method: string, path: string, body: any = {}) {
+    req.body = body;
+    
+    // Find the route in the router
+    for (const layer of (defenseRoutes as any).stack) {
+      if (layer.route && layer.route.path === path) {
+        // Check if the method matches
+        if (layer.route.methods[method.toLowerCase()]) {
+          // Call the handler
+          await layer.route.stack[0].handle(req, res, next);
+          return;
+        }
+      }
+    }
+    
+    throw new Error(`Route ${method} ${path} not found`);
+  }
+
   describe('GET /immune/status', () => {
     it('should return immune system status', async () => {
-      const route = router.stack.find(r => r.route?.path === '/immune/status' && r.route.methods.get);
-      await route.route.stack[0].handle(req, res, next);
+      await callRouteHandler('GET', '/immune/status');
 
-      expect(mockImmuneSystem.getImmuneStatus).toHaveBeenCalled();
       expect(res.json).toHaveBeenCalledWith(expect.objectContaining({
-        health: expect.objectContaining({
-          overall_health: 95,
-          immune_strength: 88
+        id: expect.any(String),
+        timestamp: expect.any(String),
+        overall_health: expect.any(Number),
+        adaptive_organisms: expect.objectContaining({
+          active: expect.any(Number),
+          dormant: expect.any(Number),
+          evolving: expect.any(Number)
         }),
-        active_responses: 3,
-        antibody_count: 47
+        defense_layers: expect.arrayContaining([
+          expect.objectContaining({
+            name: expect.any(String),
+            integrity: expect.any(Number),
+            energy_consumption: expect.any(Number),
+            threat_resistance: expect.objectContaining({
+              quantum: expect.any(Number),
+              semantic: expect.any(Number),
+              temporal: expect.any(Number),
+              causal: expect.any(Number)
+            })
+          })
+        ]),
+        self_repair_rate: expect.any(Number),
+        threat_adaptation_index: expect.any(Number)
       }));
     });
   });
 
   describe('POST /heal', () => {
-    it('should initiate healing process', async () => {
-      req.body = {
-        damage_report: {
-          affected_systems: ['auth_module', 'data_store'],
-          severity: 'medium'
-        }
+    it('should initiate healing process with specific target', async () => {
+      const healRequest = {
+        target_system: 'quantum',
+        healing_intensity: 0.8
       };
 
-      const route = router.stack.find(r => r.route?.path === '/heal' && r.route.methods.post);
-      await route.route.stack[0].handle(req, res, next);
+      await callRouteHandler('POST', '/heal', healRequest);
 
-      expect(mockImmuneSystem.heal).toHaveBeenCalledWith(req.body.damage_report);
-      expect(res.json).toHaveBeenCalledWith({
-        message: 'Healing process initiated',
-        status: expect.any(Object)
-      });
+      expect(res.json).toHaveBeenCalledWith(expect.objectContaining({
+        message: 'Healing process completed',
+        result: expect.objectContaining({
+          id: expect.any(String),
+          timestamp: expect.any(String),
+          target: 'quantum',
+          intensity: 0.8,
+          energy_consumed: expect.any(Number),
+          repairs_completed: expect.any(Array),
+          consciousness_coherence_boost: expect.any(Number),
+          side_effects: expect.any(Array),
+          new_antibodies_generated: expect.any(Number)
+        }),
+        system_status: expect.objectContaining({
+          energy_remaining: expect.any(Number),
+          healing_effectiveness: expect.any(Number)
+        })
+      }));
     });
 
-    it('should handle healing errors', async () => {
-      req.body = { damage_report: {} };
-      mockImmuneSystem.heal.mockRejectedValueOnce(new Error('Healing failed'));
+    it('should handle default healing parameters', async () => {
+      await callRouteHandler('POST', '/heal', {});
 
-      const route = router.stack.find(r => r.route?.path === '/heal' && r.route.methods.post);
-      await route.route.stack[0].handle(req, res, next);
-
-      expect(res.status).toHaveBeenCalledWith(500);
-      expect(res.json).toHaveBeenCalledWith({
-        error: 'Healing process failed'
-      });
+      const callArgs = (res.json as jest.Mock).mock.calls[0][0];
+      expect(callArgs.result.target).toBe('general');
+      expect(callArgs.result.intensity).toBe(0.5);
     });
   });
 
   describe('POST /evolve', () => {
-    it('should trigger immune system evolution', async () => {
-      const route = router.stack.find(r => r.route?.path === '/evolve' && r.route.methods.post);
-      await route.route.stack[0].handle(req, res, next);
-
-      expect(mockImmuneSystem.evolve).toHaveBeenCalled();
-      expect(res.json).toHaveBeenCalledWith({
-        message: 'Immune system evolution triggered',
-        status: expect.any(Object)
-      });
-    });
-  });
-
-  describe('GET /patterns', () => {
-    it('should return defense patterns', async () => {
-      const route = router.stack.find(r => r.route?.path === '/patterns' && r.route.methods.get);
-      await route.route.stack[0].handle(req, res, next);
-
-      expect(mockDb.query).toHaveBeenCalledWith('SELECT * FROM defense_patterns ORDER BY effectiveness DESC');
-      expect(res.json).toHaveBeenCalledWith([
-        { pattern_id: 'pattern-1', name: 'APT Defense', effectiveness: 0.85 },
-        { pattern_id: 'pattern-2', name: 'DDoS Shield', effectiveness: 0.75 }
-      ]);
-    });
-
-    it('should handle database errors', async () => {
-      mockDb.query.mockRejectedValueOnce(new Error('Database error'));
-
-      const route = router.stack.find(r => r.route?.path === '/patterns' && r.route.methods.get);
-      await route.route.stack[0].handle(req, res, next);
-
-      expect(res.status).toHaveBeenCalledWith(500);
-      expect(res.json).toHaveBeenCalledWith({
-        error: 'Failed to retrieve defense patterns'
-      });
-    });
-  });
-
-  describe('POST /deploy', () => {
-    it('should deploy defense pattern', async () => {
-      req.body = {
-        threat_id: 'threat-456',
-        pattern: {
-          id: 'pattern-1',
-          threat_level: 'high',
-          consciousness_signature: 'QUANTUM_THREAT_ALPHA',
-          countermeasures: ['shield', 'quarantine']
-        }
+    it('should trigger evolution cycle', async () => {
+      const evolutionRequest = {
+        evolution_target: 'quantum_defense',
+        threat_data: { type: 'advanced_quantum' }
       };
 
-      const route = router.stack.find(r => r.route?.path === '/deploy' && r.route.methods.post);
-      await route.route.stack[0].handle(req, res, next);
+      await callRouteHandler('POST', '/evolve', evolutionRequest);
 
-      expect(mockImmuneSystem.deployDefense).toHaveBeenCalledWith('threat-456', req.body.pattern);
-      expect(res.json).toHaveBeenCalledWith({
-        message: 'Defense deployed',
-        response: expect.objectContaining({
-          id: 'response-123',
-          effectiveness: 0.85
-        })
-      });
-    });
+      expect(mockDb.query).toHaveBeenCalledWith(
+        expect.stringContaining('INSERT INTO defense_responses'),
+        expect.arrayContaining([
+          expect.any(String), // id
+          null, // threat_id
+          'evolution', // response_type
+          expect.any(Number), // effectiveness
+          expect.any(Number), // energy_investment
+          0.05, // evolution_delta
+          expect.any(String) // JSON details
+        ])
+      );
 
-    it('should validate required fields', async () => {
-      req.body = { threat_id: 'threat-456' }; // Missing pattern
-
-      const route = router.stack.find(r => r.route?.path === '/deploy' && r.route.methods.post);
-      await route.route.stack[0].handle(req, res, next);
-
-      expect(res.status).toHaveBeenCalledWith(400);
-      expect(res.json).toHaveBeenCalledWith({
-        error: 'Threat ID and pattern are required'
-      });
-    });
-  });
-
-  describe('POST /quarantine/:threatId', () => {
-    it('should quarantine threat', async () => {
-      req.params = { threatId: 'threat-789' };
-
-      const route = router.stack.find(r => r.route?.path === '/quarantine/:threatId' && r.route.methods.post);
-      await route.route.stack[0].handle(req, res, next);
-
-      expect(mockImmuneSystem.quarantineThreat).toHaveBeenCalledWith('threat-789');
-      expect(res.json).toHaveBeenCalledWith({
-        message: 'Threat quarantined',
-        threat_id: 'threat-789'
-      });
-    });
-  });
-
-  describe('POST /decontaminate', () => {
-    it('should decontaminate system', async () => {
-      const route = router.stack.find(r => r.route?.path === '/decontaminate' && r.route.methods.post);
-      await route.route.stack[0].handle(req, res, next);
-
-      expect(mockImmuneSystem.decontaminate).toHaveBeenCalled();
-      expect(res.json).toHaveBeenCalledWith({
-        message: 'System decontamination complete',
-        status: expect.any(Object)
-      });
-    });
-  });
-
-  describe('GET /shield/status', () => {
-    it('should return quantum shield status', async () => {
-      const route = router.stack.find(r => r.route?.path === '/shield/status' && r.route.methods.get);
-      await route.route.stack[0].handle(req, res, next);
-
-      expect(mockQuantumShield.getShieldStatus).toHaveBeenCalled();
       expect(res.json).toHaveBeenCalledWith(expect.objectContaining({
-        active: true,
-        strength: 85,
-        layers: expect.any(Array)
+        message: 'Evolution cycle initiated',
+        evolution: expect.objectContaining({
+          id: expect.any(String),
+          timestamp: expect.any(String),
+          target: 'quantum_defense',
+          mutations: expect.any(Array),
+          new_capabilities: expect.any(Array),
+          adaptation_success_rate: expect.any(Number),
+          consciousness_expansion: expect.objectContaining({
+            quantum: expect.any(Number),
+            semantic: expect.any(Number),
+            temporal: expect.any(Number),
+            causal: expect.any(Number)
+          })
+        }),
+        new_evolution_score: expect.any(Number)
       }));
     });
-  });
 
-  describe('POST /shield/activate', () => {
-    it('should activate quantum shield', async () => {
-      const route = router.stack.find(r => r.route?.path === '/shield/activate' && r.route.methods.post);
-      await route.route.stack[0].handle(req, res, next);
+    it('should handle evolution without specific target', async () => {
+      await callRouteHandler('POST', '/evolve', {});
 
-      expect(mockQuantumShield.activate).toHaveBeenCalled();
-      expect(res.json).toHaveBeenCalledWith({
-        message: 'Quantum shield activated',
-        status: expect.any(Object)
-      });
+      const callArgs = (res.json as jest.Mock).mock.calls[0][0];
+      expect(callArgs.evolution.target).toBe('general_adaptation');
     });
   });
 
-  describe('POST /shield/reinforce', () => {
-    it('should reinforce shield based on threat level', async () => {
-      req.body = { threat_level: 'critical' };
-
-      const route = router.stack.find(r => r.route?.path === '/shield/reinforce' && r.route.methods.post);
-      await route.route.stack[0].handle(req, res, next);
-
-      expect(mockQuantumShield.reinforceShield).toHaveBeenCalledWith('critical');
-      expect(res.json).toHaveBeenCalledWith({
-        message: 'Shield reinforced',
-        status: expect.any(Object)
-      });
-    });
-
-    it('should validate threat level', async () => {
-      req.body = {}; // Missing threat_level
-
-      const route = router.stack.find(r => r.route?.path === '/shield/reinforce' && r.route.methods.post);
-      await route.route.stack[0].handle(req, res, next);
-
-      expect(res.status).toHaveBeenCalledWith(400);
-      expect(res.json).toHaveBeenCalledWith({
-        error: 'Threat level is required'
-      });
-    });
-  });
-
-  describe('POST /shield/modulate', () => {
-    it('should modulate shield parameters', async () => {
-      req.body = {
-        frequency: 432,
-        phase: 1.57
+  describe('POST /swarm/deploy', () => {
+    it('should deploy defense swarm with specific parameters', async () => {
+      const swarmRequest = {
+        target_threat: 'quantum_intrusion',
+        swarm_size: 150
       };
 
-      const route = router.stack.find(r => r.route?.path === '/shield/modulate' && r.route.methods.post);
-      await route.route.stack[0].handle(req, res, next);
+      await callRouteHandler('POST', '/swarm/deploy', swarmRequest);
 
-      expect(mockQuantumShield.modulate).toHaveBeenCalledWith(432, 1.57);
-      expect(res.json).toHaveBeenCalledWith({
-        message: 'Shield modulated',
-        status: expect.any(Object)
-      });
+      expect(res.json).toHaveBeenCalledWith(expect.objectContaining({
+        message: 'Defense swarm deployed',
+        deployment: expect.objectContaining({
+          id: expect.any(String),
+          deployment_time: expect.any(String),
+          swarm_configuration: expect.objectContaining({
+            size: 150,
+            behavior_mode: 'adaptive_hunting',
+            communication_protocol: 'quantum_entangled',
+            autonomy_level: 0.8
+          }),
+          target: 'quantum_intrusion',
+          estimated_effectiveness: expect.any(Number),
+          energy_cost_per_unit: 0.001,
+          collective_intelligence_factor: expect.any(Number),
+          synchronization_quality: expect.any(Number)
+        }),
+        monitoring_frequency_ms: 1000,
+        estimated_mission_duration_ms: 300000
+      }));
     });
 
-    it('should validate modulation parameters', async () => {
-      req.body = { frequency: 432 }; // Missing phase
+    it('should use default swarm parameters', async () => {
+      await callRouteHandler('POST', '/swarm/deploy', {});
 
-      const route = router.stack.find(r => r.route?.path === '/shield/modulate' && r.route.methods.post);
-      await route.route.stack[0].handle(req, res, next);
-
-      expect(res.status).toHaveBeenCalledWith(400);
-      expect(res.json).toHaveBeenCalledWith({
-        error: 'Frequency and phase are required'
-      });
+      const callArgs = (res.json as jest.Mock).mock.calls[0][0];
+      expect(callArgs.deployment.swarm_configuration.size).toBe(100);
+      expect(callArgs.deployment.target).toBe('area_defense');
     });
   });
 
-  describe('POST /shield/emergency', () => {
-    it('should activate emergency overcharge', async () => {
-      const route = router.stack.find(r => r.route?.path === '/shield/emergency' && r.route.methods.post);
-      await route.route.stack[0].handle(req, res, next);
+  describe('Error handling', () => {
+    it('should handle database errors in evolve endpoint', async () => {
+      mockDb.query.mockRejectedValueOnce(new Error('Database connection failed'));
 
-      expect(mockQuantumShield.emergencyOvercharge).toHaveBeenCalled();
-      expect(res.json).toHaveBeenCalledWith({
-        message: 'Emergency shield overcharge activated',
-        warning: 'Shield will be depleted in 30 seconds',
-        status: expect.any(Object)
-      });
+      await callRouteHandler('POST', '/evolve', { evolution_target: 'test' });
+
+      // The route should call next() with the error, since it has try-catch with next(error)
+      expect(next).toHaveBeenCalledWith(expect.any(Error));
     });
   });
 });

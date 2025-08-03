@@ -1,7 +1,7 @@
 import { AdaptiveImmuneSystem } from '../../defense/AdaptiveImmuneSystem';
 import { Logger } from 'winston';
 import { THREAT_LEVELS } from '@starguard/shared';
-import { getDatabase } from '../../utils/database';
+import { getPool } from '../../utils/database';
 
 jest.mock('../../utils/database');
 
@@ -22,7 +22,7 @@ describe('AdaptiveImmuneSystem', () => {
       query: jest.fn().mockResolvedValue({ rows: [] })
     };
 
-    (getDatabase as jest.Mock).mockResolvedValue(mockDb);
+    (getPool as jest.Mock).mockReturnValue(mockDb);
 
     immuneSystem = new AdaptiveImmuneSystem(mockLogger);
   });

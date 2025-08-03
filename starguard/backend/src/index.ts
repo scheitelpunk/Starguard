@@ -11,7 +11,7 @@ import winston from 'winston';
 
 // Import nur die funktionierenden Komponenten
 import { ConsciousnessEngine } from './consciousness/ConsciousnessEngine';
-import { WS_EVENTS } from '@starguard/shared';
+import { WS_EVENTS } from '../../shared/src';
 
 const app = express();
 const server = createServer(app);

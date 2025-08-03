@@ -198,11 +198,12 @@ function analyzeMoneyFlow(transactions: any[]): any {
 
 function detectAMLPatterns(transactions: any[]): string[] {
   const patterns = [];
+  const amlPatterns = ['layering', 'structuring', 'smurfing', 'shell_company', 'round_tripping'];
   
-  if (Math.random() > 0.5) patterns.push(AML_PATTERNS.LAYERING);
-  if (Math.random() > 0.6) patterns.push(AML_PATTERNS.STRUCTURING);
-  if (Math.random() > 0.7) patterns.push(AML_PATTERNS.SMURFING);
-  if (Math.random() > 0.8) patterns.push(AML_PATTERNS.SHELL_COMPANY);
+  if (Math.random() > 0.5) patterns.push(amlPatterns[0]);
+  if (Math.random() > 0.6) patterns.push(amlPatterns[1]);
+  if (Math.random() > 0.7) patterns.push(amlPatterns[2]);
+  if (Math.random() > 0.8) patterns.push(amlPatterns[3]);
   
   return patterns;
 }

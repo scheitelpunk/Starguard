@@ -1,5 +1,4 @@
 import { Pool } from 'pg';
-import winston from 'winston';
 
 let pool: Pool | null = null;
 
@@ -22,7 +21,7 @@ export async function connectDatabase(): Promise<Pool> {
   pool = new Pool(config);
   
   pool.on('error', (err) => {
-    winston.error('Unexpected database error', err);
+    console.error('Unexpected database error', err);
   });
   
   try {
@@ -34,7 +33,7 @@ export async function connectDatabase(): Promise<Pool> {
     
     return pool;
   } catch (error) {
-    winston.error('Database connection failed:', error);
+    console.error('Database connection failed:', error);
     throw error;
   }
 }

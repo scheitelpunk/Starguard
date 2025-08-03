@@ -1,7 +1,7 @@
 'use client';
 
-import { Card } from '@/components/ui/Card';
-import { useConsciousnessStore } from '@/stores/consciousnessStore';
+import { Card } from '../ui/Card';
+import { useConsciousnessStore } from '../../stores/consciousnessStore';
 import { Brain, Activity, Zap, Shield } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { CONSCIOUSNESS_STATES } from '@starguard/shared';

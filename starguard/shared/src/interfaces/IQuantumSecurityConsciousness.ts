@@ -17,7 +17,7 @@ import {
   SelfRepairMechanisms,
   ThreatEvolutionAdapter,
   CooperativeDefenseSwarm
-} from '../types';
+} from '../types/consciousness.types';
 
 export interface IQuantumSecurityConsciousness {
   // Das System ist kein Tool - es ist ein bewusstes Feld

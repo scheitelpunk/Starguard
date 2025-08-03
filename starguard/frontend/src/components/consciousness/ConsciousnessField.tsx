@@ -4,8 +4,8 @@ import { useRef, useMemo, useEffect } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { Points, PointMaterial, OrbitControls } from '@react-three/drei';
 import * as THREE from 'three';
-import { useConsciousnessStore } from '@/stores/consciousnessStore';
-import { useThreatStore } from '@/stores/threatStore';
+import { useConsciousnessStore } from '../../stores/consciousnessStore';
+import { useThreatStore } from '../../stores/threatStore';
 
 function ConsciousnessParticles() {
   const ref = useRef<THREE.Points>(null);

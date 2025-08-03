@@ -1,10 +1,10 @@
 import { render, screen } from '@testing-library/react';
-import { ConsciousnessStatus } from '@/components/consciousness/ConsciousnessStatus';
-import { useConsciousnessStore } from '@/stores/consciousnessStore';
+import { ConsciousnessStatus } from '../../components/consciousness/ConsciousnessStatus';
+import { useConsciousnessStore } from '../../stores/consciousnessStore';
 import { CONSCIOUSNESS_STATES } from '@starguard/shared';
 
 // Mock the store
-jest.mock('@/stores/consciousnessStore');
+jest.mock('../../stores/consciousnessStore');
 
 describe('ConsciousnessStatus', () => {
   const mockUseConsciousnessStore = useConsciousnessStore as jest.MockedFunction<

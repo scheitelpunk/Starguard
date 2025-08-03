@@ -1,6 +1,6 @@
 'use client';
 
-import { Card } from '@/components/ui/Card';
+import { Card } from '../ui/Card';
 import { Shield, Heart, Zap, Users } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useQuery } from '@tanstack/react-query';

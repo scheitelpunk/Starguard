@@ -12,6 +12,7 @@ export * from './types';
 
 // Export constants
 export * from './constants';
+export { WS_EVENTS } from './constants';
 
 // Version info
 export const STARGUARD_VERSION = '1.0.0';

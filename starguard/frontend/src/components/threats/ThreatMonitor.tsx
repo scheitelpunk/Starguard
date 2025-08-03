@@ -1,7 +1,7 @@
 'use client';
 
-import { Card } from '@/components/ui/Card';
-import { useThreatStore } from '@/stores/threatStore';
+import { Card } from '../ui/Card';
+import { useThreatStore } from '../../stores/threatStore';
 import { AlertTriangle, Shield, Activity, Target } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { THREAT_LEVELS } from '@starguard/shared';

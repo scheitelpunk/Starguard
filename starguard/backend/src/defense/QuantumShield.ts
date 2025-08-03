@@ -148,11 +148,11 @@ export class QuantumShield extends EventEmitter {
 
   private calculateReinforcementFactor(threatLevel: string): number {
     switch (threatLevel) {
-      case THREAT_LEVELS.CRITICAL:
+      case 'critical':
         return 1.5;
-      case THREAT_LEVELS.HIGH:
+      case 'high':
         return 1.3;
-      case THREAT_LEVELS.MEDIUM:
+      case 'medium':
         return 1.1;
       default:
         return 1.0;

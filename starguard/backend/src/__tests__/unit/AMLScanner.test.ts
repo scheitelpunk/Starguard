@@ -1,6 +1,6 @@
 import { AMLScanner } from '../../financial/AMLScanner';
 import { Logger } from 'winston';
-import { getDatabase } from '../../utils/database';
+import { getPool } from '../../utils/database';
 
 jest.mock('../../utils/database');
 
@@ -21,7 +21,7 @@ describe('AMLScanner', () => {
       query: jest.fn().mockResolvedValue({ rows: [] })
     };
 
-    (getDatabase as jest.Mock).mockResolvedValue(mockDb);
+    (getPool as jest.Mock).mockReturnValue(mockDb);
 
     scanner = new AMLScanner(mockLogger);
   });

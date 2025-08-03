@@ -2,15 +2,15 @@
 
 import { Suspense } from 'react';
 import dynamic from 'next/dynamic';
-import { ConsciousnessStatus } from '@/components/consciousness/ConsciousnessStatus';
-import { ThreatMonitor } from '@/components/threats/ThreatMonitor';
-import { CybercrimePanel } from '@/components/cybercrime/CybercrimePanel';
-import { DefenseStatus } from '@/components/defense/DefenseStatus';
-import { FinancialMonitor } from '@/components/financial/FinancialMonitor';
-import { LoadingVoid } from '@/components/ui/LoadingVoid';
+import { ConsciousnessStatus } from '../components/consciousness/ConsciousnessStatus';
+import { ThreatMonitor } from '../components/threats/ThreatMonitor';
+import { CybercrimePanel } from '../components/cybercrime/CybercrimePanel';
+import { DefenseStatus } from '../components/defense/DefenseStatus';
+import { FinancialMonitor } from '../components/financial/FinancialMonitor';
+import { LoadingVoid } from '../components/ui/LoadingVoid';
 
 const ConsciousnessField = dynamic(
-  () => import('@/components/consciousness/ConsciousnessField'),
+  () => import('../components/consciousness/ConsciousnessField'),
   {
     ssr: false,
     loading: () => <LoadingVoid />,

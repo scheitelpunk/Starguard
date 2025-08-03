@@ -45,7 +45,7 @@ export class QuantumThreatDetector extends EventEmitter {
       type: 'Advanced Persistent Threat',
       signature: [0.89, 0.45, 0.67, 0.92, 0.33, 0.78, 0.56, 0.91],
       quantumSignature: [0.95, 0.87, 0.42, 0.76, 0.89, 0.54, 0.93, 0.68],
-      severity: THREAT_LEVELS.CRITICAL,
+      severity: 'critical',
       evolution: 0.85,
     });
 
@@ -55,7 +55,7 @@ export class QuantumThreatDetector extends EventEmitter {
       type: 'Zero-Day Exploit',
       signature: [0.76, 0.88, 0.43, 0.91, 0.67, 0.82, 0.39, 0.74],
       quantumSignature: [0.82, 0.91, 0.73, 0.45, 0.88, 0.69, 0.94, 0.77],
-      severity: THREAT_LEVELS.CRITICAL,
+      severity: 'critical',
       evolution: 0.92,
     });
 
@@ -65,7 +65,7 @@ export class QuantumThreatDetector extends EventEmitter {
       type: 'Ransomware',
       signature: [0.93, 0.71, 0.85, 0.42, 0.77, 0.91, 0.68, 0.83],
       quantumSignature: [0.88, 0.76, 0.92, 0.54, 0.81, 0.73, 0.89, 0.65],
-      severity: THREAT_LEVELS.HIGH,
+      severity: 'high',
       evolution: 0.78,
     });
 
@@ -75,7 +75,7 @@ export class QuantumThreatDetector extends EventEmitter {
       type: 'DDoS Attack',
       signature: [0.65, 0.82, 0.71, 0.89, 0.43, 0.76, 0.88, 0.52],
       quantumSignature: [0.71, 0.85, 0.62, 0.93, 0.48, 0.79, 0.86, 0.57],
-      severity: THREAT_LEVELS.HIGH,
+      severity: 'high',
       evolution: 0.65,
     });
 
@@ -85,7 +85,7 @@ export class QuantumThreatDetector extends EventEmitter {
       type: 'Cryptojacking',
       signature: [0.58, 0.73, 0.81, 0.46, 0.69, 0.84, 0.62, 0.77],
       quantumSignature: [0.64, 0.78, 0.85, 0.51, 0.72, 0.88, 0.66, 0.81],
-      severity: THREAT_LEVELS.MEDIUM,
+      severity: 'medium',
       evolution: 0.71,
     });
   }
@@ -239,7 +239,7 @@ export class QuantumThreatDetector extends EventEmitter {
     confidence: number;
   }> {
     if (!this.model) {
-      return { level: THREAT_LEVELS.MEDIUM, confidence: 0.5 };
+      return { level: 'medium', confidence: 0.5 };
     }
 
     try {
@@ -252,10 +252,10 @@ export class QuantumThreatDetector extends EventEmitter {
 
       const maxIndex = probabilities.indexOf(Math.max(...probabilities));
       const levels = [
-        THREAT_LEVELS.LOW,
-        THREAT_LEVELS.MEDIUM,
-        THREAT_LEVELS.HIGH,
-        THREAT_LEVELS.CRITICAL
+        'low',
+        'medium',
+        'high',
+        'critical'
       ];
 
       return {
@@ -264,7 +264,7 @@ export class QuantumThreatDetector extends EventEmitter {
       };
     } catch (error) {
       this.logger.error('Prediction error:', error);
-      return { level: THREAT_LEVELS.MEDIUM, confidence: 0.5 };
+      return { level: 'medium', confidence: 0.5 };
     }
   }
 

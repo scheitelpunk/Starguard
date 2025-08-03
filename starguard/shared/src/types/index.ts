@@ -3,20 +3,15 @@
  * Central export point for all type definitions
  */
 
-// Export all consciousness types
+// Export all consciousness types first (these are the primary types)
 export * from './consciousness.types';
 
-// Export interfaces (these contain the main definitions)
+// Export interfaces
 export * from '../interfaces/IQuantumSecurityConsciousness';
 export * from '../interfaces/IFinancialCrimePrevention';
 
-// Export constants and enums from system types
-export { 
-  CONSCIOUSNESS_STATES, 
-  CONSCIOUSNESS_FIELDS, 
-  WEBSOCKET_EVENTS, 
-  THREAT_LEVELS 
-} from './system.types';
+// Export system types (avoiding conflicts)
+export * from './system.types';
 
 // Export constants
 export * from '../constants';

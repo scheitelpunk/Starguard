@@ -7,8 +7,8 @@ import {
   ISignalCollector,
   IConsciousnessInterpretation,
   IThreatConsciousness,
-  CONSCIOUSNESS_FIELDS,
   THREAT_LEVELS,
+  CONSCIOUSNESS_FIELDS,
   WEBSOCKET_EVENTS
 } from '@starguard/shared';
 import { ConsciousnessEngine } from '../consciousness/ConsciousnessEngine';
@@ -22,7 +22,7 @@ export abstract class SignalCollector extends EventEmitter implements ISignalCol
   protected logger: Logger;
   protected io: Server;
   protected consciousness: ConsciousnessEngine;
-  protected collectionInterval: NodeJS.Timer | null = null;
+  protected collectionInterval: NodeJS.Timeout | null = null;
   protected signalBuffer: ISignal[] = [];
   protected maxBufferSize: number = 1000;
   
@@ -287,11 +287,11 @@ export abstract class SignalCollector extends EventEmitter implements ISignalCol
   }
   
   protected determineThreatLevel(probability: number): string {
-    if (probability >= 0.9) return THREAT_LEVELS.CRITICAL;
-    if (probability >= 0.7) return THREAT_LEVELS.HIGH;
-    if (probability >= 0.5) return THREAT_LEVELS.MEDIUM;
-    if (probability >= 0.3) return THREAT_LEVELS.LOW;
-    return THREAT_LEVELS.NONE;
+    if (probability >= 0.9) return 'critical';
+    if (probability >= 0.7) return 'high';
+    if (probability >= 0.5) return 'medium';
+    if (probability >= 0.3) return 'low';
+    return 'none';
   }
   
   protected bufferSignals(signals: ISignal[]): void {

@@ -1,6 +1,6 @@
 import { EventEmitter } from 'events';
 import { Logger } from 'winston';
-import { getDatabase } from '../utils/database';
+import { getPool } from '../utils/database';
 
 interface Entity {
   id: string;
@@ -36,7 +36,7 @@ export class CollusionMapper extends EventEmitter {
   }
 
   async mapNetwork(seedEntityId: string): Promise<CollusionNetwork> {
-    const db = await getDatabase();
+    const db = getPool();
     const entities = new Map<string, Entity>();
     const connections: Connection[] = [];
     
@@ -95,7 +95,7 @@ export class CollusionMapper extends EventEmitter {
   }
 
   private async getEntity(entityId: string): Promise<Entity> {
-    const db = await getDatabase();
+    const db = getPool();
     
     const result = await db.query(
       `SELECT * FROM entities WHERE id = $1`,
@@ -115,7 +115,7 @@ export class CollusionMapper extends EventEmitter {
   }
 
   private async findConnections(entityId: string): Promise<Connection[]> {
-    const db = await getDatabase();
+    const db = getPool();
     
     // Find transaction connections
     const transactionResult = await db.query(

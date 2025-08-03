@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Card } from '@/components/ui/Card';
+import { Card } from '../ui/Card';
 import { DollarSign, TrendingDown, Eye, AlertTriangle } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { MoneyFlowVisualization } from './MoneyFlowVisualization';

@@ -37,7 +37,7 @@ services:
     image: dpage/pgadmin4:latest
     container_name: starguard-pgadmin
     environment:
-      PGADMIN_DEFAULT_EMAIL: admin@starguard.local
+      PGADMIN_DEFAULT_EMAIL: admin@example.com
       PGADMIN_DEFAULT_PASSWORD: starguard
     ports:
       - "5050:80"

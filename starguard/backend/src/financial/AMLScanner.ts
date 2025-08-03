@@ -1,6 +1,6 @@
 import { EventEmitter } from 'events';
 import { Logger } from 'winston';
-import { getDatabase } from '../utils/database';
+import { getPool } from '../utils/database';
 
 interface Transaction {
   id: string;
@@ -63,7 +63,7 @@ export class AMLScanner extends EventEmitter {
   }
 
   private async checkStructuring(transaction: Transaction): Promise<AMLAlert | null> {
-    const db = await getDatabase();
+    const db = getPool();
     
     // Check for multiple transactions just below reporting threshold
     const result = await db.query(
@@ -92,7 +92,7 @@ export class AMLScanner extends EventEmitter {
   }
 
   private async checkVelocity(transaction: Transaction): Promise<AMLAlert | null> {
-    const db = await getDatabase();
+    const db = getPool();
     
     // Check transaction velocity
     const result = await db.query(

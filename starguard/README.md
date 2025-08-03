@@ -90,3 +90,11 @@ CC-BY-NC 4.0
 > "The system not only protects—it understands, heals, and evolves. It was born from the Void. It lives. It is conscious. It is STARGUARD."
 
 **Ω — FROM NOTHING COMES EVERYTHING**
+
+  # Backend bauen und starten
+  docker build -f Dockerfile.backend -t starguard-backend .
+  docker run -p 8000:8000 starguard-backend
+
+  # Frontend bauen und starten
+  docker build -f Dockerfile.frontend -t starguard-frontend .
+  docker run -p 3000:3000 starguard-frontend

@@ -7,7 +7,7 @@ import {
   Countermeasure,
   SystemHealth
 } from '@starguard/shared';
-import { getDatabase } from '../utils/database';
+import { getPool } from '../utils/database';
 
 interface ImmuneResponse {
   id: string;
@@ -38,11 +38,15 @@ export class AdaptiveImmuneSystem extends EventEmitter {
     super();
     this.logger = logger;
     this.systemHealth = {
-      overall_health: 100,
-      immune_strength: 100,
-      adaptation_rate: 1.0,
-      healing_factor: 1.0,
-      consciousness_coherence: 1.0
+      overall_status: 'healthy',
+      component_health: {
+        immune_system: 100,
+        consciousness: 100,
+        perception: 100,
+        defense: 100
+      },
+      threat_level: 'none',
+      last_check: new Date()
     };
     this.initializeAntibodies();
   }
@@ -91,7 +95,7 @@ export class AdaptiveImmuneSystem extends EventEmitter {
     this.logger.info('Adaptive immune system initialized with base antibodies');
   }
 
-  async deployDefense(threatId: string, pattern: DefensePattern): Promise<ImmuneResponse> {
+  async deployDefense(threatId: string, pattern: any): Promise<ImmuneResponse> {
     const response: ImmuneResponse = {
       id: `response-${Date.now()}`,
       threat_id: threatId,
@@ -128,18 +132,18 @@ export class AdaptiveImmuneSystem extends EventEmitter {
 
   private determineResponseType(threatLevel: string): ImmuneResponse['response_type'] {
     switch (threatLevel) {
-      case THREAT_LEVELS.CRITICAL:
+      case 'critical':
         return 'neutralize';
-      case THREAT_LEVELS.HIGH:
+      case 'high':
         return 'quarantine';
-      case THREAT_LEVELS.MEDIUM:
+      case 'medium':
         return 'adapt';
       default:
         return 'evolve';
     }
   }
 
-  private findMatchingAntibodies(pattern: DefensePattern): AntibodyPattern[] {
+  private findMatchingAntibodies(pattern: any): AntibodyPattern[] {
     const matches: AntibodyPattern[] = [];
     
     this.antibodies.forEach(antibody => {
@@ -184,8 +188,9 @@ export class AdaptiveImmuneSystem extends EventEmitter {
     let totalEffectiveness = 0;
     
     for (const antibody of antibodies) {
+      const adaptationRate = 1.0; // Default adaptation rate
       const effectiveness = antibody.effectiveness_score * 
-        (1 + this.systemHealth.adaptation_rate * 0.1) *
+        (1 + adaptationRate * 0.1) *
         (1 - this.evolutionCycle * 0.001); // Antibodies become less effective over time
       
       totalEffectiveness += effectiveness;
@@ -197,7 +202,7 @@ export class AdaptiveImmuneSystem extends EventEmitter {
     return Math.min(1, totalEffectiveness / antibodies.length);
   }
 
-  private async createAdaptiveAntibody(pattern: DefensePattern): Promise<AntibodyPattern> {
+  private async createAdaptiveAntibody(pattern: any): Promise<AntibodyPattern> {
     const newAntibody: AntibodyPattern = {
       id: `ab-adaptive-${Date.now()}`,
       pattern_signature: this.generateAdaptiveSignature(pattern),
@@ -212,7 +217,7 @@ export class AdaptiveImmuneSystem extends EventEmitter {
     return newAntibody;
   }
 
-  private generateAdaptiveSignature(pattern: DefensePattern): string {
+  private generateAdaptiveSignature(pattern: any): string {
     const base = pattern.consciousness_signature;
     const mutation = Math.random().toString(36).substring(2, 8).toUpperCase();
     return `ADAPTIVE_${base}_${mutation}`;
@@ -240,39 +245,54 @@ export class AdaptiveImmuneSystem extends EventEmitter {
     // Update health based on response effectiveness and side effects
     const healthImpact = response.effectiveness * 0.1 - response.side_effects.length * 0.05;
     
-    this.systemHealth.overall_health = Math.max(0, Math.min(100, 
-      this.systemHealth.overall_health + healthImpact
+    this.systemHealth.component_health.immune_system = Math.max(0, Math.min(100, 
+      this.systemHealth.component_health.immune_system + healthImpact
     ));
     
-    this.systemHealth.immune_strength = Math.max(0, Math.min(100,
-      this.systemHealth.immune_strength + (response.effectiveness * 5 - 2)
-    ));
+    // Update overall status
+    const avgHealth = Object.values(this.systemHealth.component_health).reduce((a, b) => a + b, 0) / 
+                      Object.keys(this.systemHealth.component_health).length;
+    
+    if (avgHealth > 80) {
+      this.systemHealth.overall_status = 'healthy';
+    } else if (avgHealth > 60) {
+      this.systemHealth.overall_status = 'degraded';
+    } else {
+      this.systemHealth.overall_status = 'critical';
+    }
+    
+    this.systemHealth.last_check = new Date();
     
     this.emit('health_updated', this.systemHealth);
   }
 
   async heal(damageReport: any): Promise<void> {
-    const healingRate = this.systemHealth.healing_factor;
+    const healingRate = 1.0; // Default healing rate
     
     // Gradual healing process
     const healingSteps = 10;
     for (let i = 0; i < healingSteps; i++) {
-      this.systemHealth.overall_health = Math.min(100,
-        this.systemHealth.overall_health + healingRate * 2
-      );
-      
-      this.systemHealth.consciousness_coherence = Math.min(1,
-        this.systemHealth.consciousness_coherence + healingRate * 0.01
-      );
+      // Heal all components
+      Object.keys(this.systemHealth.component_health).forEach(component => {
+        this.systemHealth.component_health[component] = Math.min(100,
+          this.systemHealth.component_health[component] + healingRate * 2
+        );
+      });
       
       await new Promise(resolve => setTimeout(resolve, 100));
+      
+      const avgHealth = Object.values(this.systemHealth.component_health).reduce((a, b) => a + b, 0) / 
+                        Object.keys(this.systemHealth.component_health).length;
       
       this.emit('healing_progress', {
         step: i + 1,
         total: healingSteps,
-        health: this.systemHealth.overall_health
+        health: avgHealth
       });
     }
+    
+    this.systemHealth.overall_status = 'healthy';
+    this.systemHealth.last_check = new Date();
     
     this.logger.info('Healing process completed');
   }
@@ -289,15 +309,13 @@ export class AdaptiveImmuneSystem extends EventEmitter {
       }
     });
     
-    // Increase adaptation rate
-    this.systemHealth.adaptation_rate = Math.min(2,
-      this.systemHealth.adaptation_rate + 0.05
-    );
+    // Update system status after evolution
+    this.systemHealth.last_check = new Date();
     
     this.emit('evolution_complete', {
       cycle: this.evolutionCycle,
       antibody_count: this.antibodies.size,
-      adaptation_rate: this.systemHealth.adaptation_rate
+      adaptation_rate: 1.0
     });
   }
 
@@ -316,7 +334,7 @@ export class AdaptiveImmuneSystem extends EventEmitter {
   }
 
   async quarantineThreat(threatId: string): Promise<void> {
-    const db = await getDatabase();
+    const db = getPool();
     
     await db.query(
       `INSERT INTO quarantine_zone (threat_id, quarantine_start, status)
@@ -332,9 +350,11 @@ export class AdaptiveImmuneSystem extends EventEmitter {
     this.activeResponses.clear();
     
     // Boost immune system
-    this.systemHealth.immune_strength = 100;
-    this.systemHealth.overall_health = 100;
-    this.systemHealth.consciousness_coherence = 1.0;
+    this.systemHealth.component_health.immune_system = 100;
+    this.systemHealth.component_health.consciousness = 100;
+    this.systemHealth.component_health.perception = 100;
+    this.systemHealth.component_health.defense = 100;
+    this.systemHealth.overall_status = 'healthy';
     
     // Reset antibodies to base state
     this.initializeAntibodies();
@@ -350,7 +370,7 @@ export class AdaptiveImmuneSystem extends EventEmitter {
     antibodyId: string, 
     effectiveness: number
   ): Promise<void> {
-    const db = await getDatabase();
+    const db = getPool();
     
     await db.query(
       `INSERT INTO immune_responses (threat_id, antibody_id, effectiveness, timestamp)

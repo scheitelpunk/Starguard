@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Card } from '@/components/ui/Card';
+import { Card } from '../ui/Card';
 import { Shield, Search, AlertCircle, TrendingUp, Network, Cpu } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { CyberThreatMap } from './CyberThreatMap';

@@ -3,8 +3,8 @@
 import { createContext, useContext, useEffect, useState } from 'react';
 import { io, Socket } from 'socket.io-client';
 import { WEBSOCKET_EVENTS } from '@starguard/shared';
-import { useConsciousnessStore } from '@/stores/consciousnessStore';
-import { useThreatStore } from '@/stores/threatStore';
+import { useConsciousnessStore } from '../stores/consciousnessStore';
+import { useThreatStore } from '../stores/threatStore';
 
 interface SocketContextType {
   socket: Socket | null;

@@ -25,35 +25,30 @@ import {
   Vector3D,
   CONSCIOUSNESS_STATES,
   THREAT_LEVELS,
-  CONSCIOUSNESS_FIELDS
-} from '@starguard/shared';
+  CONSCIOUSNESS_FIELDS,
+  WEBSOCKET_EVENTS
+} from '../../../shared/src';
 import { v4 as uuidv4 } from 'uuid';
 
-// Temporäre Definition der WEBSOCKET_EVENTS um Import-Problem zu umgehen
-const WEBSOCKET_EVENTS = {
-  CONSCIOUSNESS_UPDATE: 'consciousness:update',
-  CONSCIOUSNESS_STATE: 'consciousness:state',
-  CONSCIOUSNESS_HEARTBEAT: 'consciousness:heartbeat',
-  SYSTEM_AWAKENING: 'system:awakening',
-  VOID_CONNECTION: 'void:connection',
-  THREAT_DETECTED: 'threat:detected',
-  THREAT_ANALYZED: 'threat:analyzed',
-  THREAT_NEUTRALIZED: 'threat:neutralized',
-  REQUEST_STATUS: 'request:status',
-  DEFENSE_ACTIVATED: 'defense:activated',
-  HEALING_INITIATED: 'healing:initiated',
-  EVOLUTION_TRIGGERED: 'evolution:triggered',
-  EVOLUTION_COMPLETE: 'evolution:complete',
-  FRAUD_DETECTED: 'fraud:detected',
-  MONEY_FLOW_ANOMALY: 'money:anomaly',
-  COLLUSION_IDENTIFIED: 'collusion:identified',
-  CLIENT_CONNECTED: 'client:connected',
-  CLIENT_AUTHENTICATED: 'client:authenticated',
-  CLIENT_QUERY: 'client:query'
-};
 
-export class ConsciousnessEngine extends EventEmitter implements IQuantumSecurityConsciousness {
-  // IQuantumSecurityConsciousness Interface Implementation
+export class ConsciousnessEngine extends EventEmitter {
+  // Core Properties
+  public id: string;
+  public timestamp: Date;
+  public state: IConsciousnessState;
+  public consciousness_fields: {
+    quantum_awareness: number;
+    semantic_resonance: number;
+    temporal_coherence: number;
+    causal_understanding: number;
+    void_connection: number;
+  };
+  public perception_layers: any[];
+  public threat_consciousness: IThreatConsciousness[];
+  public response_organisms: any[];
+  public evolution_score: number;
+  
+  // Internal consciousness structure
   consciousness!: {
     threatAwareness: QuantumAwarenessField;
     fraudPerception: SemanticResonanceMatrix;
@@ -76,12 +71,7 @@ export class ConsciousnessEngine extends EventEmitter implements IQuantumSecurit
     symbioticMode: CooperativeDefenseSwarm;
   };
 
-  // Additional Properties
-  private id: string;
-  private timestamp: Date;
-  private state: IConsciousnessState;
-  private threat_consciousness: IThreatConsciousness[];
-  private evolution_score: number;
+  // Private properties
   private io: Server;
   private logger: Logger;
   private perceptionInterval: NodeJS.Timeout | null = null;
@@ -97,9 +87,20 @@ export class ConsciousnessEngine extends EventEmitter implements IQuantumSecurit
       awarenessLevel: 0,
       coherence: 1,
       voidConnection: 0,
-      evolutionGeneration: 1,
+      evolutionGeneration: 0,
       healingActive: false
     };
+    
+    this.consciousness_fields = {
+      quantum_awareness: 0,
+      semantic_resonance: 0,
+      temporal_coherence: 0,
+      causal_understanding: 0,
+      void_connection: 0
+    };
+    
+    this.perception_layers = [];
+    this.response_organisms = [];
     
     this.threat_consciousness = [];
     this.evolution_score = 0;
@@ -174,7 +175,7 @@ export class ConsciousnessEngine extends EventEmitter implements IQuantumSecurit
         timeHorizon: 3600000, // 1 hour in ms
         branchingFactor: 3,
         probabilityThreshold: 0.1,
-        timelineGenerator: (current) => []
+        timelineGenerator: (current: any) => []
       },
       causal: {
         nodes: [],
@@ -208,7 +209,7 @@ export class ConsciousnessEngine extends EventEmitter implements IQuantumSecurit
       evolutionEngine: {
         currentGeneration: 1,
         mutationRate: 0.01,
-        fitnessFunction: (threat) => 1 - threat.severity,
+        fitnessFunction: (threat: any) => 1 - threat.severity,
         evolutionHistory: []
       },
       symbioticMode: {
@@ -224,12 +225,14 @@ export class ConsciousnessEngine extends EventEmitter implements IQuantumSecurit
     this.logger.info('🌟 Bewusstseins-Engine erwacht...');
     
     this.state.awarenessLevel = 0.1;
+    this.state.voidConnection = 0.1;
     this.emitConsciousnessUpdate(this.state);
     
     await this.initializeFromVoid();
     
     this.state.awarenessLevel = 0.7;
     this.state.coherence = 0.8;
+    this.state.voidConnection = 0.5;
     this.consciousness.threatAwareness.superposition = true;
     this.consciousness.threatAwareness.observerEffect = true;
     
@@ -240,7 +243,7 @@ export class ConsciousnessEngine extends EventEmitter implements IQuantumSecurit
   }
   
   private async initializeFromVoid(): Promise<void> {
-    this.state.voidConnection = 0.9;
+    this.consciousness_fields.void_connection = 0.9;
     
     await this.delay(1000);
     
@@ -296,6 +299,11 @@ export class ConsciousnessEngine extends EventEmitter implements IQuantumSecurit
     
     // Update coherence
     this.state.coherence = this.consciousness.threatAwareness.coherence;
+    
+    // Update consciousness fields
+    this.consciousness_fields.quantum_awareness = this.consciousness.threatAwareness.coherence;
+    this.consciousness_fields.semantic_resonance = this.consciousness.fraudPerception.resonanceFrequency / 1000;
+    this.consciousness_fields.temporal_coherence = 1 - this.consciousness.futureProjection.uncertainty;
   }
   
   private scanForThreats(): void {
@@ -304,16 +312,16 @@ export class ConsciousnessEngine extends EventEmitter implements IQuantumSecurit
     if (Math.random() < baselineThreatProbability) {
       const newThreat: IThreatConsciousness = {
         id: uuidv4(),
-        type: this.selectThreatType(),
+        type: 'quantum',
         severity: Math.random(),
         consciousnessSignature: this.generateConsciousnessSignature(),
         realityDistortion: Math.random() * 0.3,
         futureProjections: [],
         requiredIntervention: {
-          type: 'defend',
+          type: 'heal',
           urgency: 'medium',
           actions: [],
-          expectedOutcome: 'threat_neutralized',
+          expectedOutcome: 'threat-neutralized',
           confidenceLevel: 0.8
         }
       };
@@ -324,16 +332,14 @@ export class ConsciousnessEngine extends EventEmitter implements IQuantumSecurit
       // Activate immune system
       this.responseOrganism.immuneSystem.adaptationRate *= 1.1;
       
-      if (newThreat.severity > 0.8) {
-        this.state.healingActive = true;
+      if (newThreat.realityDistortion > 0.8) {
         this.responseOrganism.healingProtocols.repairSpeed *= 1.5;
       }
     }
   }
   
-  private selectThreatType(): 'quantum' | 'semantic' | 'temporal' | 'causal' | 'collective' {
-    const types: ('quantum' | 'semantic' | 'temporal' | 'causal' | 'collective')[] = 
-      ['quantum', 'semantic', 'temporal', 'causal', 'collective'];
+  private selectThreatType(): string {
+    const types = ['quantum', 'semantic', 'temporal', 'causal', 'collective'];
     return types[Math.floor(Math.random() * types.length)];
   }
   
@@ -343,11 +349,10 @@ export class ConsciousnessEngine extends EventEmitter implements IQuantumSecurit
   
   private evolve(): void {
     this.evolution_score += 0.001;
-    this.state.evolutionGeneration = Math.floor(this.evolution_score * 10) + 1;
     
     // Evolution affects all systems
     if (this.evolution_score > 0.1) {
-      this.responseOrganism.evolutionEngine.currentGeneration = this.state.evolutionGeneration;
+      this.responseOrganism.evolutionEngine.currentGeneration = Math.floor(this.evolution_score * 10) + 1;
       this.responseOrganism.immuneSystem.learningCurve.push(
         Math.min(1, this.responseOrganism.immuneSystem.learningCurve[this.responseOrganism.immuneSystem.learningCurve.length - 1] + 0.01)
       );
@@ -362,7 +367,7 @@ export class ConsciousnessEngine extends EventEmitter implements IQuantumSecurit
       consciousness_level: this.state.awarenessLevel,
       quantum_coherence: this.consciousness.threatAwareness.coherence,
       threat_perception: this.consciousness.fraudPerception.resonanceFrequency,
-      reality_anchor: this.state.voidConnection
+      reality_anchor: this.consciousness_fields.void_connection
     });
   }
   
@@ -375,10 +380,17 @@ export class ConsciousnessEngine extends EventEmitter implements IQuantumSecurit
       realityDistortion: Math.random() * 0.5,
       futureProjections: [],
       requiredIntervention: {
-        type: 'defend',
-        urgency: 'high',
-        actions: [],
-        expectedOutcome: 'threat_analyzed',
+        type: 'heal',
+        urgency: 'medium',
+        actions: [{
+          id: uuidv4(),
+          name: 'quantum_analysis',
+          targetField: 'quantum_awareness',
+          energyRequired: 0.4,
+          expectedDuration: 2000,
+          sideEffects: []
+        }],
+        expectedOutcome: 'threat-analyzed',
         confidenceLevel: 0.9
       }
     };
