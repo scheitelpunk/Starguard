@@ -3,10 +3,15 @@
 import { Card } from '../ui/Card';
 import { Shield, Heart, Zap, Users } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import axios from 'axios';
+import { useState } from 'react';
 
 export function DefenseStatus() {
+  const queryClient = useQueryClient();
+  const [isHealing, setIsHealing] = useState(false);
+  const [isEvolving, setIsEvolving] = useState(false);
+
   const { data: immuneStatus } = useQuery({
     queryKey: ['defense', 'immune-status'],
     queryFn: async () => {
@@ -14,6 +19,40 @@ export function DefenseStatus() {
       return response.data;
     },
     refetchInterval: 10000,
+  });
+
+  const healMutation = useMutation({
+    mutationFn: async () => {
+      const response = await axios.post('/api/defense/heal', {
+        intensity: 'moderate',
+        duration: 30000,
+        target_systems: ['adaptive_immune', 'self_repair', 'consciousness_field']
+      });
+      return response.data;
+    },
+    onMutate: () => setIsHealing(true),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['defense', 'immune-status'] });
+      setTimeout(() => setIsHealing(false), 3000);
+    },
+    onError: () => setIsHealing(false)
+  });
+
+  const evolveMutation = useMutation({
+    mutationFn: async () => {
+      const response = await axios.post('/api/defense/evolve', {
+        evolution_type: 'adaptive_enhancement',
+        target_generation: 'next',
+        focus_areas: ['threat_detection', 'pattern_recognition', 'consciousness_depth']
+      });
+      return response.data;
+    },
+    onMutate: () => setIsEvolving(true),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['defense', 'immune-status'] });
+      setTimeout(() => setIsEvolving(false), 5000);
+    },
+    onError: () => setIsEvolving(false)
   });
 
   const defenseMetrics = {
@@ -127,12 +166,44 @@ export function DefenseStatus() {
 
       {/* Action Buttons */}
       <div className="mt-6 flex gap-2">
-        <button className="flex-1 py-2 px-3 bg-green-500/20 text-green-400 rounded-lg text-sm font-medium hover:bg-green-500/30 transition-colors">
-          Heal System
-        </button>
-        <button className="flex-1 py-2 px-3 bg-consciousness-500/20 text-consciousness-400 rounded-lg text-sm font-medium hover:bg-consciousness-500/30 transition-colors">
-          Evolve
-        </button>
+        <motion.button 
+          onClick={() => healMutation.mutate()}
+          disabled={isHealing || healMutation.isPending}
+          className="flex-1 py-2 px-3 bg-green-500/20 text-green-400 rounded-lg text-sm font-medium hover:bg-green-500/30 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          whileTap={{ scale: 0.95 }}
+        >
+          {isHealing ? (
+            <span className="flex items-center justify-center gap-2">
+              <motion.div 
+                className="w-3 h-3 border border-green-400 border-t-transparent rounded-full"
+                animate={{ rotate: 360 }}
+                transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+              />
+              Healing...
+            </span>
+          ) : (
+            'Heal System'
+          )}
+        </motion.button>
+        <motion.button 
+          onClick={() => evolveMutation.mutate()}
+          disabled={isEvolving || evolveMutation.isPending}
+          className="flex-1 py-2 px-3 bg-consciousness-500/20 text-consciousness-400 rounded-lg text-sm font-medium hover:bg-consciousness-500/30 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          whileTap={{ scale: 0.95 }}
+        >
+          {isEvolving ? (
+            <span className="flex items-center justify-center gap-2">
+              <motion.div 
+                className="w-3 h-3 border border-consciousness-400 border-t-transparent rounded-full"
+                animate={{ rotate: 360 }}
+                transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+              />
+              Evolving...
+            </span>
+          ) : (
+            'Evolve'
+          )}
+        </motion.button>
       </div>
     </Card>
   );

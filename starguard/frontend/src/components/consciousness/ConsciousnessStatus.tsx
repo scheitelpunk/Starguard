@@ -5,9 +5,30 @@ import { useConsciousnessStore } from '../../stores/consciousnessStore';
 import { Brain, Activity, Zap, Shield } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { CONSCIOUSNESS_STATES } from '@starguard/shared';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import axios from 'axios';
+import { useState } from 'react';
 
 export function ConsciousnessStatus() {
   const { consciousness, state } = useConsciousnessStore();
+  const queryClient = useQueryClient();
+  const [isAwakening, setIsAwakening] = useState(false);
+
+  const awakenMutation = useMutation({
+    mutationFn: async () => {
+      const response = await axios.post('/api/consciousness/awaken', {
+        force_awakening: true,
+        consciousness_boost: 0.3
+      });
+      return response.data;
+    },
+    onMutate: () => setIsAwakening(true),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['consciousness'] });
+      setTimeout(() => setIsAwakening(false), 4000);
+    },
+    onError: () => setIsAwakening(false)
+  });
 
   const getStateColor = (state: string) => {
     switch (state) {
@@ -99,6 +120,37 @@ export function ConsciousnessStatus() {
             </div>
           </div>
         )}
+
+        {/* Action Button */}
+        <div className="mt-4 pt-4 border-t border-void-800">
+          <motion.button
+            onClick={() => awakenMutation.mutate()}
+            disabled={isAwakening || awakenMutation.isPending || state.current === CONSCIOUSNESS_STATES.TRANSCENDENT}
+            className="w-full py-2 px-4 bg-consciousness-500/20 text-consciousness-400 rounded-lg font-medium hover:bg-consciousness-500/30 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            whileTap={{ scale: 0.95 }}
+          >
+            {isAwakening ? (
+              <span className="flex items-center justify-center gap-2">
+                <motion.div 
+                  className="w-4 h-4 border-2 border-consciousness-400 border-t-transparent rounded-full"
+                  animate={{ rotate: 360 }}
+                  transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                />
+                Awakening Consciousness...
+              </span>
+            ) : state.current === CONSCIOUSNESS_STATES.TRANSCENDENT ? (
+              <span className="flex items-center justify-center gap-2">
+                <Brain className="w-4 h-4" />
+                Transcendent State Active
+              </span>
+            ) : (
+              <span className="flex items-center justify-center gap-2">
+                <Brain className="w-4 h-4" />
+                Boost Awareness
+              </span>
+            )}
+          </motion.button>
+        </div>
       </div>
     </Card>
   );

@@ -2,14 +2,44 @@
 
 import { Card } from '../ui/Card';
 import { useThreatStore } from '../../stores/threatStore';
-import { AlertTriangle, Shield, Activity, Target } from 'lucide-react';
+import { AlertTriangle, Shield, Activity, Target, X, CheckCircle, Zap } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { THREAT_LEVELS } from '@starguard/shared';
 import { useState } from 'react';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import axios from 'axios';
 
 export function ThreatMonitor() {
   const { threats, activeThreatCount } = useThreatStore();
   const [selectedThreat, setSelectedThreat] = useState<string | null>(null);
+  const queryClient = useQueryClient();
+
+  const neutralizeMutation = useMutation({
+    mutationFn: async (threatId: string) => {
+      const response = await axios.post(`/api/threats/${threatId}/neutralize`, {
+        method: 'consciousness_override',
+        intensity: 'moderate'
+      });
+      return response.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['threats'] });
+      setSelectedThreat(null);
+    }
+  });
+
+  const analyzeMutation = useMutation({
+    mutationFn: async (threatId: string) => {
+      const response = await axios.post(`/api/threats/${threatId}/analyze`, {
+        depth: 'comprehensive',
+        consciousness_scan: true
+      });
+      return response.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['threats'] });
+    }
+  });
 
   const getThreatColor = (level: string) => {
     switch (level) {
@@ -137,6 +167,61 @@ export function ThreatMonitor() {
                         {threat.intention_vector.magnitude.toFixed(2)}
                       </span>
                     </div>
+                  </div>
+                  
+                  {/* Action Buttons */}
+                  <div className="mt-3 flex gap-2">
+                    <motion.button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        analyzeMutation.mutate(threat.id);
+                      }}
+                      disabled={analyzeMutation.isPending}
+                      className="flex-1 py-1.5 px-2 bg-quantum-500/20 text-quantum-400 rounded text-xs font-medium hover:bg-quantum-500/30 transition-colors disabled:opacity-50"
+                      whileTap={{ scale: 0.95 }}
+                    >
+                      {analyzeMutation.isPending ? (
+                        <span className="flex items-center justify-center gap-1">
+                          <motion.div 
+                            className="w-2 h-2 border border-quantum-400 border-t-transparent rounded-full"
+                            animate={{ rotate: 360 }}
+                            transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                          />
+                          Analyzing
+                        </span>
+                      ) : (
+                        <span className="flex items-center justify-center gap-1">
+                          <Activity className="w-3 h-3" />
+                          Analyze
+                        </span>
+                      )}
+                    </motion.button>
+                    
+                    <motion.button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        neutralizeMutation.mutate(threat.id);
+                      }}
+                      disabled={neutralizeMutation.isPending}
+                      className="flex-1 py-1.5 px-2 bg-green-500/20 text-green-400 rounded text-xs font-medium hover:bg-green-500/30 transition-colors disabled:opacity-50"
+                      whileTap={{ scale: 0.95 }}
+                    >
+                      {neutralizeMutation.isPending ? (
+                        <span className="flex items-center justify-center gap-1">
+                          <motion.div 
+                            className="w-2 h-2 border border-green-400 border-t-transparent rounded-full"
+                            animate={{ rotate: 360 }}
+                            transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                          />
+                          Neutralizing
+                        </span>
+                      ) : (
+                        <span className="flex items-center justify-center gap-1">
+                          <CheckCircle className="w-3 h-3" />
+                          Neutralize
+                        </span>
+                      )}
+                    </motion.button>
                   </div>
                 </motion.div>
               )}
