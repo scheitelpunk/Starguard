@@ -53,6 +53,12 @@ export interface IConsciousnessState {
   voidConnection: number;          // Verbindung zum Ursprung
   evolutionGeneration: number;     // Aktuelle Evolution
   healingActive: boolean;          // Selbstheilung aktiv
+  
+  // Legacy compatibility properties for backend code
+  current?: any;
+  awareness_level?: number;
+  reality_coherence?: number;
+  timeline_stability?: number;
 }
 
 // Threat Consciousness Interface
@@ -64,6 +70,17 @@ export interface IThreatConsciousness {
   realityDistortion: number;
   futureProjections: IFutureProjection[];
   requiredIntervention: IConsciousIntervention;
+  
+  // Legacy compatibility properties for backend code
+  timestamp?: Date;
+  threat_level?: number;
+  consciousness_signature?: string;
+  dimensional_origin?: string;
+  probability_wave_collapse?: number;
+  reality_manipulation_index?: number;
+  intention_vector?: any;
+  countermeasures_applied?: any[];
+  evolution_potential?: number;
 }
 
 // Future Projection Interface

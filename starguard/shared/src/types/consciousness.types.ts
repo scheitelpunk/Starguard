@@ -239,6 +239,15 @@ export type DefensePattern = {
   learned: Date;
 };
 
+// Also export as interface for compatibility
+export interface IDefensePattern {
+  id: string;
+  threat: string;
+  response: string[];
+  effectiveness: number;
+  learned: Date;
+}
+
 export type HealingProtocol = {
   id: string;
   name: string;

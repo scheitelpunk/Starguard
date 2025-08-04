@@ -6,6 +6,9 @@
 // Export all consciousness types first (these are the primary types)
 export * from './consciousness.types';
 
+// Export quantum types
+export * from './quantum.types';
+
 // Export interfaces
 export * from '../interfaces/IQuantumSecurityConsciousness';
 export * from '../interfaces/IFinancialCrimePrevention';

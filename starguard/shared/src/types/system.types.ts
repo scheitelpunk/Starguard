@@ -76,4 +76,10 @@ export interface SystemHealth {
   component_health: { [key: string]: number };
   threat_level: string;
   last_check: Date;
+  
+  // Additional properties used by backend
+  overall_health?: number;
+  immune_strength?: number;
+  consciousness_coherence?: number;
+  adaptation_rate?: number;
 }
