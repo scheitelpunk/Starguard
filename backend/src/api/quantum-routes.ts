@@ -137,7 +137,7 @@ export class QuantumRoutes {
           }
         });
       } catch (error) {
-        fastify.log.error('Health check failed:', error);
+        fastify.log.error('Health check failed:', error as Error);
         reply.code(500).send({
           error: 'Health check failed',
           message: error instanceof Error ? error.message : 'Unknown error'
@@ -186,11 +186,11 @@ export class QuantumRoutes {
         const { severity, limit = 50, offset = 0, timeframe, source } = request.query;
 
         const threats = await this.threatDetector.getThreats({
-          severity,
+          severity: severity as string | undefined,
           limit,
           offset,
-          timeframe,
-          source
+          timeframe: timeframe as string | undefined,
+          source: source as string | undefined
         });
 
         const statistics = await this.threatDetector.getThreatStatistics();
@@ -205,7 +205,7 @@ export class QuantumRoutes {
           statistics
         });
       } catch (error) {
-        fastify.log.error('Failed to fetch threats:', error);
+        fastify.log.error('Failed to fetch threats:', error as Error);
         reply.code(500).send({
           error: 'Failed to fetch threats',
           message: error instanceof Error ? error.message : 'Unknown error'
@@ -263,10 +263,13 @@ export class QuantumRoutes {
         const results = {
           threatLevel: this.determineThreatLevel(securityAnalysis, neuralAnalysis),
           confidence: this.calculateConfidence(securityAnalysis, neuralAnalysis, coherenceAnalysis),
-          anomalies: [...securityAnalysis.anomalies, ...neuralAnalysis.anomalies],
+          anomalies: [
+            ...(securityAnalysis.anomalies || []), 
+            ...(neuralAnalysis.anomalies || [])
+          ],
           patterns: neuralAnalysis.patterns || [],
           recommendations: this.generateRecommendations(securityAnalysis, neuralAnalysis),
-          quantumCoherence: coherenceAnalysis.coherenceLevel,
+          quantumCoherence: coherenceAnalysis.overallCoherence,
           neuralActivation: neuralAnalysis.activationPattern || []
         };
 
@@ -287,7 +290,7 @@ export class QuantumRoutes {
           processingTime
         });
       } catch (error) {
-        fastify.log.error('Analysis failed:', error);
+        fastify.log.error('Analysis failed:', error as Error);
         reply.code(500).send({
           error: 'Analysis failed',
           message: error instanceof Error ? error.message : 'Unknown error'
@@ -335,7 +338,7 @@ export class QuantumRoutes {
           message: `Quantum swarm configured with ${config.agentCount} agents in ${config.topology} topology`
         });
       } catch (error) {
-        fastify.log.error('Swarm configuration failed:', error);
+        fastify.log.error('Swarm configuration failed:', error as Error);
         reply.code(500).send({
           error: 'Swarm configuration failed',
           message: error instanceof Error ? error.message : 'Unknown error'
@@ -353,7 +356,7 @@ export class QuantumRoutes {
           fieldStrength: await this.quantumCoherence.getFieldStrength()
         });
       } catch (error) {
-        fastify.log.error('Failed to generate particles:', error);
+        fastify.log.error('Failed to generate particles:', error as Error);
         reply.code(500).send({
           error: 'Failed to generate particles',
           message: error instanceof Error ? error.message : 'Unknown error'
@@ -379,7 +382,7 @@ export class QuantumRoutes {
             const data = JSON.parse(message.toString());
             this.handleWebSocketMessage(connectionId, data);
           } catch (error) {
-            fastify.log.error('WebSocket message parse error:', error);
+            fastify.log.error('WebSocket message parse error:', error as Error);
           }
         });
 
@@ -388,7 +391,7 @@ export class QuantumRoutes {
         });
 
         connection.socket.on('error', (error) => {
-          fastify.log.error('WebSocket error:', error);
+          fastify.log.error('WebSocket error:', error as Error);
           this.wsConnections.delete(connectionId);
         });
 

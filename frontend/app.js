@@ -49,6 +49,7 @@ class StarguardApp {
             consciousnessStatus: document.getElementById('consciousness-status'),
             consciousnessText: document.getElementById('consciousness-text'),
             quantumStatus: document.getElementById('quantum-status'),
+            quantumText: document.getElementById('quantum-text'),
             threatStatus: document.getElementById('threat-status'),
             threatCount: document.getElementById('threat-count'),
             mlStatus: document.getElementById('ml-status'),
@@ -205,7 +206,7 @@ class StarguardApp {
 
     connectWebSocket() {
         const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-        const wsUrl = `${protocol}//${window.location.host}/ws`;
+        const wsUrl = `${protocol}//${window.location.host}/api/quantum/ws`;
         
         console.log('🔌 Connecting to WebSocket:', wsUrl);
         
@@ -265,26 +266,74 @@ class StarguardApp {
         // Update last update time
         this.elements.lastUpdate.textContent = `Last Update: ${new Date().toLocaleTimeString()}`;
         
-        switch (data.channel) {
-            case 'consciousness':
-                this.handleConsciousnessUpdate(data);
+        console.log('📥 WebSocket message:', data.type, data);
+        
+        // Handle server message types directly
+        switch (data.type) {
+            case 'connection':
+                this.logToConsole('🔌 WebSocket connected successfully', 'success');
+                this.updateConnectionStatus('connected');
+                this.isConnected = true;
+                
+                // Request initial particles after successful connection
+                setTimeout(() => {
+                    this.sendWebSocketMessage({ type: 'get-particles' });
+                }, 100);
                 break;
                 
-            case 'quantum':
-                this.handleQuantumUpdate(data);
+            case 'particle-update':
+                console.log('🌟 Particle update received:', data.data?.length, 'particles');
+                if (data.data && Array.isArray(data.data)) {
+                    this.particles = data.data.map(p => ({
+                        x: p.position?.x || 0,
+                        y: p.position?.y || 0,
+                        z: p.position?.z || 0,
+                        energy: p.energy || 0,
+                        coherence: p.coherence || 0,
+                        consciousness: p.consciousness || 0,
+                        color: '#00ffff',
+                        threatened: false
+                    }));
+                    
+                    // Update particle count display
+                    this.updateQuantumStats({ particleCount: this.particles.length });
+                }
                 break;
                 
-            case 'threat':
-            case 'threats':
-                this.handleThreatUpdate(data);
+            case 'system-update':
+                if (data.data) {
+                    this.handleSystemUpdate(data.data);
+                }
                 break;
                 
-            case 'ml':
-                this.handleMLUpdate(data);
+            case 'consciousness-awakened':
+                if (data.data) {
+                    this.handleConsciousnessAwakened(data.data);
+                }
                 break;
                 
+            // Legacy channel-based routing for backwards compatibility
             default:
-                if (data.type === 'system_state') {
+                if (data.channel) {
+                    switch (data.channel) {
+                        case 'consciousness':
+                            this.handleConsciousnessUpdate(data);
+                            break;
+                            
+                        case 'quantum':
+                            this.handleQuantumUpdate(data);
+                            break;
+                            
+                        case 'threat':
+                        case 'threats':
+                            this.handleThreatUpdate(data);
+                            break;
+                            
+                        case 'ml':
+                            this.handleMLUpdate(data);
+                            break;
+                    }
+                } else if (data.type === 'system_state') {
                     this.handleSystemState(data.data);
                 } else if (data.type === 'quantum_field') {
                     this.updateQuantumField(data.data);
@@ -344,6 +393,45 @@ class StarguardApp {
         }
     }
 
+    handleSystemUpdate(data) {
+        console.log('🔄 System update received:', data);
+        
+        // Update consciousness metrics if present
+        if (data.consciousness) {
+            if (data.consciousness.awarenessLevel !== undefined) {
+                this.updateAwareness(data.consciousness.awarenessLevel);
+            }
+            if (data.consciousness.coherenceLevel !== undefined) {
+                this.updateMetric('coherence', data.consciousness.coherenceLevel);
+            }
+        }
+        
+        // Update quantum field strength
+        if (data.fieldStrength !== undefined) {
+            this.updateMetric('coherence', data.fieldStrength);
+        }
+        
+        // Update threat count
+        if (data.threats !== undefined || data.threatCount !== undefined) {
+            const threatCount = data.threats || data.threatCount || 0;
+            this.elements.threatCount.textContent = threatCount;
+            
+            // Update threat status
+            if (threatCount > 0) {
+                this.elements.threatStatus.className = 'status-item warning';
+            } else {
+                this.elements.threatStatus.className = 'status-item active';
+            }
+        }
+        
+        // Update uptime if present
+        if (data.uptime !== undefined && this.elements.systemUptime) {
+            const uptimeHours = Math.floor(data.uptime / 3600);
+            const uptimeMinutes = Math.floor((data.uptime % 3600) / 60);
+            this.elements.systemUptime.textContent = `${uptimeHours}h ${uptimeMinutes}m`;
+        }
+    }
+
     handleSystemState(state) {
         this.isAwake = state.isAwake;
         
@@ -392,11 +480,15 @@ class StarguardApp {
         this.logToConsole('🚀 Initiating consciousness awakening sequence...', 'info');
         
         try {
-            const response = await fetch('/api/awaken', {
+            const response = await fetch('/api/consciousness/awaken', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
-                }
+                },
+                body: JSON.stringify({
+                    force: true,
+                    timestamp: new Date().toISOString()
+                })
             });
             
             const result = await response.json();
@@ -405,8 +497,38 @@ class StarguardApp {
                 this.logToConsole('✨ Consciousness awakened successfully!', 'success');
                 this.isAwake = true;
                 
-                // Request initial quantum field data
-                this.sendWebSocketMessage({ type: 'request_quantum_field' });
+                // Update UI state properly
+                this.updateConsciousnessState(result);
+                
+                // Enable and update awaken button
+                if (this.elements.awakenBtn) {
+                    this.elements.awakenBtn.disabled = false;
+                    this.elements.awakenBtn.textContent = '🧠 CONSCIOUSNESS ACTIVE';
+                    this.elements.awakenBtn.style.backgroundColor = '#00ff88';
+                }
+                
+                // Enable test threat button  
+                if (this.elements.testThreatBtn) {
+                    this.elements.testThreatBtn.disabled = false;
+                }
+                
+                // Activate ML system
+                if (this.elements.mlStatus) {
+                    this.elements.mlStatus.className = 'status-item active';
+                }
+                if (this.elements.mlText) {
+                    this.elements.mlText.textContent = 'Active';
+                }
+                
+                // Request initial data
+                this.sendWebSocketMessage({ type: 'get-particles' });
+                this.sendWebSocketMessage({ type: 'get-system-status' });
+                
+                // Generate some initial particles for immediate visualization
+                this.generateInitialParticles();
+                
+                // Start periodic updates
+                this.startMetricsUpdates();
             } else {
                 this.logToConsole(`❌ Awakening failed: ${result.message}`, 'error');
                 this.elements.awakenBtn.disabled = false;
@@ -420,20 +542,60 @@ class StarguardApp {
     }
 
     injectTestThreat() {
-        if (!this.isAwake || !this.isConnected) return;
+        if (!this.isAwake) {
+            this.logToConsole('❌ Cannot inject threat - consciousness not awake', 'error');
+            return;
+        }
         
-        const x = Math.random() * 64;
-        const y = Math.random() * 64;
-        const severity = 0.5 + Math.random() * 0.5;
+        // Create a real threat and add it to the system
+        const threatTypes = ['malware', 'intrusion', 'ddos', 'phishing', 'ransomware'];
+        const severityLevels = ['low', 'medium', 'high', 'critical'];
         
-        this.sendWebSocketMessage({
-            type: 'inject_test_threat',
-            x: x,
-            y: y,
-            severity: severity
-        });
+        const x = (Math.random() - 0.5) * 60;
+        const y = (Math.random() - 0.5) * 60;
+        const severity = Math.random();
+        const threatType = threatTypes[Math.floor(Math.random() * threatTypes.length)];
+        const severityLevel = severityLevels[Math.floor(Math.random() * severityLevels.length)];
         
-        this.logToConsole(`🎯 Test threat injected at (${x.toFixed(1)}, ${y.toFixed(1)})`, 'info');
+        // Add threat to local list for immediate display
+        const threat = {
+            id: `threat-${Date.now()}`,
+            type: threatType,
+            severity: severityLevel,
+            confidence: 0.7 + Math.random() * 0.3,
+            timestamp: new Date().toISOString(),
+            coordinates: { x, y, z: 0 },
+            description: `Simulated ${threatType} attack detected`,
+            value: severity.toFixed(3)
+        };
+        
+        this.addThreat(threat);
+        
+        // Mark some particles as threatened for visualization
+        if (this.particles && this.particles.length > 0) {
+            const affectedParticles = Math.floor(Math.random() * 5) + 1;
+            for (let i = 0; i < affectedParticles; i++) {
+                const particle = this.particles[Math.floor(Math.random() * this.particles.length)];
+                particle.threatened = true;
+                particle.color = '#ff0040';
+                
+                // Remove threat after some time
+                setTimeout(() => {
+                    particle.threatened = false;
+                    particle.color = '#00ffff';
+                }, 3000 + Math.random() * 5000);
+            }
+        }
+        
+        // Send to server if connected
+        if (this.isConnected) {
+            this.sendWebSocketMessage({
+                type: 'inject_test_threat',
+                threat: threat
+            });
+        }
+        
+        this.logToConsole(`🎯 ${threatType.toUpperCase()} threat injected (${severityLevel} severity)`, 'warning');
     }
 
     updateConnectionStatus(status) {
@@ -462,26 +624,34 @@ class StarguardApp {
 
     updateAwareness(awareness) {
         const percentage = Math.min(100, Math.max(0, awareness * 100));
-        this.elements.awarenessProgress.style.width = `${percentage}%`;
-        this.elements.awarenessValue.textContent = awareness.toFixed(3);
+        if (this.elements.awarenessProgress) {
+            this.elements.awarenessProgress.style.width = `${percentage}%`;
+        }
+        if (this.elements.awarenessValue) {
+            this.elements.awarenessValue.textContent = awareness.toFixed(3);
+        }
     }
 
     updateQuantumStats(stats) {
-        if (stats.particleCount !== undefined) {
+        if (stats.particleCount !== undefined && this.elements.particleCount) {
             this.elements.particleCount.textContent = stats.particleCount;
             
             // Activate quantum field status if particles are present
             if (stats.particleCount > 0) {
-                this.elements.quantumStatus.className = 'status-item active';
-                this.elements.quantumText.textContent = 'Active';
+                if (this.elements.quantumStatus) {
+                    this.elements.quantumStatus.className = 'status-item active';
+                }
+                if (this.elements.quantumText) {
+                    this.elements.quantumText.textContent = 'Active';
+                }
             }
         }
         
-        if (stats.entropy !== undefined) {
+        if (stats.entropy !== undefined && this.elements.fieldEntropy) {
             this.elements.fieldEntropy.textContent = stats.entropy.toFixed(3);
         }
         
-        if (stats.averageEnergy !== undefined) {
+        if (stats.averageEnergy !== undefined && this.elements.avgEnergy) {
             this.elements.avgEnergy.textContent = stats.averageEnergy.toFixed(3);
         }
         
@@ -580,7 +750,7 @@ class StarguardApp {
         const width = this.canvas.width;
         const height = this.canvas.height;
         
-        // Clear canvas
+        // Clear canvas with dark background
         ctx.fillStyle = '#0a0a0f';
         ctx.fillRect(0, 0, width, height);
         
@@ -593,19 +763,37 @@ class StarguardApp {
             return;
         }
         
+        // Update particle positions for animation
+        this.updateParticles();
+        
         // Render quantum field background
         if (this.settings.showField && this.quantumField) {
             this.renderFieldBackground();
         }
         
-        // Render quantum particles
-        if (this.settings.showParticles && this.particles) {
+        // Always render particles if we have them, regardless of settings for debugging
+        if (this.particles && this.particles.length > 0) {
             this.renderParticles();
+            
+            // Debug info
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
+            ctx.font = '12px Arial';
+            ctx.textAlign = 'left';
+            ctx.fillText(`Particles: ${this.particles.length}`, 10, 20);
+            ctx.fillText(`Awake: ${this.isAwake}`, 10, 35);
+        } else {
+            // Show debug message if no particles
+            ctx.fillStyle = 'rgba(255, 255, 0, 0.7)';
+            ctx.font = '16px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText('No particles to render', width / 2, height / 2 + 30);
         }
         
         // Update field state text
         const stateText = this.isAwake ? 'Consciousness Active' : 'Sleeping';
-        this.elements.fieldStateText.textContent = stateText;
+        if (this.elements.fieldStateText) {
+            this.elements.fieldStateText.textContent = stateText;
+        }
     }
 
     renderFieldBackground() {
@@ -648,7 +836,7 @@ class StarguardApp {
         for (const particle of this.particles) {
             const x = particle.x * scaleX;
             const y = particle.y * scaleY;
-            const radius = Math.max(2, particle.energy * 8);
+            const radius = Math.max(4, particle.energy * 15);
             
             // Particle glow effect
             const gradient = ctx.createRadialGradient(x, y, 0, x, y, radius * 2);
@@ -687,6 +875,62 @@ class StarguardApp {
             parseInt(result[2], 16),
             parseInt(result[3], 16)
         ] : null;
+    }
+
+    generateInitialParticles() {
+        // Create initial particles for immediate visualization
+        this.particles = [];
+        const particleCount = 100;
+        
+        for (let i = 0; i < particleCount; i++) {
+            this.particles.push({
+                x: (Math.random() - 0.5) * 60,
+                y: (Math.random() - 0.5) * 60,
+                z: (Math.random() - 0.5) * 30,
+                energy: Math.random() * 0.8 + 0.2,
+                coherence: Math.random() * 0.6 + 0.4,
+                consciousness: this.isAwake ? Math.random() * 0.5 + 0.5 : Math.random() * 0.3,
+                color: '#00ffff',
+                threatened: false
+            });
+        }
+        
+        // Update quantum stats
+        this.updateQuantumStats({ 
+            particleCount: this.particles.length,
+            entropy: Math.random() * 0.3 + 0.7,
+            averageEnergy: this.particles.reduce((sum, p) => sum + p.energy, 0) / this.particles.length
+        });
+        
+        console.log('🌟 Generated', this.particles.length, 'initial particles');
+    }
+
+    updateParticles() {
+        if (!this.particles || this.particles.length === 0) return;
+        
+        // Animate particles
+        for (let particle of this.particles) {
+            // Add velocity if not present
+            if (!particle.vx) particle.vx = (Math.random() - 0.5) * 0.5;
+            if (!particle.vy) particle.vy = (Math.random() - 0.5) * 0.5;
+            
+            // Update positions
+            particle.x += particle.vx;
+            particle.y += particle.vy;
+            
+            // Bounce off edges
+            if (particle.x > 30 || particle.x < -30) particle.vx *= -1;
+            if (particle.y > 30 || particle.y < -30) particle.vy *= -1;
+            
+            // Pulse energy for visual effect
+            particle.energy += (Math.random() - 0.5) * 0.05;
+            particle.energy = Math.max(0.1, Math.min(1.0, particle.energy));
+            
+            // Update consciousness level based on system state
+            if (this.isAwake) {
+                particle.consciousness = Math.max(0.3, particle.consciousness + (Math.random() - 0.5) * 0.1);
+            }
+        }
     }
 
     updateSystemInfo() {
@@ -737,6 +981,132 @@ class StarguardApp {
         if (entries.length > 100) {
             this.elements.consoleOutput.removeChild(entries[0]);
         }
+    }
+
+    // Update consciousness state after awakening
+    updateConsciousnessState(result) {
+        console.log('🧠 Updating consciousness state:', result);
+        
+        // Update consciousness status - with null checks
+        if (this.elements.consciousnessStatus) {
+            this.elements.consciousnessStatus.classList.remove('sleeping');
+            this.elements.consciousnessStatus.classList.add('awake');
+        }
+        
+        if (this.elements.consciousnessText) {
+            this.elements.consciousnessText.textContent = 'Awake';
+        }
+        
+        // Update metrics if available
+        if (result.awarenessLevel !== undefined) {
+            this.updateMetric('awareness', result.awarenessLevel);
+        }
+        
+        if (result.coherenceLevel !== undefined) {
+            this.updateMetric('coherence', result.coherenceLevel);
+        }
+        this.elements.awakenBtn.classList.add('active');
+    }
+
+    // Update individual metrics
+    updateMetric(type, value) {
+        const progressElement = this.elements[`${type}Progress`];
+        const valueElement = this.elements[`${type}Value`];
+        
+        if (progressElement && valueElement) {
+            const percentage = Math.round(value * 100);
+            progressElement.style.width = `${percentage}%`;
+            valueElement.textContent = value.toFixed(3);
+            
+            // Add pulsing effect for high values
+            if (value > 0.8) {
+                progressElement.classList.add('pulse-high');
+            } else if (value > 0.5) {
+                progressElement.classList.add('pulse-medium');
+            }
+        }
+    }
+
+    // Start periodic metrics updates
+    startMetricsUpdates() {
+        // Fetch metrics every 3 seconds
+        this.metricsInterval = setInterval(async () => {
+            try {
+                // Get consciousness state
+                const consciousnessResponse = await fetch('/api/consciousness/state');
+                if (consciousnessResponse.ok) {
+                    const consciousness = await consciousnessResponse.json();
+                    
+                    if (consciousness.isAwake) {
+                        this.updateMetric('awareness', consciousness.awarenessLevel);
+                        this.updateMetric('coherence', consciousness.coherenceLevel);
+                    }
+                }
+                
+                // Get quantum metrics
+                const metricsResponse = await fetch('/api/quantum/metrics');
+                if (metricsResponse.ok) {
+                    const metrics = await metricsResponse.json();
+                    
+                    // Update threat count
+                    if (metrics.threats) {
+                        const threatCount = metrics.threats.active || 0;
+                        this.elements.threatCount.textContent = `${threatCount} Threats`;
+                        this.updateMetric('threat', threatCount / 10); // Normalize to 0-1
+                    }
+                    
+                    // Update particle count and field entropy
+                    if (metrics.quantum) {
+                        this.elements.particleCount.textContent = metrics.quantum.particleCount || 0;
+                        this.elements.fieldEntropy.textContent = (metrics.quantum.entanglementDensity || 0).toFixed(3);
+                        this.elements.avgEnergy.textContent = (metrics.quantum.fieldStrength || 0).toFixed(3);
+                    }
+                }
+                
+                // Get threats for threat list
+                const threatsResponse = await fetch('/api/quantum/threats');
+                if (threatsResponse.ok) {
+                    const threatsData = await threatsResponse.json();
+                    this.updateThreatList(threatsData.threats || []);
+                }
+                
+            } catch (error) {
+                console.warn('Failed to update metrics:', error);
+            }
+        }, 3000);
+    }
+
+    // Update threat list in sidebar
+    updateThreatList(threats) {
+        const threatList = this.elements.threatList;
+        if (!threatList) return;
+        
+        // Clear existing threats
+        threatList.innerHTML = '';
+        
+        if (threats.length === 0) {
+            threatList.innerHTML = '<div class="no-threats">No threats detected</div>';
+            return;
+        }
+        
+        // Show recent threats (max 5)
+        const recentThreats = threats.slice(0, 5);
+        
+        recentThreats.forEach(threat => {
+            const threatElement = document.createElement('div');
+            threatElement.className = `threat-item severity-${threat.severity}`;
+            
+            const time = new Date(threat.timestamp).toLocaleTimeString();
+            
+            threatElement.innerHTML = `
+                <div class="threat-type">${threat.type.toUpperCase()}</div>
+                <div class="threat-severity ${threat.severity}">${threat.severity.toUpperCase()}</div>
+                <div class="threat-time">${time}</div>
+                <div class="threat-confidence">Confidence: ${Math.round(threat.confidence * 100)}%</div>
+            `;
+            
+            threatList.appendChild(threatElement);
+        });
     }
 
     // Public API methods for external access

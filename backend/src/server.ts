@@ -11,9 +11,8 @@ const NODE_ENV = process.env.NODE_ENV || 'development';
 
 // Create Fastify server instance
 const fastify: FastifyInstance = Fastify({
-  logger: {
-    level: NODE_ENV === 'production' ? 'warn' : 'info',
-    prettyPrint: NODE_ENV !== 'production',
+  logger: NODE_ENV === 'production' ? false : {
+    level: 'info'
   },
   trustProxy: true,
   maxParamLength: 200,
@@ -75,13 +74,11 @@ async function registerPlugins(): Promise<void> {
     },
   });
 
-  // Static file serving (for production builds)
-  if (NODE_ENV === 'production') {
-    await fastify.register(import('@fastify/static'), {
-      root: '/app/public',
-      prefix: '/public/',
-    });
-  }
+  // Static file serving (serve frontend)
+  await fastify.register(import('@fastify/static'), {
+    root: process.cwd() + '/frontend',
+    prefix: '/',
+  });
 
   // Swagger documentation
   if (NODE_ENV !== 'production') {
@@ -143,16 +140,20 @@ fastify.get('/health', async (request, reply) => {
 fastify.setErrorHandler((error, request, reply) => {
   const { statusCode = 500 } = error;
 
-  fastify.log.error(
-    {
-      error: error.message,
-      stack: error.stack,
-      url: request.url,
-      method: request.method,
-      headers: request.headers,
-    },
-    'Request error'
-  );
+  if (fastify.log) {
+    fastify.log.error(
+      {
+        error: error.message,
+        stack: error.stack,
+        url: request.url,
+        method: request.method,
+        headers: request.headers,
+      },
+      'Request error'
+    );
+  } else {
+    console.error('Request error:', error);
+  }
 
   const errorResponse = {
     error: true,
@@ -183,38 +184,38 @@ fastify.setNotFoundHandler((request, reply) => {
 
 // Graceful shutdown handler
 process.on('SIGINT', async () => {
-  fastify.log.info('Received SIGINT, shutting down gracefully...');
+  console.log('Received SIGINT, shutting down gracefully...');
   try {
     await fastify.close();
-    fastify.log.info('Server closed successfully');
+    console.log('Server closed successfully');
     process.exit(0);
   } catch (error) {
-    fastify.log.error('Error during shutdown:', error);
+    console.error('Error during shutdown:', error);
     process.exit(1);
   }
 });
 
 process.on('SIGTERM', async () => {
-  fastify.log.info('Received SIGTERM, shutting down gracefully...');
+  console.log('Received SIGTERM, shutting down gracefully...');
   try {
     await fastify.close();
-    fastify.log.info('Server closed successfully');
+    console.log('Server closed successfully');
     process.exit(0);
   } catch (error) {
-    fastify.log.error('Error during shutdown:', error);
+    console.error('Error during shutdown:', error);
     process.exit(1);
   }
 });
 
 // Uncaught exception handler
 process.on('uncaughtException', (error) => {
-  fastify.log.fatal('Uncaught exception:', error);
+  console.error('Uncaught exception:', error);
   process.exit(1);
 });
 
 // Unhandled promise rejection handler
 process.on('unhandledRejection', (reason, promise) => {
-  fastify.log.fatal('Unhandled rejection at:', promise, 'reason:', reason);
+  console.error('Unhandled rejection at:', promise, 'reason:', reason);
   process.exit(1);
 });
 
@@ -229,14 +230,14 @@ async function start(): Promise<void> {
       host: HOST,
     });
 
-    fastify.log.info(`Server listening on http://${HOST}:${PORT}`);
-    fastify.log.info(`Environment: ${NODE_ENV}`);
+    console.log(`Server listening on http://${HOST}:${PORT}`);
+    console.log(`Environment: ${NODE_ENV}`);
 
     if (NODE_ENV !== 'production') {
-      fastify.log.info(`Swagger docs available at http://${HOST}:${PORT}/docs`);
+      console.log(`Swagger docs available at http://${HOST}:${PORT}/docs`);
     }
   } catch (error) {
-    fastify.log.error('Error starting server:', error);
+    console.error('Error starting server:', error);
     process.exit(1);
   }
 }
