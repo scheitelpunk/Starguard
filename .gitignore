@@ -107,7 +107,7 @@ claude-flow.bat
 claude-flow.ps1
 hive-mind-prompt-*.txt
 Claude.md
-prompt.txt
+prompt*.txt
 memory/
 .claude/
 .claude-flow/
@@ -174,3 +174,6 @@ claude-flow.bat
 claude-flow.ps1
 claude-flow.config.json
 # Removed specific entries - handled by ml/venv/ pattern
+.claude-flow/metrics/performance.json
+.claude-flow/metrics/system-metrics.json
+.claude-flow/metrics/task-metrics.json

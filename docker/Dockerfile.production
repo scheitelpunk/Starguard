@@ -1,0 +1,126 @@
+# Multi-stage production Dockerfile for Starguard Security System
+# Stage 1: Build stage
+FROM node:18-alpine AS builder
+
+# Install build dependencies including network monitoring tools
+RUN apk add --no-cache \
+    python3 \
+    make \
+    g++ \
+    libpcap-dev \
+    linux-headers \
+    git \
+    build-base
+
+# Set working directory
+WORKDIR /app
+
+# Copy package files
+COPY package*.json ./
+COPY backend/package*.json ./backend/
+
+# Install dependencies
+RUN npm ci --only=production && npm cache clean --force
+RUN cd backend && npm ci --only=production && npm cache clean --force
+
+# Copy source code
+COPY backend/ ./backend/
+COPY frontend/ ./frontend/
+COPY scripts/ ./scripts/
+
+# Build TypeScript
+RUN npm run build
+
+# Stage 2: Runtime preparation
+FROM node:18-alpine AS runtime-deps
+
+# Install runtime dependencies and security tools for network monitoring
+RUN apk add --no-cache \
+    libpcap \
+    curl \
+    tcpdump \
+    net-tools \
+    procps \
+    su-exec \
+    dumb-init \
+    shadow \
+    python3 \
+    py3-pip
+
+# Create non-root user with network capabilities
+RUN addgroup -g 1001 -S starguard && \
+    adduser -S -D -H -u 1001 -s /sbin/nologin -G starguard starguard
+
+# Stage 3: Production stage
+FROM runtime-deps AS production
+
+# Set working directory
+WORKDIR /app
+
+# Copy built application from builder stage
+COPY --from=builder --chown=starguard:starguard /app/backend/dist ./dist
+COPY --from=builder --chown=starguard:starguard /app/backend/node_modules ./node_modules
+COPY --from=builder --chown=starguard:starguard /app/backend/package*.json ./
+
+# Copy configuration files
+COPY --chown=starguard:starguard config/ ./config/
+COPY --chown=starguard:starguard scripts/ ./scripts/
+COPY --chown=starguard:starguard ml/ ./ml/
+
+# Create necessary directories
+RUN mkdir -p /app/logs /app/models /app/data /app/tmp && \
+    chown -R starguard:starguard /app/logs /app/models /app/data /app/tmp
+
+# Install Python ML dependencies
+RUN cd ml && pip3 install --no-cache-dir -r requirements.txt
+
+# Copy and set up entrypoint script
+COPY docker/entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+
+# Expose ports
+EXPOSE 3000 3001
+
+# Set environment variables
+ENV NODE_ENV=production \
+    PORT=3000 \
+    LOG_LEVEL=info
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
+    CMD curl -f http://localhost:3000/health || exit 1
+
+# Use dumb-init as PID 1
+ENTRYPOINT ["/usr/bin/dumb-init", "--"]
+
+# Start the application
+CMD ["/entrypoint.sh"]
+
+# Stage 4: Development stage
+FROM runtime-deps AS development
+
+WORKDIR /app
+
+# Install development dependencies
+RUN apk add --no-cache \
+    vim \
+    bash \
+    htop
+
+# Copy source code
+COPY --chown=starguard:starguard . .
+
+# Install all dependencies (including dev)
+RUN npm ci && cd backend && npm ci
+
+# Install Python ML dependencies
+RUN cd ml && pip3 install --no-cache-dir -r requirements.txt
+
+# Expose port and debugger port
+EXPOSE 3000 3001 9229
+
+# Set development environment
+ENV NODE_ENV=development
+
+# Start with nodemon for development
+CMD ["npm", "run", "dev"]
