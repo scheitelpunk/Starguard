@@ -1,6 +1,7 @@
 import Fastify, { FastifyInstance } from 'fastify';
 import { config } from 'dotenv';
 import quantumRoutes from './api/quantum-routes.js';
+import omegaRoutes from './api/omega-routes.js';
 
 // Load environment variables
 config();
@@ -98,6 +99,7 @@ async function registerPlugins(): Promise<void> {
           { name: 'threats', description: 'Threat detection endpoints' },
           { name: 'analysis', description: 'Security analysis endpoints' },
           { name: 'swarm', description: 'Quantum swarm endpoints' },
+          { name: 'omega', description: 'OMEGA Protocol endpoints' },
         ],
       },
     });
@@ -119,6 +121,9 @@ async function registerPlugins(): Promise<void> {
 
   // Register quantum routes
   await fastify.register(quantumRoutes);
+
+  // Register OMEGA routes
+  await fastify.register(omegaRoutes);
 }
 
 // Health check endpoint

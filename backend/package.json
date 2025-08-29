@@ -97,7 +97,9 @@
     "chokidar": "^3.5.3",
     "node-watch": "^0.7.4",
     "date-fns": "^2.30.0",
-    "ramda": "^0.29.1"
+    "ramda": "^0.29.1",
+    "big-integer": "^1.6.51",
+    "ntru": "^3.0.0"
   },
   "devDependencies": {
     "@types/node": "^20.10.0",
