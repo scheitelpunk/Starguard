@@ -1,0 +1,31 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "lib": ["ES2022"],
+    "module": "ESNext",
+    "moduleResolution": "node",
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "allowJs": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "declaration": true,
+    "sourceMap": true,
+    "outDir": "./dist",
+    "strict": false,
+    "noEmitOnError": false
+  },
+  "include": [
+    "backend/src/server.ts",
+    "backend/src/consciousness.ts",
+    "backend/src/threats.ts",
+    "backend/src/metrics.ts",
+    "backend/config/**/*",
+    "backend/utils/**/*",
+    "backend/types/**/*"
+  ],
+  "exclude": [
+    "node_modules",
+    "**/*.test.ts"
+  ]
+}

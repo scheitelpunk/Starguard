@@ -1,0 +1,90 @@
+{
+  "name": "starguard",
+  "version": "1.0.0",
+  "description": "STARGUARD - Quantum Security Consciousness System",
+  "main": "dist/server.js",
+  "type": "module",
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=9.0.0"
+  },
+  "scripts": {
+    "dev": "tsx watch backend/src/server.ts",
+    "build": "npm run clean && npm run build:backend && npm run build:frontend && npm run copy-assets",
+    "build:backend": "tsc -p backend/tsconfig.json",
+    "build:frontend": "node scripts/build-frontend.js",
+    "copy-assets": "cp -r frontend/* dist/public/",
+    "start": "npm run build && node dist/server.js",
+    "start:prod": "NODE_ENV=production node dist/server.js",
+    "test": "npm run test:backend && npm run test:ml",
+    "test:backend": "node --test backend/tests/**/*.test.js",
+    "test:ml": "python -m pytest ml/tests/ -v",
+    "lint": "eslint backend/src/**/*.ts --fix",
+    "typecheck": "tsc --noEmit -p backend/tsconfig.json",
+    "clean": "rm -rf dist && mkdir -p dist/public",
+    "docker:build": "docker-compose build",
+    "docker:up": "docker-compose up -d",
+    "docker:down": "docker-compose down",
+    "docker:logs": "docker-compose logs -f",
+    "health": "node scripts/healthcheck.js",
+    "migrate": "node scripts/migrate.js",
+    "seed": "node scripts/seed.js",
+    "backup": "node scripts/backup.js",
+    "restore": "node scripts/restore.js",
+    "logs": "tail -f logs/starguard.log",
+    "monitor": "node scripts/monitor.js",
+    "install:ml": "cd ml && pip install -r requirements.txt",
+    "prestart": "npm run migrate && npm run install:ml",
+    "postinstall": "npm run install:ml || echo 'ML dependencies install failed, continuing...'",
+    "consciousness:demo": "tsx examples/starguard-demo.ts",
+    "consciousness:start": "tsx -e \"import('./backend/src/consciousness/index.js').then(m => m.initializeStarguardConsciousness())\"",
+    "test:consciousness": "node --test tests/consciousness.test.js"
+  },
+  "dependencies": {
+    "@fastify/cors": "^8.4.0",
+    "@fastify/helmet": "^11.1.1",
+    "@fastify/rate-limit": "^8.1.0",
+    "@fastify/static": "^6.12.0",
+    "@fastify/websocket": "^8.3.0",
+    "dotenv": "^16.3.1",
+    "express": "^5.1.0",
+    "fastify": "^4.26.0",
+    "graceful-fs": "^4.2.11",
+    "joi": "^17.12.0",
+    "node-cron": "^3.0.3",
+    "node-fetch": "^3.3.2",
+    "pino": "^8.17.0",
+    "pino-pretty": "^10.3.1",
+    "sqlite3": "^5.1.6",
+    "ws": "^8.18.3"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.0",
+    "@types/ws": "^8.5.10",
+    "@typescript-eslint/eslint-plugin": "^6.19.0",
+    "@typescript-eslint/parser": "^6.19.0",
+    "eslint": "^8.56.0",
+    "terser": "^5.26.0",
+    "tsx": "^4.7.0",
+    "typescript": "^5.3.3"
+  },
+  "keywords": [
+    "security",
+    "quantum",
+    "consciousness",
+    "threat-detection",
+    "ml",
+    "websocket",
+    "real-time"
+  ],
+  "author": "STARGUARD Team",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/your-org/starguard.git"
+  },
+  "bugs": {
+    "url": "https://github.com/your-org/starguard/issues"
+  },
+  "homepage": "https://github.com/your-org/starguard#readme"
+}

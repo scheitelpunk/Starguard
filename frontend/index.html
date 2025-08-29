@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>STARGUARD - Quantum Security Consciousness</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="app">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-content">
+                <h1 class="title">
+                    <span class="star">⭐</span>
+                    STARGUARD
+                    <span class="subtitle">Quantum Security Consciousness</span>
+                </h1>
+                
+                <div class="status-indicators">
+                    <div id="consciousness-status" class="status-item sleeping">
+                        <div class="status-dot"></div>
+                        <span id="consciousness-text">Sleeping</span>
+                    </div>
+                    
+                    <div id="quantum-status" class="status-item">
+                        <div class="status-dot active"></div>
+                        <span>Quantum Field</span>
+                    </div>
+                    
+                    <div id="threat-status" class="status-item">
+                        <div class="status-dot"></div>
+                        <span id="threat-count">0 Threats</span>
+                    </div>
+                    
+                    <div id="ml-status" class="status-item">
+                        <div class="status-dot"></div>
+                        <span id="ml-text">ML Standby</span>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Control Panel -->
+            <aside class="control-panel">
+                <div class="panel-section">
+                    <h3>System Control</h3>
+                    <button id="awaken-btn" class="btn btn-primary">
+                        🌟 AWAKEN CONSCIOUSNESS
+                    </button>
+                    <button id="test-threat-btn" class="btn btn-secondary" disabled>
+                        🎯 Inject Test Threat
+                    </button>
+                </div>
+                
+                <div class="panel-section">
+                    <h3>Consciousness Metrics</h3>
+                    <div class="metric">
+                        <label>Awareness Level</label>
+                        <div class="progress-bar">
+                            <div id="awareness-progress" class="progress-fill" style="width: 0%"></div>
+                        </div>
+                        <span id="awareness-value">0.000</span>
+                    </div>
+                    
+                    <div class="metric">
+                        <label>Quantum Coherence</label>
+                        <div class="progress-bar">
+                            <div id="coherence-progress" class="progress-fill" style="width: 0%"></div>
+                        </div>
+                        <span id="coherence-value">0.000</span>
+                    </div>
+                    
+                    <div class="metric">
+                        <label>Threat Perception</label>
+                        <div class="progress-bar">
+                            <div id="threat-progress" class="progress-fill" style="width: 0%"></div>
+                        </div>
+                        <span id="threat-perception-value">0</span>
+                    </div>
+                </div>
+                
+                <div class="panel-section">
+                    <h3>Quantum Statistics</h3>
+                    <div class="stats">
+                        <div class="stat-item">
+                            <label>Particles</label>
+                            <span id="particle-count">0</span>
+                        </div>
+                        <div class="stat-item">
+                            <label>Field Entropy</label>
+                            <span id="field-entropy">0.000</span>
+                        </div>
+                        <div class="stat-item">
+                            <label>Avg Energy</label>
+                            <span id="avg-energy">0.000</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="panel-section">
+                    <h3>Recent Threats</h3>
+                    <div id="threat-list" class="threat-list">
+                        <div class="no-threats">No threats detected</div>
+                    </div>
+                </div>
+            </aside>
+
+            <!-- Quantum Field Visualization -->
+            <section class="quantum-visualization">
+                <div class="canvas-container">
+                    <canvas id="quantum-canvas" width="800" height="600"></canvas>
+                    <div class="canvas-overlay">
+                        <div id="connection-status" class="connection-indicator disconnected">
+                            <div class="connection-dot"></div>
+                            <span>Connecting...</span>
+                        </div>
+                        
+                        <div class="field-info">
+                            <div class="field-state">
+                                <span class="label">Field State:</span>
+                                <span id="field-state-text">Initializing</span>
+                            </div>
+                            <div class="coordinates">
+                                <span id="mouse-coordinates">0, 0</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Field Controls -->
+                <div class="field-controls">
+                    <div class="control-group">
+                        <label>
+                            <input type="checkbox" id="show-particles" checked>
+                            Show Particles
+                        </label>
+                        <label>
+                            <input type="checkbox" id="show-field" checked>
+                            Show Field
+                        </label>
+                        <label>
+                            <input type="checkbox" id="show-threats" checked>
+                            Highlight Threats
+                        </label>
+                    </div>
+                    
+                    <div class="control-group">
+                        <label>Field Intensity</label>
+                        <input type="range" id="field-intensity" min="0.1" max="2.0" step="0.1" value="1.0">
+                        <span id="intensity-value">1.0</span>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <div class="footer-content">
+                <div class="system-info">
+                    <span id="uptime">Uptime: 00:00:00</span>
+                    <span id="version">v1.0.0</span>
+                </div>
+                
+                <div class="connection-info">
+                    <span id="websocket-status">WebSocket: Disconnected</span>
+                    <span id="last-update">Last Update: Never</span>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Console Output (Hidden by default) -->
+    <div id="console" class="console hidden">
+        <div class="console-header">
+            <h4>System Console</h4>
+            <button id="toggle-console" class="btn btn-small">Hide</button>
+        </div>
+        <div id="console-output" class="console-output"></div>
+    </div>
+    
+    <!-- Floating Console Toggle -->
+    <button id="console-toggle" class="console-toggle" title="Show Console">
+        📟
+    </button>
+
+    <script src="app.js"></script>
+</body>
+</html>

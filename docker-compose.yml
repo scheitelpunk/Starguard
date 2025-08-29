@@ -1,0 +1,130 @@
+version: '3.8'
+
+services:
+  starguard-app:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    ports:
+      - "3000:3000"
+      - "3001:3001"  # WebSocket port
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      - WS_PORT=3001
+      - DATABASE_URL=file:./data/starguard.db
+      - LOG_LEVEL=info
+      - CACHE_TYPE=memory
+      - ML_SERVICE_URL=http://starguard-ml:5000
+    volumes:
+      - starguard-data:/app/data
+      - ./config:/app/config:ro
+      - ./logs:/app/logs
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "node", "scripts/healthcheck.js"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    depends_on:
+      starguard-ml:
+        condition: service_healthy
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: '1.0'
+        reservations:
+          memory: 256M
+          cpus: '0.5'
+    security_opt:
+      - no-new-privileges:true
+    read_only: true
+    tmpfs:
+      - /tmp:size=100M,noexec,nosuid,nodev
+      - /app/logs:size=100M,noexec,nosuid,nodev
+    user: "1000:1000"
+
+  starguard-ml:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.ml
+    ports:
+      - "5000:5000"
+    environment:
+      - PYTHONUNBUFFERED=1
+      - MODEL_CACHE_DIR=/app/models
+      - LOG_LEVEL=info
+    volumes:
+      - ml-models:/app/models
+      - ./logs:/app/logs
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "scripts/ml_healthcheck.py"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+          cpus: '1.5'
+        reservations:
+          memory: 512M
+          cpus: '0.75'
+    security_opt:
+      - no-new-privileges:true
+    read_only: true
+    tmpfs:
+      - /tmp:size=100M,noexec,nosuid,nodev
+      - /app/logs:size=50M,noexec,nosuid,nodev
+    user: "1000:1000"
+
+  # Lightweight monitoring service
+  starguard-monitor:
+    image: prom/node-exporter:latest
+    container_name: starguard-monitor
+    ports:
+      - "9100:9100"
+    command:
+      - '--path.rootfs=/host'
+      - '--collector.filesystem.ignored-mount-points=^/(sys|proc|dev|host|etc)($$|/)'
+    volumes:
+      - /:/host:ro,rslave
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 128M
+          cpus: '0.25'
+        reservations:
+          memory: 64M
+          cpus: '0.1'
+    security_opt:
+      - no-new-privileges:true
+    read_only: true
+    user: "65534:65534"
+
+volumes:
+  starguard-data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ./data
+  ml-models:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ./ml/models
+
+networks:
+  default:
+    name: starguard-network
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
