@@ -51,6 +51,7 @@
     "@fastify/swagger-ui": "^5.2.3",
     "@fastify/websocket": "^8.3.1",
     "@sinclair/typebox": "^0.34.40",
+    "big-integer": "^1.6.52",
     "crypto-js": "^4.2.0",
     "dgram": "^1.0.1",
     "dotenv": "^16.3.1",
@@ -83,7 +84,7 @@
     "@typescript-eslint/parser": "^6.19.0",
     "eslint": "^8.56.0",
     "terser": "^5.26.0",
-    "tsx": "^4.7.0",
+    "tsx": "^4.20.5",
     "typescript": "^5.3.3"
   },
   "keywords": [
