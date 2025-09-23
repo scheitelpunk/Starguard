@@ -355,12 +355,10 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## 📞 Support
 
 - **Documentation**: [docs/](docs/)
-- **Issues**: [GitHub Issues](https://github.com/your-org/starguard2/issues)
-- **Security**: [security@your-domain.com](mailto:security@your-domain.com)
-- **Enterprise**: [enterprise@your-domain.com](mailto:enterprise@your-domain.com)
+- **Enterprise**: [enterprise@your-domain.com](mailto:vertrieb@versino.de)
 
 ---
 
-**Built with ❤️ for Enterprise Security**
+**Built with ❤️ for Enterprise Security by Versino PsiOmega, https://psiogmega.versino.de**
 
-*STARGUARD2 - Where Quantum Meets Security*
+*STARGUARD - Where Quantum Meets Security*
