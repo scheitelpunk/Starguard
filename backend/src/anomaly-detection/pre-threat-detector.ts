@@ -47,7 +47,7 @@ export interface PortScanPattern {
  * - DGA (Domain Generation Algorithm) detection via entropy analysis
  * - Port scan pattern recognition with behavioral analysis
  */
-export class VoidScanner extends EventEmitter {
+export class AnomalyDetector extends EventEmitter {
   private readonly config = {
     silenceThreshold: 0.3, // 30% deviation from baseline
     entropyThreshold: 4.2, // Shannon entropy threshold for DGA
@@ -75,7 +75,7 @@ export class VoidScanner extends EventEmitter {
    */
   public async initialize(): Promise<void> {
     try {
-      this.logger.info('VoidScanner: Initializing pre-threat detection system');
+      this.logger.info('AnomalyDetector: Initializing pre-threat detection system');
       
       // Calculate initial network baseline
       await this.establishNetworkBaseline();
@@ -86,9 +86,9 @@ export class VoidScanner extends EventEmitter {
       this.isActive = true;
       this.emit('initialized');
       
-      this.logger.info('VoidScanner: Successfully initialized');
+      this.logger.info('AnomalyDetector: Successfully initialized');
     } catch (error) {
-      this.logger.error('VoidScanner: Initialization failed', error);
+      this.logger.error('AnomalyDetector: Initialization failed', error);
       throw new Error(`VoidScanner initialization failed: ${error}`);
     }
   }
@@ -116,7 +116,7 @@ export class VoidScanner extends EventEmitter {
       this.updateNetworkMetrics(packet);
 
     } catch (error) {
-      this.logger.error('VoidScanner: Packet analysis failed', error);
+      this.logger.error('AnomalyDetector: Packet analysis failed', error);
     }
 
     return threats;
@@ -151,7 +151,7 @@ export class VoidScanner extends EventEmitter {
 
       return null;
     } catch (error) {
-      this.logger.error('VoidScanner: Domain analysis failed', error);
+      this.logger.error('AnomalyDetector: Domain analysis failed', error);
       return null;
     }
   }
@@ -426,7 +426,7 @@ export class VoidScanner extends EventEmitter {
     // In production, this would analyze historical traffic data
     // For now, we'll establish a simple baseline
     this.networkBaseline.clear();
-    this.logger.info('VoidScanner: Network baseline established');
+    this.logger.info('AnomalyDetector: Network baseline established');
   }
 
   private countTrafficInWindow(networkKey: string, start: number, end: number): number {
@@ -478,7 +478,7 @@ export class VoidScanner extends EventEmitter {
         baselineEntries: this.networkBaseline.size
       });
     } catch (error) {
-      this.logger.error('VoidScanner: Periodic analysis failed', error);
+      this.logger.error('AnomalyDetector: Periodic analysis failed', error);
     }
   }
 
@@ -560,7 +560,7 @@ export class VoidScanner extends EventEmitter {
 
   private setupEventHandlers(): void {
     this.on('error', (error) => {
-      this.logger.error('VoidScanner: Error event', error);
+      this.logger.error('AnomalyDetector: Error event', error);
     });
   }
 
@@ -580,9 +580,9 @@ export class VoidScanner extends EventEmitter {
       this.domainCache.clear();
 
       this.emit('shutdown');
-      this.logger.info('VoidScanner: Successfully shut down');
+      this.logger.info('AnomalyDetector: Successfully shut down');
     } catch (error) {
-      this.logger.error('VoidScanner: Shutdown failed', error);
+      this.logger.error('AnomalyDetector: Shutdown failed', error);
       throw error;
     }
   }
@@ -600,4 +600,6 @@ export class VoidScanner extends EventEmitter {
   }
 }
 
-export default VoidScanner;
+// Legacy export for backward compatibility
+export const VoidScanner = AnomalyDetector;
+export default AnomalyDetector;

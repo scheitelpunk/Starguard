@@ -1,33 +1,33 @@
 import { FastifyInstance, FastifyRequest, FastifyReply } from 'fastify';
 import { WebSocket } from 'ws';
 import { Type, Static } from '@sinclair/typebox';
-import { QuantumSwarmSystem } from '../quantum-swarm/QuantumSwarmSystem.js';
-import { QuantumNeuralProcessor } from '../quantum-swarm/QuantumNeuralProcessor.js';
-import { QuantumSecurityAnalyzer } from '../quantum-swarm/QuantumSecurityAnalyzer.js';
-import { QuantumThreatDetector } from '../quantum-swarm/QuantumThreatDetector.js';
-import { QuantumCoherence } from '../quantum-swarm/QuantumCoherence.js';
-import { OmegaProtocolCoordinator } from '../omega-protocol/omega-coordinator.js';
+import { AgentMeshOrchestrator } from '../agent-mesh/AgentMeshOrchestrator.js';
+import { DistributedNeuralProcessor } from '../agent-mesh/DistributedNeuralProcessor.js';
+import { DistributedSecurityAnalyzer } from '../agent-mesh/DistributedSecurityAnalyzer.js';
+import { DistributedThreatDetector } from '../agent-mesh/DistributedThreatDetector.js';
+import { MeshCoherence } from '../agent-mesh/MeshCoherence.js';
+import { CryptoAnalysisCoordinator } from '../crypto-analysis/crypto-coordinator.js';
 import { Logger } from '../utils/logger.js';
 
-export class QuantumRoutes {
-  private quantumSwarm: QuantumSwarmSystem;
-  private neuralProcessor: QuantumNeuralProcessor;
-  private securityAnalyzer: QuantumSecurityAnalyzer;
-  private threatDetector: QuantumThreatDetector;
-  private quantumCoherence: QuantumCoherence;
-  private omega: OmegaProtocolCoordinator;
+export class AgentRoutes {
+  private agentMesh: AgentMeshOrchestrator;
+  private neuralProcessor: DistributedNeuralProcessor;
+  private securityAnalyzer: DistributedSecurityAnalyzer;
+  private threatDetector: DistributedThreatDetector;
+  private meshCoherence: MeshCoherence;
+  private cryptoAnalysis: CryptoAnalysisCoordinator;
   private wsConnections: Map<string, WebSocketConnection> = new Map();
   private heartbeatInterval: NodeJS.Timeout;
   public logger: Logger;
 
   constructor() {
-    this.logger = new Logger('quantum-routes');
-    this.quantumSwarm = new QuantumSwarmSystem();
-    this.neuralProcessor = new QuantumNeuralProcessor();
-    this.securityAnalyzer = new QuantumSecurityAnalyzer();
-    this.threatDetector = new QuantumThreatDetector();
-    this.quantumCoherence = new QuantumCoherence();
-    this.omega = new OmegaProtocolCoordinator();
+    this.logger = new Logger('agent-routes');
+    this.agentMesh = new AgentMeshOrchestrator();
+    this.neuralProcessor = new DistributedNeuralProcessor();
+    this.securityAnalyzer = new DistributedSecurityAnalyzer();
+    this.threatDetector = new DistributedThreatDetector();
+    this.meshCoherence = new MeshCoherence();
+    this.cryptoAnalysis = new CryptoAnalysisCoordinator();
 
     // Start heartbeat for WebSocket connections
     this.heartbeatInterval = setInterval(() => {
@@ -56,41 +56,41 @@ interface WebSocketConnection {
 }
 
 // Request types
-const QuantumAnalysisRequest = Type.Object({
+const AgentAnalysisRequest = Type.Object({
   data: Type.String(),
   analysisType: Type.Optional(Type.String()),
 });
 
-const SwarmConfigRequest = Type.Object({
+const MeshConfigRequest = Type.Object({
   topology: Type.String(),
   nodeCount: Type.Number(),
   parameters: Type.Optional(Type.Object({})),
 });
 
-type QuantumAnalysisRequestType = Static<typeof QuantumAnalysisRequest>;
-type SwarmConfigRequestType = Static<typeof SwarmConfigRequest>;
+type AgentAnalysisRequestType = Static<typeof AgentAnalysisRequest>;
+type MeshConfigRequestType = Static<typeof MeshConfigRequest>;
 
-// Quantum routes plugin
-export default async function quantumRoutes(fastify: FastifyInstance) {
-  const quantumSystem = new QuantumRoutes();
+// Agent routes plugin
+export default async function agentRoutes(fastify: FastifyInstance) {
+  const agentSystem = new AgentRoutes();
 
-  // OMEGA Protocol endpoints
-  fastify.post('/api/omega/initialize', async (request, reply) => {
-    return { status: 'OMEGA_ACTIVE', message: 'Protocol initialized from void' };
+  // Crypto Analysis endpoints
+  fastify.post('/api/crypto-analysis/initialize', async (request, reply) => {
+    return { status: 'ACTIVE', message: 'Crypto analysis initialized' };
   });
 
-  fastify.post('/api/omega/analyze', async (request, reply) => {
+  fastify.post('/api/crypto-analysis/analyze', async (request, reply) => {
     return { status: 'ANALYZED', message: 'Analysis complete' };
   });
 
-  fastify.get('/api/omega/riemann/weak-keys', async (request, reply) => {
+  fastify.get('/api/crypto-analysis/weak-keys', async (request, reply) => {
     return { weakKeys: [] };
   });
 
   // WebSocket endpoint for real-time updates
-  const logger = quantumSystem.logger;
+  const logger = agentSystem.logger;
   fastify.register(async (fastify) => {
-    fastify.get('/api/quantum/ws', { websocket: true }, (connection, request) => {
+    fastify.get('/api/agents/ws', { websocket: true }, (connection, request) => {
       const connectionId = Math.random().toString(36).substring(7);
 
       connection.socket.on('message', (message: any) => {
@@ -109,10 +109,10 @@ export default async function quantumRoutes(fastify: FastifyInstance) {
     });
   });
 
-  // Basic quantum analysis endpoints
-  fastify.post('/api/quantum/analyze', {
+  // Basic agent analysis endpoints
+  fastify.post('/api/agents/analyze', {
     schema: {
-      body: QuantumAnalysisRequest,
+      body: AgentAnalysisRequest,
       response: {
         200: Type.Object({
           status: Type.String(),
@@ -120,39 +120,39 @@ export default async function quantumRoutes(fastify: FastifyInstance) {
         })
       }
     }
-  }, async (request: FastifyRequest<{ Body: QuantumAnalysisRequestType }>, reply) => {
+  }, async (request: FastifyRequest<{ Body: AgentAnalysisRequestType }>, reply) => {
     return {
       status: 'success',
       result: {
-        analysis: 'quantum analysis complete',
+        analysis: 'agent mesh analysis complete',
         timestamp: new Date().toISOString()
       }
     };
   });
 
-  fastify.post('/api/quantum/swarm/configure', {
+  fastify.post('/api/agents/mesh/configure', {
     schema: {
-      body: SwarmConfigRequest,
+      body: MeshConfigRequest,
       response: {
         200: Type.Object({
           status: Type.String(),
-          swarmId: Type.String()
+          meshId: Type.String()
         })
       }
     }
-  }, async (request: FastifyRequest<{ Body: SwarmConfigRequestType }>, reply) => {
+  }, async (request: FastifyRequest<{ Body: MeshConfigRequestType }>, reply) => {
     return {
       status: 'configured',
-      swarmId: Math.random().toString(36).substring(7)
+      meshId: Math.random().toString(36).substring(7)
     };
   });
 
-  fastify.get('/api/quantum/health', async (request, reply) => {
+  fastify.get('/api/agents/health', async (request, reply) => {
     return {
       status: 'operational',
       timestamp: new Date().toISOString(),
       services: {
-        swarm: 'operational',
+        mesh: 'operational',
         neural: 'operational',
         security: 'operational',
         threatDetection: 'operational',
@@ -166,30 +166,30 @@ export default async function quantumRoutes(fastify: FastifyInstance) {
     };
   });
 
-  // Consciousness endpoints
-  fastify.post('/api/consciousness/awaken', async (request, reply) => {
+  // Analytics endpoints (formerly consciousness)
+  fastify.post('/api/analytics/initialize', async (request, reply) => {
     return {
-      status: 'awakened',
-      awareness: 0.75,
+      status: 'initialized',
+      intelligence: 0.75,
       threats: 0,
       entropy: Math.random().toString(36).substring(2, 18),
-      message: 'Consciousness awakening sequence complete'
+      message: 'Behavioral analytics initialization complete'
     };
   });
 
-  fastify.get('/api/consciousness/status', async (request, reply) => {
+  fastify.get('/api/analytics/status', async (request, reply) => {
     return {
-      status: 'awake',
-      awarenessLevel: 0.75,
-      quantumState: 'stable',
+      status: 'active',
+      intelligenceLevel: 0.75,
+      distributedState: 'stable',
       threatPerceptions: 0,
-      lastAwakening: new Date().toISOString(),
-      isAwake: true
+      lastInitialization: new Date().toISOString(),
+      isActive: true
     };
   });
 
-  // Quantum particles endpoint
-  fastify.get('/api/quantum/particles', async (request, reply) => {
+  // Agent particles endpoint (for visualization)
+  fastify.get('/api/agents/particles', async (request, reply) => {
     const particles = [];
     for (let i = 0; i < 100; i++) {
       particles.push({
@@ -212,26 +212,26 @@ export default async function quantumRoutes(fastify: FastifyInstance) {
     return { particles };
   });
 
-  // Quantum threats endpoint
-  fastify.get('/api/quantum/threats', async (request, reply) => {
+  // Agent threats endpoint
+  fastify.get('/api/agents/threats', async (request, reply) => {
     const threats = [];
     const severityLevels = ['low', 'medium', 'high', 'critical'];
-    
+
     for (let i = 0; i < 5; i++) {
       threats.push({
         id: `threat-${i + 1}`,
-        type: `Quantum Anomaly ${i + 1}`,
+        type: `Distributed Anomaly ${i + 1}`,
         severity: severityLevels[Math.floor(Math.random() * severityLevels.length)],
         confidence: Math.random(),
         timestamp: new Date().toISOString(),
         source: `Sensor-${Math.floor(Math.random() * 10) + 1}`,
-        description: `Detected quantum field disturbance`,
+        description: `Detected distributed field disturbance`,
         coordinates: {
           x: (Math.random() - 0.5) * 100,
           y: (Math.random() - 0.5) * 100,
           z: (Math.random() - 0.5) * 100
         },
-        quantumSignature: Math.random().toString(36).substring(2, 18),
+        distributedSignature: Math.random().toString(36).substring(2, 18),
         metadata: {}
       });
     }

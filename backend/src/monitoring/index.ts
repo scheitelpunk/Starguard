@@ -26,16 +26,19 @@ export {
   getTracer,
   biometricTracer,
   threatTracer,
-  quantumSwarmTracer,
+  agentMeshTracer,
   defenseEvolutionTracer,
   mlTracer,
   BiometricTracer,
   ThreatTracer,
-  QuantumSwarmTracer,
+  AgentMeshTracer,
   DefenseEvolutionTracer,
   MLTracer,
   type SpanAttributes,
 } from './tracing.js';
+
+// Legacy exports for backward compatibility
+export { agentMeshTracer as quantumSwarmTracer, AgentMeshTracer as QuantumSwarmTracer } from './tracing.js';
 
 // Health Checks
 export {

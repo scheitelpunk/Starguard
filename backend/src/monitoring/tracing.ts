@@ -73,7 +73,7 @@ export class BiometricTracer {
         attributes: {
           'user.id': userId,
           'biometric.type': biometricType,
-          'auth.method': 'consciousness',
+          'auth.method': 'behavioral',
         },
       },
       async (span) => {
@@ -191,8 +191,8 @@ export class ThreatTracer {
     );
   }
 
-  async traceVoidScanner(operation: (span: Span) => Promise<any>): Promise<any> {
-    return this.tracer.startActiveSpan('threat.void_scanner', operation);
+  async traceAnomalyDetection(operation: (span: Span) => Promise<any>): Promise<any> {
+    return this.tracer.startActiveSpan('threat.anomaly_detection', operation);
   }
 
   async traceDGADetection(
@@ -212,13 +212,13 @@ export class ThreatTracer {
 }
 
 /**
- * Quantum Swarm Tracing
+ * Agent Mesh Tracing
  */
-export class QuantumSwarmTracer {
+export class AgentMeshTracer {
   private tracer: Tracer;
 
   constructor() {
-    this.tracer = getTracer('quantum-swarm');
+    this.tracer = getTracer('agent-mesh');
   }
 
   async traceConsensus(
@@ -397,6 +397,6 @@ export class MLTracer {
 // Export tracer instances
 export const biometricTracer = new BiometricTracer();
 export const threatTracer = new ThreatTracer();
-export const quantumSwarmTracer = new QuantumSwarmTracer();
+export const agentMeshTracer = new AgentMeshTracer();
 export const defenseEvolutionTracer = new DefenseEvolutionTracer();
 export const mlTracer = new MLTracer();

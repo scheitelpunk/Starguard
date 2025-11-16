@@ -1,7 +1,7 @@
 import Fastify, { FastifyInstance } from 'fastify';
 import { config } from 'dotenv';
-import quantumRoutes from './api/quantum-routes.js';
-import omegaRoutes from './api/omega-routes.js';
+import agentRoutes from './api/agent-routes.js';
+import cryptoAnalysisRoutes from './api/crypto-analysis-routes.js';
 import { Logger } from './utils/logger.js';
 
 const logger = new Logger('starguard-server');
@@ -28,8 +28,8 @@ const fastify: FastifyInstance = Fastify({
 async function registerPlugins() {
   try {
     // Register routes
-    await fastify.register(quantumRoutes, { prefix: '/api/quantum' });
-    await fastify.register(omegaRoutes, { prefix: '/api/omega' });
+    await fastify.register(agentRoutes, { prefix: '/api/agents' });
+    await fastify.register(cryptoAnalysisRoutes, { prefix: '/api/crypto-analysis' });
 
     logger.info('All plugins registered successfully');
   } catch (error) {

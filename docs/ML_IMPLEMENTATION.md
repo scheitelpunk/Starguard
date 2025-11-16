@@ -166,17 +166,17 @@ for (const threat of threats) {
 }
 ```
 
-### Consciousness Engine Integration
+### Security Intelligence Engine Integration
 ```typescript
-// In consciousness engine
+// In security intelligence engine
 import { mlCoordinator } from './ml';
 
-// Get threat intelligence for awareness calculation
+// Get threat intelligence for security posture calculation
 const recentThreats = mlCoordinator.getRecentThreats(10); // Last 10 minutes
 const threatSummary = mlCoordinator.getThreatSummary();
 
-// Use threat data to influence consciousness state
-this.awarenessLevel = calculateAwareness(threatSummary);
+// Use threat data to influence security alert level
+this.alertLevel = calculateSecurityPosture(threatSummary);
 ```
 
 ### WebSocket Streaming
@@ -256,4 +256,4 @@ pip install scikit-learn==1.3.2 numpy==1.24.3 pandas==2.0.3 joblib==1.3.2
 
 ---
 
-This implementation provides a production-ready, CPU-optimized ML anomaly detection system integrated with STARGUARD's consciousness-based security architecture.
+This implementation provides a production-ready, CPU-optimized ML anomaly detection system integrated with STARGUARD's multi-agent security intelligence architecture.

@@ -1,7 +1,7 @@
 import { EventEmitter } from 'events';
 import { v4 as uuidv4 } from 'uuid';
 
-export interface SwarmAgent {
+export interface MeshAgent {
   id: string;
   type: 'scanner' | 'analyzer' | 'defender' | 'coordinator';
   position: { x: number; y: number; z: number };
@@ -12,15 +12,15 @@ export interface SwarmAgent {
   workload: number;
 }
 
-export interface SwarmConfig {
+export interface MeshConfig {
   topology: 'mesh' | 'hierarchical' | 'ring' | 'star';
   agentCount: number;
   coherenceLevel: number;
-  quantumEntanglement?: boolean;
+  distributedEntanglement?: boolean;
   adaptiveScaling?: boolean;
 }
 
-export interface SwarmMetrics {
+export interface MeshMetrics {
   agentCount: number;
   topology: string;
   coherenceLevel: number;
@@ -31,12 +31,12 @@ export interface SwarmMetrics {
   networkLatency: number;
 }
 
-export class QuantumSwarmSystem extends EventEmitter {
-  private agents: Map<string, SwarmAgent> = new Map();
-  private config: SwarmConfig;
+export class AgentMeshOrchestrator extends EventEmitter {
+  private agents: Map<string, MeshAgent> = new Map();
+  private config: MeshConfig;
   private isActive: boolean = false;
   private lastConfigurationId: string | null = null;
-  private performanceMetrics: SwarmMetrics;
+  private performanceMetrics: MeshMetrics;
 
   constructor() {
     super();
@@ -44,10 +44,10 @@ export class QuantumSwarmSystem extends EventEmitter {
       topology: 'mesh',
       agentCount: 5,
       coherenceLevel: 0.75,
-      quantumEntanglement: true,
+      distributedEntanglement: true,
       adaptiveScaling: true
     };
-    
+
     this.performanceMetrics = {
       agentCount: 0,
       topology: 'mesh',
@@ -59,21 +59,21 @@ export class QuantumSwarmSystem extends EventEmitter {
       networkLatency: 0
     };
 
-    this.initializeDefaultSwarm();
+    this.initializeDefaultMesh();
   }
 
-  async configure(config: SwarmConfig): Promise<string> {
+  async configure(config: MeshConfig): Promise<string> {
     this.config = { ...this.config, ...config };
     const configurationId = uuidv4();
     this.lastConfigurationId = configurationId;
 
-    // Reconfigure swarm based on new settings
-    await this.reconfigureSwarm();
-    
+    // Reconfigure mesh based on new settings
+    await this.reconfigureMesh();
+
     // Update performance metrics
     this.updateMetrics();
 
-    this.emit('swarm-configured', {
+    this.emit('mesh-configured', {
       configurationId,
       config: this.config,
       timestamp: new Date().toISOString()
@@ -102,17 +102,17 @@ export class QuantumSwarmSystem extends EventEmitter {
     };
   }
 
-  async getSwarmMetrics(): Promise<SwarmMetrics> {
+  async getMeshMetrics(): Promise<MeshMetrics> {
     this.updateMetrics();
     return this.performanceMetrics;
   }
 
-  async deployAgent(type: SwarmAgent['type'], capabilities: string[] = []): Promise<string> {
+  async deployAgent(type: MeshAgent['type'], capabilities: string[] = []): Promise<string> {
     const agentId = uuidv4();
-    const agent: SwarmAgent = {
+    const agent: MeshAgent = {
       id: agentId,
       type,
-      position: this.generateQuantumPosition(),
+      position: this.generateDistributedPosition(),
       energy: Math.random() * 0.5 + 0.5, // 0.5 to 1.0
       status: 'active',
       capabilities: capabilities.length > 0 ? capabilities : this.getDefaultCapabilities(type),
@@ -122,7 +122,7 @@ export class QuantumSwarmSystem extends EventEmitter {
 
     this.agents.set(agentId, agent);
     this.emit('agent-deployed', { agent, timestamp: new Date().toISOString() });
-    
+
     return agentId;
   }
 
@@ -132,11 +132,11 @@ export class QuantumSwarmSystem extends EventEmitter {
 
     this.agents.delete(agentId);
     this.emit('agent-removed', { agentId, timestamp: new Date().toISOString() });
-    
+
     return true;
   }
 
-  async getAgents(): Promise<SwarmAgent[]> {
+  async getAgents(): Promise<MeshAgent[]> {
     return Array.from(this.agents.values());
   }
 
@@ -153,7 +153,7 @@ export class QuantumSwarmSystem extends EventEmitter {
   }> {
     // Find suitable agents for the task
     const suitableAgents = this.findSuitableAgents(task.type, task.priority);
-    
+
     // Assign task to agents
     const assignedAgentIds = suitableAgents.map(agent => {
       agent.status = 'processing';
@@ -173,7 +173,7 @@ export class QuantumSwarmSystem extends EventEmitter {
           agent.workload = Math.max(0, agent.workload - this.calculateTaskWorkload(task));
         }
       });
-      
+
       this.emit('task-completed', {
         taskId: task.id,
         assignedAgents: assignedAgentIds,
@@ -192,14 +192,14 @@ export class QuantumSwarmSystem extends EventEmitter {
   async updateCoherence(level: number): Promise<void> {
     this.config.coherenceLevel = Math.max(0, Math.min(1, level));
     this.updateMetrics();
-    
+
     this.emit('coherence-updated', {
       level: this.config.coherenceLevel,
       timestamp: new Date().toISOString()
     });
   }
 
-  private async initializeDefaultSwarm(): Promise<void> {
+  private async initializeDefaultMesh(): Promise<void> {
     // Deploy initial agents
     await this.deployAgent('coordinator', ['task-assignment', 'load-balancing', 'communication']);
     await this.deployAgent('scanner', ['network-scan', 'port-scan', 'vulnerability-detection']);
@@ -211,13 +211,13 @@ export class QuantumSwarmSystem extends EventEmitter {
     this.updateMetrics();
   }
 
-  private async reconfigureSwarm(): Promise<void> {
+  private async reconfigureMesh(): Promise<void> {
     const currentCount = this.agents.size;
     const targetCount = this.config.agentCount;
 
     if (targetCount > currentCount) {
       // Add more agents
-      const agentTypes: SwarmAgent['type'][] = ['scanner', 'analyzer', 'defender'];
+      const agentTypes: MeshAgent['type'][] = ['scanner', 'analyzer', 'defender'];
       for (let i = currentCount; i < targetCount; i++) {
         const type = agentTypes[i % agentTypes.length];
         await this.deployAgent(type);
@@ -236,7 +236,7 @@ export class QuantumSwarmSystem extends EventEmitter {
 
   private updateTopology(): void {
     const agents = Array.from(this.agents.values());
-    
+
     switch (this.config.topology) {
       case 'mesh':
         this.arrangeMeshTopology(agents);
@@ -253,7 +253,7 @@ export class QuantumSwarmSystem extends EventEmitter {
     }
   }
 
-  private arrangeMeshTopology(agents: SwarmAgent[]): void {
+  private arrangeMeshTopology(agents: MeshAgent[]): void {
     agents.forEach((agent, index) => {
       const angle = (2 * Math.PI * index) / agents.length;
       const radius = 50 + (Math.random() * 30);
@@ -265,10 +265,10 @@ export class QuantumSwarmSystem extends EventEmitter {
     });
   }
 
-  private arrangeHierarchicalTopology(agents: SwarmAgent[]): void {
+  private arrangeHierarchicalTopology(agents: MeshAgent[]): void {
     const coordinators = agents.filter(a => a.type === 'coordinator');
     const workers = agents.filter(a => a.type !== 'coordinator');
-    
+
     // Place coordinators at top level
     coordinators.forEach((agent, index) => {
       agent.position = {
@@ -290,7 +290,7 @@ export class QuantumSwarmSystem extends EventEmitter {
     });
   }
 
-  private arrangeRingTopology(agents: SwarmAgent[]): void {
+  private arrangeRingTopology(agents: MeshAgent[]): void {
     agents.forEach((agent, index) => {
       const angle = (2 * Math.PI * index) / agents.length;
       const radius = 60;
@@ -302,10 +302,10 @@ export class QuantumSwarmSystem extends EventEmitter {
     });
   }
 
-  private arrangeStarTopology(agents: SwarmAgent[]): void {
+  private arrangeStarTopology(agents: MeshAgent[]): void {
     const coordinator = agents.find(a => a.type === 'coordinator');
     const workers = agents.filter(a => a.type !== 'coordinator');
-    
+
     if (coordinator) {
       coordinator.position = { x: 0, y: 0, z: 0 };
     }
@@ -321,7 +321,7 @@ export class QuantumSwarmSystem extends EventEmitter {
     });
   }
 
-  private generateQuantumPosition(): { x: number; y: number; z: number } {
+  private generateDistributedPosition(): { x: number; y: number; z: number } {
     return {
       x: (Math.random() - 0.5) * 100,
       y: (Math.random() - 0.5) * 100,
@@ -329,7 +329,7 @@ export class QuantumSwarmSystem extends EventEmitter {
     };
   }
 
-  private getDefaultCapabilities(type: SwarmAgent['type']): string[] {
+  private getDefaultCapabilities(type: MeshAgent['type']): string[] {
     switch (type) {
       case 'scanner':
         return ['network-scan', 'vulnerability-detection', 'port-analysis'];
@@ -344,7 +344,7 @@ export class QuantumSwarmSystem extends EventEmitter {
     }
   }
 
-  private findSuitableAgents(taskType: string, priority: string): SwarmAgent[] {
+  private findSuitableAgents(taskType: string, priority: string): MeshAgent[] {
     const agents = Array.from(this.agents.values())
       .filter(agent => agent.status === 'active' || agent.status === 'idle')
       .filter(agent => agent.workload < 0.8); // Don't overload agents
@@ -354,22 +354,22 @@ export class QuantumSwarmSystem extends EventEmitter {
       .sort((a, b) => {
         const aRelevance = this.calculateAgentRelevance(a, taskType);
         const bRelevance = this.calculateAgentRelevance(b, taskType);
-        
+
         if (aRelevance !== bRelevance) {
           return bRelevance - aRelevance; // Higher relevance first
         }
-        
+
         return a.workload - b.workload; // Lower workload first
       })
       .slice(0, Math.min(3, Math.ceil(agents.length / 2))); // Limit agents per task
   }
 
-  private calculateAgentRelevance(agent: SwarmAgent, taskType: string): number {
-    const relevantCapabilities = agent.capabilities.filter(cap => 
+  private calculateAgentRelevance(agent: MeshAgent, taskType: string): number {
+    const relevantCapabilities = agent.capabilities.filter(cap =>
       taskType.toLowerCase().includes(cap.split('-')[0]) ||
       cap.toLowerCase().includes(taskType.toLowerCase())
     );
-    
+
     return relevantCapabilities.length / agent.capabilities.length;
   }
 
@@ -385,23 +385,23 @@ export class QuantumSwarmSystem extends EventEmitter {
     return baseLoad * (priorityMultiplier[task.priority as string] || 1);
   }
 
-  private calculateEstimatedTime(task: any, agents: SwarmAgent[]): number {
+  private calculateEstimatedTime(task: any, agents: MeshAgent[]): number {
     const baseTime = 1000; // 1 second base time
     const complexityFactor = task.data ? Object.keys(task.data).length * 100 : 500;
     const agentEfficiency = agents.length * 0.8; // More agents = faster processing
-    
+
     return Math.max(500, baseTime + complexityFactor - (agentEfficiency * 100));
   }
 
   private updateMetrics(): void {
     const agents = Array.from(this.agents.values());
     const activeAgents = agents.filter(a => a.status === 'active' || a.status === 'processing');
-    
+
     this.performanceMetrics = {
       agentCount: agents.length,
       topology: this.config.topology,
       coherenceLevel: this.config.coherenceLevel,
-      efficiency: this.calculateSwarmEfficiency(),
+      efficiency: this.calculateMeshEfficiency(),
       responseTime: this.calculateAverageResponseTime(),
       activeAgents: activeAgents.length,
       totalProcessingPower: this.calculateTotalProcessingPower(),
@@ -409,14 +409,14 @@ export class QuantumSwarmSystem extends EventEmitter {
     };
   }
 
-  private calculateSwarmEfficiency(): number {
+  private calculateMeshEfficiency(): number {
     const agents = Array.from(this.agents.values());
     if (agents.length === 0) return 0;
-    
+
     const averageWorkload = agents.reduce((sum, agent) => sum + agent.workload, 0) / agents.length;
     const coherenceFactor = this.config.coherenceLevel;
     const topologyEfficiency = this.getTopologyEfficiency();
-    
+
     return Math.min(1, (1 - averageWorkload) * coherenceFactor * topologyEfficiency);
   }
 
@@ -431,11 +431,11 @@ export class QuantumSwarmSystem extends EventEmitter {
   }
 
   private calculateAverageResponseTime(): number {
-    // Simulate response time based on swarm configuration
+    // Simulate response time based on mesh configuration
     const baseTime = 100; // ms
     const coherenceFactor = 1 - this.config.coherenceLevel;
     const loadFactor = this.calculateAverageLoad();
-    
+
     return baseTime + (coherenceFactor * 200) + (loadFactor * 300);
   }
 
@@ -452,14 +452,14 @@ export class QuantumSwarmSystem extends EventEmitter {
     const baseLatency = 50; // ms
     const topologyFactor = this.config.topology === 'mesh' ? 0.8 : 1.2;
     const coherenceFactor = 1 - this.config.coherenceLevel;
-    
+
     return baseLatency * topologyFactor * (1 + coherenceFactor);
   }
 
   private calculateAverageLoad(): number {
     const agents = Array.from(this.agents.values());
     if (agents.length === 0) return 0;
-    
+
     return agents.reduce((sum, agent) => sum + agent.workload, 0) / agents.length;
   }
 
