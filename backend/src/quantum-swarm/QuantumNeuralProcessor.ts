@@ -1,5 +1,6 @@
 import { EventEmitter } from 'events';
 import { v4 as uuidv4 } from 'uuid';
+import { Logger } from '../utils/logger.js';
 
 export interface NeuralLayer {
   id: string;
@@ -60,10 +61,12 @@ export class QuantumNeuralProcessor extends EventEmitter {
   private processingActive: boolean = false;
   private quantumState: Map<string, number> = new Map();
   private entanglementMap: Map<string, Set<string>> = new Map();
+  private logger: Logger;
 
   constructor(config?: Partial<QuantumNeuralConfig>) {
     super();
-    
+
+    this.logger = new Logger('quantum-neural-processor');
     this.config = {
       layers: 4,
       neuronsPerLayer: 128,
@@ -847,7 +850,7 @@ export class QuantumNeuralProcessor extends EventEmitter {
       if (this.processingQueue.length > 0) {
         const task = this.processingQueue.shift();
         if (task) {
-          this.processData(task.data, task.type).catch(console.error);
+          this.processData(task.data, task.type).catch((err) => this.logger.error('Neural processing queue error', err));
         }
       }
     }, 100); // Process queue every 100ms

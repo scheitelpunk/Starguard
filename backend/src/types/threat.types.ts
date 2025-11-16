@@ -56,7 +56,22 @@ export interface ThreatPattern {
     end: Date;
     peaks: Date[];
   };
-  metadata: Record<string, any>;
+  metadata: Record<string, unknown>;
+}
+
+/**
+ * Security anomaly from analysis
+ */
+export interface SecurityAnomaly {
+  id: string;
+  type: 'access_violation' | 'data_exfiltration' | 'privilege_escalation' | 'malware_signature' | 'network_intrusion' | 'behavioral_anomaly';
+  severity: 'low' | 'medium' | 'high' | 'critical';
+  confidence: number;
+  description: string;
+  location: string;
+  timestamp: Date;
+  evidence: Record<string, unknown>;
+  quantumSignature: string;
 }
 
 export interface ThreatEvent {

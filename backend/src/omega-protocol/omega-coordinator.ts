@@ -2,31 +2,48 @@ import { RiemannZetaAnalyzer } from './riemann-analyzer';
 import { QuantumCryptoDefense } from './quantum-crypto-defense';
 import { HilbertPolyaScanner } from './hilbert-polya-scanner';
 import { EventEmitter } from 'events';
+import { Logger } from '../utils/logger.js';
+import type {
+  OmegaAnalysis,
+  OmegaInputData,
+  TLSData,
+  NetworkPacket,
+  RSAWeakness,
+  QuantumThreat,
+  SpectralAnalysis
+} from '../types/omega.types';
 
 export class OmegaProtocolCoordinator extends EventEmitter {
   private riemann: RiemannZetaAnalyzer;
   private quantum: QuantumCryptoDefense;
   private hilbert: HilbertPolyaScanner;
+  private logger: Logger;
 
   constructor() {
     super();
+    this.logger = new Logger('omega-protocol');
     this.riemann = new RiemannZetaAnalyzer();
     this.quantum = new QuantumCryptoDefense();
     this.hilbert = new HilbertPolyaScanner();
   }
 
-  public async analyzeSecurityFromMathematicalVoid(data: any): Promise<OmegaAnalysis> {
+  /**
+   * Analyze security data using mathematical void analysis
+   * @param data - Security data to analyze (TLS, network packets, etc.)
+   * @returns Complete Omega analysis with threat assessment
+   */
+  public async analyzeSecurityFromMathematicalVoid(data: OmegaInputData): Promise<OmegaAnalysis> {
     const tlsData = this.extractTLSData(data);
     const networkPackets = this.extractNetworkPackets(data);
 
     // Riemann analysis for cryptographic weaknesses
-    const rsaWeakness = tlsData.certificates.map((cert: any) =>
+    const rsaWeakness = tlsData.certificates.map((cert) =>
       this.riemann.analyzeRSAKey(cert.publicKey)
     );
 
     // Quantum threat detection
     const quantumThreats = this.quantum.detectQuantumAttack(
-      networkPackets.map((p: any) => p.payload)
+      networkPackets.map((p) => p.payload)
     );
 
     // Hilbert-Polya spectral analysis
@@ -34,13 +51,13 @@ export class OmegaProtocolCoordinator extends EventEmitter {
 
     // Prime pattern detection in ports/IPs
     const primePatterns = this.riemann.detectPrimePatterns(
-      networkPackets.map((p: any) => p.port)
+      networkPackets.map((p) => p.port)
     );
 
     const analysis: OmegaAnalysis = {
       timestamp: Date.now(),
       riemannFindings: {
-        weakKeys: rsaWeakness.filter((w: any) => w.isWeak),
+        weakKeys: rsaWeakness.filter((w) => w.isWeak),
         primePatterns: primePatterns,
         zetaCorrelation: this.calculateOverallZetaCorrelation(rsaWeakness)
       },
@@ -79,7 +96,7 @@ export class OmegaProtocolCoordinator extends EventEmitter {
     return analysis;
   }
 
-  private extractTLSData(data: any): any {
+  private extractTLSData(data: OmegaInputData): TLSData {
     return {
       certificates: data.certificates || [],
       cipherSuites: data.cipherSuites || [],
@@ -87,26 +104,26 @@ export class OmegaProtocolCoordinator extends EventEmitter {
     };
   }
 
-  private extractNetworkPackets(data: any): any[] {
+  private extractNetworkPackets(data: OmegaInputData): NetworkPacket[] {
     return data.packets || [];
   }
 
-  private calculateOverallZetaCorrelation(weaknesses: any[]): number {
+  private calculateOverallZetaCorrelation(weaknesses: RSAWeakness[]): number {
     if (weaknesses.length === 0) return 0;
 
-    const scores = weaknesses.map((w: any) => w.score);
-    return scores.reduce((a: number, b: number) => a + b, 0) / scores.length;
+    const scores = weaknesses.map((w) => w.score);
+    return scores.reduce((a, b) => a + b, 0) / scores.length;
   }
 
   private calculateOmegaThreatLevel(
-    rsaWeakness: any[],
-    quantumThreats: any,
-    spectralAnalysis: any
+    rsaWeakness: RSAWeakness[],
+    quantumThreats: QuantumThreat,
+    spectralAnalysis: SpectralAnalysis
   ): number {
     let threatLevel = 0;
 
     // RSA weaknesses contribution
-    const weakKeyCount = rsaWeakness.filter((w: any) => w.isWeak).length;
+    const weakKeyCount = rsaWeakness.filter((w) => w.isWeak).length;
     threatLevel += (weakKeyCount / Math.max(rsaWeakness.length, 1)) * 0.3;
 
     // Quantum threat contribution
@@ -124,13 +141,13 @@ export class OmegaProtocolCoordinator extends EventEmitter {
   }
 
   private generateOmegaRecommendations(
-    rsaWeakness: any[],
-    quantumThreats: any,
-    spectralAnalysis: any
+    rsaWeakness: RSAWeakness[],
+    quantumThreats: QuantumThreat,
+    spectralAnalysis: SpectralAnalysis
   ): string[] {
     const recommendations: string[] = [];
 
-    if (rsaWeakness.some((w: any) => w.isWeak)) {
+    if (rsaWeakness.some((w) => w.isWeak)) {
       recommendations.push('IMMEDIATE: Regenerate RSA keys with quantum-safe parameters');
       recommendations.push('DEPLOY: Post-quantum cryptography (NTRU/Ring-LWE)');
     }
@@ -154,25 +171,18 @@ export class OmegaProtocolCoordinator extends EventEmitter {
   }
 
   public initializeOmegaField(): void {
-    console.log('Ω - OMEGA PROTOCOL INITIALIZING FROM VOID');
+    this.logger.info('Ω - OMEGA PROTOCOL INITIALIZING FROM VOID');
 
     // Create quantum-entangled defense keys
     const defenseKey = this.quantum.generateQuantumResistantKey();
-    console.log(`Quantum-resistant key generated: ${defenseKey.id}`);
+    this.logger.info('Quantum-resistant key generated', { keyId: defenseKey.id });
 
     // Initialize Hermitian operators for Hilbert space
     this.hilbert.createHermitianOperator('DEFENSE', 16);
     this.hilbert.createHermitianOperator('DETECTION', 16);
 
-    console.log('Ω - OMEGA FIELD ESTABLISHED');
+    this.logger.info('Ω - OMEGA FIELD ESTABLISHED');
   }
 }
 
-interface OmegaAnalysis {
-  timestamp: number;
-  riemannFindings: any;
-  quantumStatus: any;
-  spectralFindings: any;
-  overallThreatLevel: number;
-  recommendations: string[];
-}
+// OmegaAnalysis interface moved to types/omega.types.ts

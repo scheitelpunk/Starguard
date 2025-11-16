@@ -1,6 +1,7 @@
 import { EventEmitter } from 'events';
 import { v4 as uuidv4 } from 'uuid';
 import * as crypto from 'crypto';
+import { Logger } from '../utils/logger.js';
 
 export interface ThreatData {
   id: string;
@@ -85,9 +86,11 @@ export class QuantumThreatDetector extends EventEmitter {
     timestamp: Date;
     priority: number;
   }> = [];
+  private logger: Logger;
 
   constructor() {
     super();
+    this.logger = new Logger('quantum-threat-detector');
     this.initializeDetectionRules();
     this.initializeQuantumSensors();
     this.initializeThreatProfiles();
@@ -141,7 +144,7 @@ export class QuantumThreatDetector extends EventEmitter {
       await this.updateQuantumProfiles(detectedThreats);
 
     } catch (error) {
-      console.error('Threat detection failed:', error);
+      this.logger.error('Threat detection failed', error);
       this.emit('detection-error', {
         error: error instanceof Error ? error.message : 'Unknown error',
         source,
@@ -842,8 +845,13 @@ export class QuantumThreatDetector extends EventEmitter {
     
     switch (attackType) {
       case 'malware':
+        // Secure simulation: use JSON representation instead of actual eval code
         return {
-          code: 'eval(atob("' + Buffer.from('malicious code').toString('base64') + '"))',
+          code: JSON.stringify({
+            type: 'malicious_pattern',
+            encoded: Buffer.from('malicious code').toString('base64'),
+            method: 'base64_decode_and_execute'
+          }),
           entropy: 6 + intensity * 2,
           signatures: ['exec', 'eval', 'base64']
         };
@@ -969,7 +977,7 @@ export class QuantumThreatDetector extends EventEmitter {
       if (this.processingQueue.length > 0) {
         const task = this.processingQueue.shift();
         if (task) {
-          this.detectThreats(task.data, task.source).catch(console.error);
+          this.detectThreats(task.data, task.source).catch((err) => this.logger.error('Detection queue processing error', err));
         }
       }
     }, 50); // Process every 50ms

@@ -1,19 +1,20 @@
+import type { LogRequest, LogResponse, LogThreat, LogConsciousnessState, LogMetrics, SecurityEventDetails, PerformanceData, WebSocketData, StructuredLogData } from '../src/types/logger.types';
 export declare class Logger {
     private logger;
     constructor(context?: string);
-    fatal(message: string, data?: any): void;
-    error(message: string, error?: Error | any): void;
-    warn(message: string, data?: any): void;
-    info(message: string, data?: any): void;
-    debug(message: string, data?: any): void;
-    trace(message: string, data?: any): void;
-    request(req: any, res: any): void;
-    websocket(action: string, clientId: string, data?: any): void;
-    threat(threat: any): void;
-    consciousness(state: any): void;
-    metrics(metrics: any): void;
-    security(event: string, details?: any): void;
-    performance(operation: string, duration: number, data?: any): void;
+    fatal(message: string, data?: StructuredLogData): void;
+    error(message: string, error?: Error | StructuredLogData): void;
+    warn(message: string, data?: StructuredLogData): void;
+    info(message: string, data?: StructuredLogData): void;
+    debug(message: string, data?: StructuredLogData): void;
+    trace(message: string, data?: StructuredLogData): void;
+    request(req: LogRequest, res: LogResponse): void;
+    websocket(action: string, clientId: string, data?: WebSocketData): void;
+    threat(threat: LogThreat): void;
+    consciousness(state: LogConsciousnessState): void;
+    metrics(metrics: LogMetrics): void;
+    security(event: string, details?: SecurityEventDetails): void;
+    performance(operation: string, duration: number, data?: PerformanceData): void;
     database(operation: string, table?: string, duration?: number): void;
     memory(): void;
     withContext(context: Record<string, any>): Logger;
@@ -29,7 +30,7 @@ export declare class PerformanceTimer {
     private start;
     private operation;
     constructor(operation: string);
-    end(data?: any): number;
+    end(data?: PerformanceData): number;
 }
 export declare function timer(operation: string): PerformanceTimer;
 export declare function generateRequestId(): string;

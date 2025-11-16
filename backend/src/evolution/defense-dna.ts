@@ -122,7 +122,18 @@ export class DefenseDNA extends EventEmitter {
 
   private population: DefenseOrganism[] = [];
   private currentGeneration: number = 0;
-  private evolutionEnvironment: EvolutionEnvironment;
+  private evolutionEnvironment: EvolutionEnvironment = {
+    threatLandscape: [],
+    pressureIntensity: 0.5,
+    resourceConstraints: {
+      maxCpuUsage: 0.8,
+      maxMemoryUsage: 0.8,
+      maxResponseTime: 1000,
+      maxFalsePositiveRate: 0.01
+    },
+    selectionPressure: 0.7,
+    mutationRate: 0.05
+  };
   private mutationStrategies: MutationStrategy[] = [];
   private threatProfiles: Map<string, ThreatProfile> = new Map();
   private generatedRules: Map<string, YARARule> = new Map();

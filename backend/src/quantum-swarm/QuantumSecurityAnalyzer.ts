@@ -1,6 +1,7 @@
 import { EventEmitter } from 'events';
 import { v4 as uuidv4 } from 'uuid';
 import * as crypto from 'crypto';
+import { Logger } from '../utils/logger.js';
 
 export interface SecurityAnomaly {
   id: string;
@@ -63,9 +64,11 @@ export class QuantumSecurityAnalyzer extends EventEmitter {
     priority: number;
     timestamp: Date;
   }> = [];
+  private logger: Logger;
 
   constructor() {
     super();
+    this.logger = new Logger('quantum-security-analyzer');
     this.initializeSecurityPolicies();
     this.initializeThreatSignatures();
     this.initializeQuantumCryptography();
@@ -112,12 +115,18 @@ export class QuantumSecurityAnalyzer extends EventEmitter {
       ]);
 
       // Merge analysis results
-      analysis.anomalies.push(
-        ...staticAnalysis.anomalies,
-        ...dynamicAnalysis.anomalies,
-        ...behavioralAnalysis.anomalies,
-        ...quantumAnalysis.anomalies
-      );
+      if (staticAnalysis.anomalies) {
+        analysis.anomalies.push(...staticAnalysis.anomalies);
+      }
+      if (dynamicAnalysis.anomalies) {
+        analysis.anomalies.push(...dynamicAnalysis.anomalies);
+      }
+      if (behavioralAnalysis.anomalies) {
+        analysis.anomalies.push(...behavioralAnalysis.anomalies);
+      }
+      if (quantumAnalysis.anomalies) {
+        analysis.anomalies.push(...quantumAnalysis.anomalies);
+      }
 
       // Calculate combined risk score
       analysis.riskScore = this.calculateRiskScore([
@@ -147,7 +156,7 @@ export class QuantumSecurityAnalyzer extends EventEmitter {
       analysis.metadata.quantumEnhanced = true;
 
     } catch (error) {
-      console.error('Security analysis failed:', error);
+      this.logger.error('Security analysis failed', error);
       analysis.metadata.error = error instanceof Error ? error.message : 'Unknown error';
       analysis.confidence = 0;
     }
@@ -705,7 +714,7 @@ export class QuantumSecurityAnalyzer extends EventEmitter {
       return 0.5; // Default neutral score
       
     } catch (error) {
-      console.error('Rule evaluation error:', error);
+      this.logger.error('Rule evaluation error', error);
       return 0;
     }
   }
@@ -787,7 +796,7 @@ export class QuantumSecurityAnalyzer extends EventEmitter {
       if (this.analysisQueue.length > 0) {
         const task = this.analysisQueue.shift();
         if (task) {
-          this.analyzeData(task.data, task.type).catch(console.error);
+          this.analyzeData(task.data, task.type).catch((err) => this.logger.error('Analysis queue processing error', err));
         }
       }
     }, 100);

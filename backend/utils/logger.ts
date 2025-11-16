@@ -3,6 +3,17 @@
 
 import pino from 'pino';
 import { config } from '../config/index.js';
+import type {
+  LogRequest,
+  LogResponse,
+  LogThreat,
+  LogConsciousnessState,
+  LogMetrics,
+  SecurityEventDetails,
+  PerformanceData,
+  WebSocketData,
+  StructuredLogData
+} from '../src/types/logger.types';
 
 // Create base logger with production optimizations
 const baseLogger = pino({
@@ -52,13 +63,13 @@ export class Logger {
   }
 
   // Standard log levels
-  fatal(message: string, data?: any): void {
+  fatal(message: string, data?: StructuredLogData): void {
     this.logger.fatal(data, message);
   }
 
-  error(message: string, error?: Error | any): void {
+  error(message: string, error?: Error | StructuredLogData): void {
     if (error instanceof Error) {
-      this.logger.error({ 
+      this.logger.error({
         error: {
           message: error.message,
           stack: error.stack,
@@ -70,24 +81,24 @@ export class Logger {
     }
   }
 
-  warn(message: string, data?: any): void {
+  warn(message: string, data?: StructuredLogData): void {
     this.logger.warn(data, message);
   }
 
-  info(message: string, data?: any): void {
+  info(message: string, data?: StructuredLogData): void {
     this.logger.info(data, message);
   }
 
-  debug(message: string, data?: any): void {
+  debug(message: string, data?: StructuredLogData): void {
     this.logger.debug(data, message);
   }
 
-  trace(message: string, data?: any): void {
+  trace(message: string, data?: StructuredLogData): void {
     this.logger.trace(data, message);
   }
 
   // Specialized logging methods
-  request(req: any, res: any): void {
+  request(req: LogRequest, res: LogResponse): void {
     this.logger.info({
       request: {
         method: req.method,
@@ -103,7 +114,7 @@ export class Logger {
     }, `${req.method} ${req.url} - ${res.statusCode}`);
   }
 
-  websocket(action: string, clientId: string, data?: any): void {
+  websocket(action: string, clientId: string, data?: WebSocketData): void {
     this.logger.info({
       websocket: {
         action,
@@ -113,7 +124,7 @@ export class Logger {
     }, `WebSocket: ${action} - ${clientId}`);
   }
 
-  threat(threat: any): void {
+  threat(threat: LogThreat): void {
     this.logger.warn({
       threat: {
         id: threat.id,
@@ -125,7 +136,7 @@ export class Logger {
     }, `Threat detected: ${threat.type} (${threat.severity})`);
   }
 
-  consciousness(state: any): void {
+  consciousness(state: LogConsciousnessState): void {
     this.logger.info({
       consciousness: {
         awareness: state.awareness_level,
@@ -136,7 +147,7 @@ export class Logger {
     }, `Consciousness update: ${state.emotional_state}`);
   }
 
-  metrics(metrics: any): void {
+  metrics(metrics: LogMetrics): void {
     this.logger.debug({
       metrics: {
         cpu: metrics.cpu_usage,
@@ -146,7 +157,7 @@ export class Logger {
     }, 'System metrics updated');
   }
 
-  security(event: string, details?: any): void {
+  security(event: string, details?: SecurityEventDetails): void {
     this.logger.warn({
       security: {
         event,
@@ -156,7 +167,7 @@ export class Logger {
     }, `Security event: ${event}`);
   }
 
-  performance(operation: string, duration: number, data?: any): void {
+  performance(operation: string, duration: number, data?: PerformanceData): void {
     this.logger.info({
       performance: {
         operation,
@@ -204,8 +215,12 @@ export class Logger {
   }
 }
 
-// Export default logger instance
-export const logger = new Logger('starguard');
+// Create default logger instance
+const defaultLogger = new Logger('starguard');
+
+// Export default logger instance with both named and default export
+export const logger = defaultLogger;
+export default defaultLogger;
 
 // Export specialized loggers
 export const requestLogger = new Logger('http');
@@ -224,7 +239,7 @@ export class PerformanceTimer {
     this.start = Date.now();
   }
   
-  end(data?: any): number {
+  end(data?: PerformanceData): number {
     const duration = Date.now() - this.start;
     logger.performance(this.operation, duration, data);
     return duration;

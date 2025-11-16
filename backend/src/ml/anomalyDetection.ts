@@ -2,6 +2,7 @@ import { spawn, ChildProcess } from 'child_process';
 import { EventEmitter } from 'events';
 import { writeFileSync, readFileSync } from 'fs';
 import path from 'path';
+import { Logger } from '../utils/logger.js';
 
 interface AnomalyResult {
   isAnomaly: boolean;
@@ -35,9 +36,11 @@ export class AnomalyDetection extends EventEmitter {
     reject: (error: Error) => void;
   }> = [];
   private config: MLModelConfig;
+  private logger: Logger;
 
   constructor(modelPath: string = './ml/anomaly_model.pkl') {
     super();
+    this.logger = new Logger('ml-anomaly-detection');
     this.modelPath = modelPath;
     this.config = {
       modelType: 'isolation_forest',
@@ -48,27 +51,27 @@ export class AnomalyDetection extends EventEmitter {
   }
 
   public async initialize(): Promise<void> {
-    console.log('🤖 Initializing ML Anomaly Detection...');
-    
+    this.logger.info('Initializing ML Anomaly Detection');
+
     try {
       // Start Python ML process
       await this.startPythonProcess();
-      
+
       // Train initial model with synthetic data
       await this.trainInitialModel();
-      
-      console.log('✅ ML Anomaly Detection initialized');
+
+      this.logger.info('ML Anomaly Detection initialized successfully');
       this.emit('initialized');
     } catch (error) {
-      console.error('❌ Failed to initialize ML:', error);
+      this.logger.error('Failed to initialize ML', error);
       throw error;
     }
   }
 
   private async startPythonProcess(): Promise<void> {
     return new Promise((resolve, reject) => {
-      console.log('🐍 Starting Python ML process...');
-      
+      this.logger.info('Starting Python ML process');
+
       const pythonScript = path.join(process.cwd(), '../ml/detector.py');
       this.pythonProcess = spawn('python', [pythonScript], {
         stdio: ['pipe', 'pipe', 'pipe']
@@ -84,18 +87,17 @@ export class AnomalyDetection extends EventEmitter {
 
       this.pythonProcess.stderr?.on('data', (data) => {
         errorBuffer += data.toString();
-        console.error('Python stderr:', data.toString());
+        this.logger.debug('Python stderr output', { data: data.toString() });
       });
 
       this.pythonProcess.on('error', (error) => {
-        console.error('Python process error:', error);
+        this.logger.error('Python process error', error);
         reject(error);
       });
 
       this.pythonProcess.on('exit', (code) => {
         if (code !== 0) {
-          console.error(`Python process exited with code ${code}`);
-          console.error('stderr:', errorBuffer);
+          this.logger.error('Python process exited with error', { code, stderr: errorBuffer });
         }
         this.pythonProcess = null;
       });
@@ -120,7 +122,7 @@ export class AnomalyDetection extends EventEmitter {
           const result = JSON.parse(line.trim());
           this.handlePythonResponse(result);
         } catch (error) {
-          console.error('Failed to parse Python response:', line);
+          this.logger.warn('Failed to parse Python response', { line, error });
         }
       }
     }
@@ -146,19 +148,19 @@ export class AnomalyDetection extends EventEmitter {
     } else if (response.type === 'training_complete') {
       this.isModelTrained = true;
       this.emit('modelTrained', response);
-      console.log(`✅ ML model trained: ${response.samples} samples, accuracy: ${response.accuracy}`);
+      this.logger.info('ML model trained successfully', { samples: response.samples, accuracy: response.accuracy });
     } else if (response.type === 'error') {
       const request = this.requestQueue.shift();
       if (request) {
         request.reject(new Error(response.message));
       }
-      console.error('Python ML error:', response.message);
+      this.logger.error('Python ML error', { message: response.message });
     }
   }
 
   private async trainInitialModel(): Promise<void> {
-    console.log('🎯 Training initial anomaly detection model...');
-    
+    this.logger.info('Training initial anomaly detection model');
+
     // Generate synthetic normal traffic patterns for training
     const normalTrafficData = this.generateNormalTrafficData(1000);
     const anomalousTrafficData = this.generateAnomalousTrafficData(100);
@@ -372,8 +374,8 @@ export class AnomalyDetection extends EventEmitter {
   }
 
   public async retrainModel(newData: TrainingData): Promise<void> {
-    console.log('🔄 Retraining anomaly detection model...');
-    
+    this.logger.info('Retraining anomaly detection model');
+
     if (!this.pythonProcess) {
       throw new Error('Python process not available');
     }
@@ -393,7 +395,7 @@ export class AnomalyDetection extends EventEmitter {
 
   public updateConfig(newConfig: Partial<MLModelConfig>): void {
     this.config = { ...this.config, ...newConfig };
-    console.log('🔧 ML configuration updated:', this.config);
+    this.logger.info('ML configuration updated', { config: this.config });
   }
 
   public async exportModel(exportPath: string): Promise<void> {
@@ -434,8 +436,8 @@ export class AnomalyDetection extends EventEmitter {
   }
 
   public stop(): void {
-    console.log('🛑 Stopping ML anomaly detection...');
-    
+    this.logger.info('Stopping ML anomaly detection');
+
     if (this.pythonProcess && !this.pythonProcess.killed) {
       this.pythonProcess.kill();
     }

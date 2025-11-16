@@ -2,6 +2,7 @@
 // Production environment configuration with security
 
 import { readFileSync } from 'fs';
+import { z } from 'zod';
 import { ServerConfig, DatabaseConfig } from '../types/index.js';
 
 // Load environment variables
@@ -13,6 +14,52 @@ if (process.env.NODE_ENV !== 'production') {
     console.warn('dotenv not available, using environment variables only');
   }
 }
+
+// Environment validation schema
+const envSchema = z.object({
+  NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
+  HOST: z.string().default('0.0.0.0'),
+  PORT: z.string().regex(/^\d+$/).transform(Number).default('8080'),
+  API_KEY: z.string().min(16).optional(),
+  JWT_SECRET: z.string().min(32).optional(),
+  DB_ENCRYPTION_KEY: z.string().min(32).optional(),
+  DB_PATH: z.string().optional(),
+  DB_ENCRYPTION: z.enum(['true', 'false']).default('false'),
+  QUANTUM_ENABLED: z.enum(['true', 'false']).default('false'),
+  AI_MODEL_PATH: z.string().optional(),
+});
+
+// Production environment schema (stricter requirements)
+const prodEnvSchema = envSchema.extend({
+  API_KEY: z.string().min(32, 'API_KEY must be at least 32 characters in production'),
+  JWT_SECRET: z.string().min(64, 'JWT_SECRET must be at least 64 characters in production'),
+  DB_ENCRYPTION_KEY: z.string().min(32, 'DB_ENCRYPTION_KEY required in production'),
+  DB_ENCRYPTION: z.literal('true', {
+    errorMap: () => ({ message: 'Database encryption must be enabled in production' })
+  }),
+});
+
+// Validate environment variables
+function validateEnv() {
+  const isProd = process.env.NODE_ENV === 'production';
+  const schema = isProd ? prodEnvSchema : envSchema;
+
+  try {
+    return schema.parse(process.env);
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      console.error('Environment validation failed:');
+      error.errors.forEach(err => {
+        console.error(`  - ${err.path.join('.')}: ${err.message}`);
+      });
+      process.exit(1);
+    }
+    throw error;
+  }
+}
+
+// Validate on startup
+const validatedEnv = validateEnv();
 
 // Default configuration
 const DEFAULT_CONFIG: ServerConfig = {
@@ -67,10 +114,10 @@ function loadConfigFile(path: string): Partial<ServerConfig> {
   }
 }
 
-// Environment-specific overrides
+// Environment-specific overrides (using validated env)
 const ENV_OVERRIDES: Partial<ServerConfig> = {
-  host: process.env.HOST || DEFAULT_CONFIG.host,
-  port: parseInt(process.env.PORT || '8080', 10),
+  host: validatedEnv.HOST,
+  port: validatedEnv.PORT,
 };
 
 // Load configuration with priority: ENV > File > Default
@@ -84,8 +131,8 @@ export const config: ServerConfig = {
 
 export const dbConfig: DatabaseConfig = {
   ...DEFAULT_DB_CONFIG,
-  database: process.env.DB_PATH || DEFAULT_DB_CONFIG.database,
-  encryption: process.env.DB_ENCRYPTION === 'true'
+  database: validatedEnv.DB_PATH || DEFAULT_DB_CONFIG.database,
+  encryption: validatedEnv.DB_ENCRYPTION === 'true'
 };
 
 // Security validation
@@ -117,9 +164,9 @@ export const isProduction = process.env.NODE_ENV === 'production';
 export const isTest = process.env.NODE_ENV === 'test';
 
 export const secrets = {
-  apiKey: process.env.API_KEY || 'dev-key-not-secure',
-  jwtSecret: process.env.JWT_SECRET || 'dev-jwt-secret',
-  dbEncryptionKey: process.env.DB_ENCRYPTION_KEY || 'dev-encryption-key'
+  apiKey: validatedEnv.API_KEY || 'dev-key-not-secure',
+  jwtSecret: validatedEnv.JWT_SECRET || 'dev-jwt-secret',
+  dbEncryptionKey: validatedEnv.DB_ENCRYPTION_KEY || 'dev-encryption-key'
 };
 
 // Runtime configuration logging

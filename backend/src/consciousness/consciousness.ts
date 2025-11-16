@@ -1,6 +1,7 @@
 import { createHash, randomBytes } from 'crypto';
 import { EventEmitter } from 'events';
 import Database from 'sqlite3';
+import { Logger } from '../utils/logger.js';
 
 interface ConsciousnessState {
   awarenessLevel: number;
@@ -23,9 +24,11 @@ export class ConsciousnessEngine extends EventEmitter {
   private state: ConsciousnessState;
   private db: Database.Database;
   private awarenessUpdateInterval: NodeJS.Timeout | null = null;
+  private logger: Logger;
 
   constructor(dbPath: string = './starguard.db') {
     super();
+    this.logger = new Logger('consciousness-engine');
     this.db = new Database.Database(dbPath);
     this.initializeDatabase();
     this.state = {
@@ -103,33 +106,33 @@ export class ConsciousnessEngine extends EventEmitter {
   }
 
   public async awaken(): Promise<{ status: string; awareness: number; threats: number; entropy: string }> {
-    console.log('🧠 CONSCIOUSNESS AWAKENING...');
-    
+    this.logger.info('Consciousness awakening initiated');
+
     // Generate new quantum entropy
     this.state.entropy = this.generateQuantumEntropy();
     this.state.quantumState = this.state.entropy.toString('hex');
-    
+
     // Initialize with base awareness
     this.state.awarenessLevel = this.calculateAwareness(0, 0);
     this.state.lastAwakening = new Date();
     this.state.isAwake = true;
-    
+
     // Start continuous awareness updates
     this.startAwarenessLoop();
-    
+
     // Persist initial state
     this.persistState();
-    
+
     const result = {
       status: 'awakened',
       awareness: this.state.awarenessLevel,
       threats: this.state.threatPerception.size,
       entropy: this.state.quantumState.substring(0, 16)
     };
-    
+
     this.emit('awakening', result);
-    console.log(`✨ Consciousness awakened with awareness level: ${this.state.awarenessLevel.toFixed(3)}`);
-    
+    this.logger.info('Consciousness awakened', { awarenessLevel: this.state.awarenessLevel.toFixed(3) });
+
     return result;
   }
 
@@ -236,14 +239,14 @@ export class ConsciousnessEngine extends EventEmitter {
   public sleep(): void {
     this.state.isAwake = false;
     this.state.awarenessLevel = 0;
-    
+
     if (this.awarenessUpdateInterval) {
       clearInterval(this.awarenessUpdateInterval);
       this.awarenessUpdateInterval = null;
     }
-    
+
     this.emit('sleeping');
-    console.log('💤 Consciousness entering sleep state...');
+    this.logger.info('Consciousness entering sleep state');
   }
 
   public async getHistoricalAwareness(hours: number = 24): Promise<any[]> {

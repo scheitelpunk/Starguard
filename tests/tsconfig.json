@@ -1,0 +1,31 @@
+{
+  "extends": "../backend/tsconfig.json",
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "node",
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "allowJs": true,
+    "sourceMap": false,
+    "outDir": "../dist/tests",
+    "rootDir": "..",
+    "strict": false,
+    "skipLibCheck": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "baseUrl": "..",
+    "paths": {
+      "@/*": ["backend/src/*"]
+    }
+  },
+  "include": [
+    "**/*.ts",
+    "**/*.js",
+    "../backend/src/**/*.ts"
+  ],
+  "exclude": [
+    "../node_modules",
+    "../dist"
+  ]
+}

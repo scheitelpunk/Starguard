@@ -1,11 +1,14 @@
 import { FastifyInstance } from 'fastify';
 import { OmegaProtocolCoordinator } from '../omega-protocol/omega-coordinator.js';
+import { Logger } from '../utils/logger.js';
 
 export class OmegaRoutes {
   private omega: OmegaProtocolCoordinator;
+  private logger: Logger;
 
   constructor() {
     this.omega = new OmegaProtocolCoordinator();
+    this.logger = new Logger('omega-routes');
   }
 
   async register(fastify: FastifyInstance): Promise<void> {
@@ -42,7 +45,7 @@ export class OmegaRoutes {
         }));
         
         connection.socket.on('message', (message) => {
-          console.log('OMEGA WebSocket message:', message.toString());
+          this.logger.debug('OMEGA WebSocket message received', { message: message.toString() });
         });
       });
     });

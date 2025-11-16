@@ -32,7 +32,7 @@ export class RiemannZetaAnalyzer {
   }
 
   public analyzeRSAKey(modulus: string): RSAWeakness {
-    const n = bigInt(modulus, 16);
+    const n = bigInt.default(modulus, 16);
     const bitLength = n.bitLength();
 
     // Check for weak prime generation patterns
@@ -109,11 +109,11 @@ export class RiemannZetaAnalyzer {
   }
 
   private pollardRho(n: any, iterations: number): any {
-    if (n.mod(2).equals(0)) return bigInt(2);
+    if (n.mod(2).equals(0)) return bigInt.default(2);
 
-    let x = bigInt(2);
-    let y = bigInt(2);
-    let d = bigInt(1);
+    let x = bigInt.default(2);
+    let y = bigInt.default(2);
+    let d = bigInt.default(1);
 
     const f = (x: any) => x.multiply(x).add(1).mod(n);
 

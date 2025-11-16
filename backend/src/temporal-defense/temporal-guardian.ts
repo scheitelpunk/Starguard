@@ -7,6 +7,8 @@ export class TemporalGuardian extends EventEmitter {
   private systemTimeBaseline: number;
   private logTimestamps: Map<string, number[]> = new Map();
   private lamportClock: number = 0;
+  private monitoringInterval: NodeJS.Timeout | null = null;
+  private isActive: boolean = false;
 
   constructor() {
     super();
@@ -15,7 +17,10 @@ export class TemporalGuardian extends EventEmitter {
   }
 
   private startMonitoring(): void {
-    setInterval(() => {
+    this.isActive = true;
+    this.monitoringInterval = setInterval(() => {
+      if (!this.isActive) return;
+
       const drift = this.detectClockDrift();
       const anomalies = this.detectTimestampAnomalies();
 
@@ -27,6 +32,24 @@ export class TemporalGuardian extends EventEmitter {
         });
       }
     }, 1000);
+  }
+
+  /**
+   * Stop monitoring and cleanup resources
+   */
+  public shutdown(): void {
+    this.isActive = false;
+
+    if (this.monitoringInterval) {
+      clearInterval(this.monitoringInterval);
+      this.monitoringInterval = null;
+    }
+
+    // Clear log timestamps to free memory
+    this.logTimestamps.clear();
+
+    // Remove all event listeners
+    this.removeAllListeners();
   }
 
   private detectClockDrift(): number {
@@ -76,5 +99,16 @@ export class TemporalGuardian extends EventEmitter {
       .digest('hex');
 
     return proof.hash;
+  }
+
+  /**
+   * Get current status
+   */
+  public getStatus(): { isActive: boolean; lamportClock: number; timestampCount: number } {
+    return {
+      isActive: this.isActive,
+      lamportClock: this.lamportClock,
+      timestampCount: this.logTimestamps.size
+    };
   }
 }

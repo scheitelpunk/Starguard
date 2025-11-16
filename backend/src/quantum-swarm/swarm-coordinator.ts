@@ -54,6 +54,7 @@ export class SwarmCoordinator extends EventEmitter {
   private temporalGuardians: Map<string, TemporalGuardian> = new Map();
   
   private monitoringIntervals: NodeJS.Timeout[] = [];
+  private scheduledTimeouts: NodeJS.Timeout[] = [];
   private performanceMetrics: {
     threatsProcessed: number;
     consensusReached: number;
@@ -61,6 +62,15 @@ export class SwarmCoordinator extends EventEmitter {
     avgResponseTime: number;
     swarmHealth: number;
     lastUpdate: number;
+  };
+
+  // Resource limits for memory management
+  private readonly resourceLimits = {
+    maxAgents: 50,
+    maxDefenseStrategies: 20,
+    maxThreatConsensus: 100,
+    maxObservers: 10,
+    maxGuardians: 10
   };
 
   constructor(config?: Partial<SwarmCoordinator['config']>) {
@@ -185,29 +195,48 @@ export class SwarmCoordinator extends EventEmitter {
     this.isActive = false;
     this.logger.info('Stopping SwarmCoordinator', { coordinatorId: this.coordinatorId });
 
-    // Stop all agents
-    for (const observer of this.nullstelleObservers.values()) {
-      await observer.stop();
+    try {
+      // Stop all agents
+      for (const observer of this.nullstelleObservers.values()) {
+        await observer.stop();
+      }
+      for (const guardian of this.temporalGuardians.values()) {
+        await guardian.stop();
+      }
+
+      // Clear monitoring intervals
+      this.monitoringIntervals.forEach(interval => clearInterval(interval));
+      this.monitoringIntervals = [];
+
+      // Clear scheduled timeouts
+      this.scheduledTimeouts.forEach(timeout => clearTimeout(timeout));
+      this.scheduledTimeouts = [];
+
+      // Remove all event listeners to prevent memory leaks
+      this.removeAllListeners();
+
+      // Disconnect from Redis
+      await this.redis.disconnect();
+
+      this.emit('stopped', { coordinatorId: this.coordinatorId, timestamp: Date.now() });
+    } catch (error) {
+      this.logger.error('Error during shutdown', { error });
+      throw error;
+    } finally {
+      // Ensure cleanup even if errors occur
+      this.agents.clear();
+      this.activeDefenseStrategies.clear();
+      this.threatConsensus.clear();
+      this.nullstelleObservers.clear();
+      this.temporalGuardians.clear();
     }
-    for (const guardian of this.temporalGuardians.values()) {
-      await guardian.stop();
-    }
-
-    // Clear monitoring intervals
-    this.monitoringIntervals.forEach(interval => clearInterval(interval));
-    this.monitoringIntervals = [];
-
-    // Disconnect from Redis
-    await this.redis.disconnect();
-
-    this.emit('stopped', { coordinatorId: this.coordinatorId, timestamp: Date.now() });
   }
 
   /**
    * Initialize swarm agents
    */
   private async initializeSwarmAgents(): Promise<void> {
-    // Create NullstelleObserver instances
+    // Create NullstelleObserver instances with resource limits
     const observerConfig = {
       entropyThreshold: 6.5,
       timingThreshold: 2.0,
@@ -215,21 +244,22 @@ export class SwarmCoordinator extends EventEmitter {
       alertThreshold: 0.65
     };
 
-    for (let i = 0; i < 3; i++) {
+    const observerCount = Math.min(3, this.resourceLimits.maxObservers);
+    for (let i = 0; i < observerCount; i++) {
       const observer = new NullstelleObserver(observerConfig);
       const agentId = observer.getAgentState().id;
-      
+
       this.nullstelleObservers.set(agentId, observer);
       this.agents.set(agentId, observer.getAgentState());
-      
+
       // Set up event handlers
       observer.on('threatDetected', (threat) => this.handleThreatDetection(threat, agentId));
       observer.on('analysisCompleted', (analysis) => this.handleAnalysisCompleted(analysis, agentId));
-      
+
       await observer.start();
     }
 
-    // Create TemporalGuardian instances
+    // Create TemporalGuardian instances with resource limits
     const guardianConfig = {
       clockDriftThreshold: 500,
       timestampAnomalyThreshold: 3000,
@@ -237,17 +267,18 @@ export class SwarmCoordinator extends EventEmitter {
       maxClockOffset: 5000
     };
 
-    for (let i = 0; i < 2; i++) {
+    const guardianCount = Math.min(2, this.resourceLimits.maxGuardians);
+    for (let i = 0; i < guardianCount; i++) {
       const guardian = new TemporalGuardian(undefined, guardianConfig);
       const agentId = guardian.getAgentState().id;
-      
+
       this.temporalGuardians.set(agentId, guardian);
       this.agents.set(agentId, guardian.getAgentState());
-      
+
       // Set up event handlers
       guardian.on('clockDriftDetected', (anomaly) => this.handleTemporalAnomaly(anomaly, agentId));
       guardian.on('timestampAnomalyDetected', (anomaly) => this.handleTemporalAnomaly(anomaly, agentId));
-      
+
       await guardian.start();
     }
 
@@ -476,11 +507,12 @@ export class SwarmCoordinator extends EventEmitter {
     
     // Request votes from other agents
     await this.requestConsensusVotes(consensusId, threat);
-    
-    // Schedule consensus evaluation
-    setTimeout(() => {
+
+    // Schedule consensus evaluation and track timeout
+    const timeout = setTimeout(() => {
       this.evaluateConsensus(consensusId);
     }, 5000); // Wait 5 seconds for votes
+    this.scheduledTimeouts.push(timeout);
   }
 
   /**
@@ -593,11 +625,23 @@ export class SwarmCoordinator extends EventEmitter {
       timestamp: Date.now()
     };
     
+    // Enforce defense strategy limits with LRU eviction
+    if (this.activeDefenseStrategies.size >= this.resourceLimits.maxDefenseStrategies) {
+      const sortedStrategies = Array.from(this.activeDefenseStrategies.entries())
+        .sort((a, b) => a[1].timestamp - b[1].timestamp);
+
+      const oldestStrategy = sortedStrategies[0];
+      this.activeDefenseStrategies.delete(oldestStrategy[0]);
+      this.logger.debug('LRU eviction applied to defense strategies', {
+        removed: oldestStrategy[0]
+      });
+    }
+
     this.activeDefenseStrategies.set(strategyId, strategy);
-    
+
     // Execute strategy
     await this.executeDefenseStrategy(strategy);
-    
+
     this.logger.info('Defense strategy generated', { strategyId, threat });
     this.emit('defenseStrategyGenerated', strategy);
   }
@@ -661,15 +705,16 @@ export class SwarmCoordinator extends EventEmitter {
     
     this.performanceMetrics.strategiesExecuted++;
     
-    // Schedule strategy cleanup
+    // Schedule strategy cleanup and track timeout
     if (strategy.actions.some(action => action.duration)) {
       const maxDuration = Math.max(...strategy.actions
         .filter(action => action.duration)
         .map(action => action.duration!));
-      
-      setTimeout(() => {
+
+      const timeout = setTimeout(() => {
         this.cleanupDefenseStrategy(strategy.id);
       }, maxDuration);
+      this.scheduledTimeouts.push(timeout);
     }
   }
 
@@ -721,20 +766,34 @@ export class SwarmCoordinator extends EventEmitter {
   }
 
   /**
-   * Clean up expired consensus records
+   * Clean up expired consensus records with LRU eviction
    */
   private cleanupExpiredConsensus(): void {
     const now = Date.now();
     const expiredKeys = [];
-    
+
+    // Remove expired entries
     for (const [key, consensus] of this.threatConsensus) {
       if (now - consensus.timestamp > 3600000) { // 1 hour
         expiredKeys.push(key);
       }
     }
-    
+
     expiredKeys.forEach(key => this.threatConsensus.delete(key));
-    
+
+    // Enforce size limit with LRU eviction
+    if (this.threatConsensus.size > this.resourceLimits.maxThreatConsensus) {
+      const sortedEntries = Array.from(this.threatConsensus.entries())
+        .sort((a, b) => a[1].timestamp - b[1].timestamp);
+
+      const toRemove = this.threatConsensus.size - this.resourceLimits.maxThreatConsensus;
+      for (let i = 0; i < toRemove; i++) {
+        this.threatConsensus.delete(sortedEntries[i][0]);
+      }
+
+      this.logger.debug('LRU eviction applied to threat consensus', { removed: toRemove });
+    }
+
     if (expiredKeys.length > 0) {
       this.logger.debug('Cleaned up expired consensus records', { count: expiredKeys.length });
     }

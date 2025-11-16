@@ -7,6 +7,8 @@ import { QuantumSecurityAnalyzer } from '../quantum-swarm/QuantumSecurityAnalyze
 import { QuantumThreatDetector } from '../quantum-swarm/QuantumThreatDetector.js';
 import { QuantumCoherence } from '../quantum-swarm/QuantumCoherence.js';
 import { OmegaProtocolCoordinator } from '../omega-protocol/omega-coordinator.js';
+import { Logger } from '../utils/logger.js';
+
 export class QuantumRoutes {
   private quantumSwarm: QuantumSwarmSystem;
   private neuralProcessor: QuantumNeuralProcessor;
@@ -16,7 +18,10 @@ export class QuantumRoutes {
   private omega: OmegaProtocolCoordinator;
   private wsConnections: Map<string, WebSocketConnection> = new Map();
   private heartbeatInterval: NodeJS.Timeout;
+  private logger: Logger;
+
   constructor() {
+    this.logger = new Logger('quantum-routes');
     this.quantumSwarm = new QuantumSwarmSystem();
     this.neuralProcessor = new QuantumNeuralProcessor();
     this.securityAnalyzer = new QuantumSecurityAnalyzer();
@@ -88,11 +93,11 @@ export default async function quantumRoutes(fastify: FastifyInstance) {
       const connectionId = Math.random().toString(36).substring(7);
       
       connection.socket.on('message', (message) => {
-        console.log('Received WebSocket message:', message.toString());
+        this.logger.debug('Received WebSocket message', { message: message.toString() });
       });
-      
+
       connection.socket.on('close', () => {
-        console.log('WebSocket connection closed');
+        this.logger.debug('WebSocket connection closed', { connectionId });
       });
       
       connection.socket.send(JSON.stringify({

@@ -1,6 +1,7 @@
 import fetch from 'node-fetch';
 import { EventEmitter } from 'events';
 import Database from 'sqlite3';
+import { Logger } from '../utils/logger.js';
 
 interface ThreatFeed {
   name: string;
@@ -37,9 +38,11 @@ export class ThreatDetector extends EventEmitter {
   private db: Database.Database;
   private feedUpdateIntervals: Map<string, NodeJS.Timeout> = new Map();
   private isActive: boolean = false;
+  private logger: Logger;
 
   constructor(dbPath: string = './starguard.db') {
     super();
+    this.logger = new Logger('threat-detector');
     this.db = new Database.Database(dbPath);
     this.initializeDatabase();
     this.initializeThreatFeeds();
@@ -136,7 +139,7 @@ export class ThreatDetector extends EventEmitter {
         }
       }));
     } catch (error) {
-      console.error('Failed to parse Feodo Tracker data:', error);
+      this.logger.error('Failed to parse Feodo Tracker data', error);
       return [];
     }
   }
@@ -160,7 +163,7 @@ export class ThreatDetector extends EventEmitter {
         }
       }));
     } catch (error) {
-      console.error('Failed to parse URLhaus data:', error);
+      this.logger.error('Failed to parse URLhaus data', error);
       return [];
     }
   }
@@ -263,7 +266,7 @@ export class ThreatDetector extends EventEmitter {
   }
 
   public async start(): Promise<void> {
-    console.log('🛡️  Starting STARGUARD Threat Detection...');
+    this.logger.info('Starting STARGUARD Threat Detection');
     this.isActive = true;
     
     // Initial fetch from all feeds
@@ -281,8 +284,8 @@ export class ThreatDetector extends EventEmitter {
         this.feedUpdateIntervals.set(feedId, interval);
       }
     }
-    
-    console.log(`✅ Threat detection active with ${this.feeds.size} feeds`);
+
+    this.logger.info('Threat detection active', { feedCount: this.feeds.size });
     this.emit('started', { feedCount: this.feeds.size, threatCount: this.threats.size });
   }
 
@@ -291,8 +294,8 @@ export class ThreatDetector extends EventEmitter {
     if (!feed || !feed.isActive) return;
     
     try {
-      console.log(`🔄 Fetching threats from ${feed.name}...`);
-      
+      this.logger.debug('Fetching threats from feed', { feedName: feed.name });
+
       let data: string;
       if (feed.url.startsWith('synthetic://')) {
         // Handle synthetic feed
@@ -317,11 +320,11 @@ export class ThreatDetector extends EventEmitter {
       
       this.processThreatIndicators(threats, feedId);
       feed.lastFetch = new Date();
-      
-      console.log(`📊 Processed ${threats.length} indicators from ${feed.name}`);
-      
+
+      this.logger.info('Processed threat indicators from feed', { feedName: feed.name, count: threats.length });
+
     } catch (error) {
-      console.error(`❌ Failed to fetch from ${feed.name}:`, error);
+      this.logger.error('Failed to fetch from feed', { feedName: feed.name, error });
       this.emit('feedError', { feedId, error: error.message });
     }
   }
@@ -544,7 +547,7 @@ export class ThreatDetector extends EventEmitter {
   }
 
   public stop(): void {
-    console.log('🛑 Stopping threat detection...');
+    this.logger.info('Stopping threat detection');
     this.isActive = false;
     
     for (const interval of this.feedUpdateIntervals.values()) {
