@@ -5,8 +5,8 @@
 
 import { metrics, ValueType } from '@opentelemetry/api';
 import { MeterProvider, PeriodicExportingMetricReader } from '@opentelemetry/sdk-metrics';
-import { Resource } from '@opentelemetry/resources';
-import { SemanticResourceAttributes } from '@opentelemetry/semantic-conventions';
+import { resourceFromAttributes } from '@opentelemetry/resources';
+import { ATTR_SERVICE_NAME } from '@opentelemetry/semantic-conventions';
 import { PrometheusExporter } from '@opentelemetry/exporter-prometheus';
 import { Logger } from '../utils/logger.js';
 
@@ -49,15 +49,10 @@ export class CustomMetrics {
     });
 
     this.meterProvider = new MeterProvider({
-      resource: new Resource({
-        [SemanticResourceAttributes.SERVICE_NAME]: serviceName,
+      resource: resourceFromAttributes({
+        [ATTR_SERVICE_NAME]: serviceName,
       }),
-      readers: [
-        new PeriodicExportingMetricReader({
-          exporter: prometheusExporter,
-          exportIntervalMillis: 10000,
-        }),
-      ],
+      readers: [prometheusExporter],
     });
 
     metrics.setGlobalMeterProvider(this.meterProvider);

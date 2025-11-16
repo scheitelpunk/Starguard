@@ -867,3 +867,5 @@ export class QuantumNeuralProcessor extends EventEmitter {
     this.removeAllListeners();
   }
 }
+// B2B Export Alias
+export const DistributedNeuralProcessor = QuantumNeuralProcessor;

@@ -260,17 +260,17 @@ class QuantumSwarmDemo {
   private setupEventListeners(): void {
     if (!this.swarm) return;
 
-    this.swarm.on('consciousnessUpdated', (state) => {
+    this.swarm.on('consciousnessUpdated', (state: any) => {
       if (state.emergentPatterns.length > 0) {
         console.log(`🌟 Emergent patterns: ${state.emergentPatterns.join(', ')}`);
       }
     });
 
-    this.swarm.on('consensusReached', (consensus) => {
+    this.swarm.on('consensusReached', (consensus: any) => {
       console.log(`🤝 Consensus: Threat ${consensus.threatId} - Decision: ${(consensus.finalDecision * 100).toFixed(1)}%`);
     });
 
-    this.swarm.on('defenseStrategyGenerated', (strategy) => {
+    this.swarm.on('defenseStrategyGenerated', (strategy: any) => {
       console.log(`🛡️  Defense: ${strategy.name} with ${strategy.actions.length} actions (Priority: ${strategy.priority})`);
     });
   }

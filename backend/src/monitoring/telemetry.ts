@@ -4,8 +4,8 @@
  */
 
 import { NodeSDK } from '@opentelemetry/sdk-node';
-import { Resource } from '@opentelemetry/resources';
-import { SemanticResourceAttributes } from '@opentelemetry/semantic-conventions';
+import { resourceFromAttributes } from '@opentelemetry/resources';
+import { ATTR_SERVICE_NAME, ATTR_SERVICE_VERSION } from '@opentelemetry/semantic-conventions';
 import { getNodeAutoInstrumentations } from '@opentelemetry/auto-instrumentations-node';
 import { OTLPTraceExporter } from '@opentelemetry/exporter-trace-otlp-http';
 import { OTLPMetricExporter } from '@opentelemetry/exporter-metrics-otlp-http';
@@ -56,10 +56,10 @@ export class TelemetryManager {
       }
 
       // Create resource with service information
-      const resource = new Resource({
-        [SemanticResourceAttributes.SERVICE_NAME]: this.config.serviceName,
-        [SemanticResourceAttributes.SERVICE_VERSION]: this.config.serviceVersion,
-        [SemanticResourceAttributes.DEPLOYMENT_ENVIRONMENT]: this.config.environment,
+      const resource = resourceFromAttributes({
+        [ATTR_SERVICE_NAME]: this.config.serviceName,
+        [ATTR_SERVICE_VERSION]: this.config.serviceVersion,
+        'deployment.environment': this.config.environment,
         'service.instance.id': process.env.HOSTNAME || 'localhost',
         'service.namespace': 'starguard2',
       });

@@ -85,7 +85,7 @@ export interface LamportClock {
 
 export interface AgentState {
   id: string;
-  type: 'nullstelle' | 'temporal' | 'coordinator';
+  type: 'nullstelle' | 'temporal' | 'coordinator' | 'network-monitoring' | 'time-sync';
   status: 'active' | 'standby' | 'error' | 'maintenance';
   lastHeartbeat: number;
   performance: {
@@ -94,5 +94,5 @@ export interface AgentState {
     responseTime: number;
     accuracy: number;
   };
-  configuration: Record<string, any>;
+  configuration?: Record<string, any>;
 }

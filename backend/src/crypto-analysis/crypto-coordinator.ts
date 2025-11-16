@@ -43,7 +43,7 @@ export class CryptoAnalysisCoordinator extends EventEmitter {
 
     // Quantum threat detection
     const quantumThreats = this.quantum.detectQuantumAttack(
-      networkPackets.map((p) => {
+      networkPackets.map((p: any) => {
         const payload = p.payload;
         return typeof payload === 'string' ? Buffer.from(payload) : payload;
       })
@@ -54,7 +54,7 @@ export class CryptoAnalysisCoordinator extends EventEmitter {
 
     // Prime pattern detection in ports/IPs
     const primePatternArray = this.riemann.detectPrimePatterns(
-      networkPackets.map((p) => p.port)
+      networkPackets.map((p: any) => p.port)
     );
 
     const analysis: OmegaAnalysis = {
@@ -64,7 +64,7 @@ export class CryptoAnalysisCoordinator extends EventEmitter {
         primePatterns: {
           detected: primePatternArray.length > 0,
           patterns: primePatternArray.map(p => p.values[0]),
-          correlation: primePatternArray.reduce((sum, p) => sum + p.rarity, 0) / Math.max(primePatternArray.length, 1),
+          correlation: primePatternArray.reduce((sum: any, p: any) => sum + p.rarity, 0) / Math.max(primePatternArray.length, 1),
           significance: primePatternArray.length > 0 ? 0.8 : 0
         },
         zetaCorrelation: this.calculateOverallZetaCorrelation(rsaWeakness)

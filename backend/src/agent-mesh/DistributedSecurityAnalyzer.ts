@@ -833,3 +833,5 @@ export class QuantumSecurityAnalyzer extends EventEmitter {
     this.removeAllListeners();
   }
 }
+// B2B Export Alias  
+export const DistributedSecurityAnalyzer = QuantumSecurityAnalyzer;

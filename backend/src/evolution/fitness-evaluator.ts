@@ -250,7 +250,7 @@ export class FitnessEvaluator {
   }
 
   private calculateResourceUsage(organism: DefenseOrganism): number {
-    const geneComplexity = organism.genes.reduce((sum, gene) =>
+    const geneComplexity = organism.genes.reduce((sum: any, gene: any) =>
       sum + gene.sequence.length * 0.1, 0
     );
     return Math.min(geneComplexity / 100, 1);

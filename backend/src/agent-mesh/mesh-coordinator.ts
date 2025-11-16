@@ -59,8 +59,8 @@ export class SwarmCoordinator extends EventEmitter {
   private threatConsensus: Map<string, SwarmConsensus> = new Map();
   
   // Core swarm components
-  private nullstelleObservers: Map<string, NetworkMonitoringAgent> = new Map();
-  private temporalGuardians: Map<string, TimeSyncAgent> = new Map();
+  private nullstelleObservers: Map<string, InstanceType<typeof NetworkMonitoringAgent>> = new Map();
+  private temporalGuardians: Map<string, InstanceType<typeof TimeSyncAgent>> = new Map();
   
   private monitoringIntervals: NodeJS.Timeout[] = [];
   private scheduledTimeouts: NodeJS.Timeout[] = [];
@@ -255,15 +255,27 @@ export class SwarmCoordinator extends EventEmitter {
 
     const observerCount = Math.min(3, this.resourceLimits.maxObservers);
     for (let i = 0; i < observerCount; i++) {
-      const observer = new NetworkMonitoringAgent(observerConfig);
-      const agentId = observer.getAgentState().id;
+      const observer = new NetworkMonitoringAgent();
+      const agentId = `observer-${i}-${Date.now()}`;
+      const agentState: AgentState = {
+        id: agentId,
+        type: 'network-monitoring',
+        status: 'active',
+        lastHeartbeat: Date.now(),
+        performance: {
+          threatsDetected: 0,
+          falsePositives: 0,
+          responseTime: 0,
+          accuracy: 1.0
+        }
+      };
 
       this.nullstelleObservers.set(agentId, observer);
-      this.agents.set(agentId, observer.getAgentState());
+      this.agents.set(agentId, agentState);
 
       // Set up event handlers
-      observer.on('threatDetected', (threat) => this.handleThreatDetection(threat, agentId));
-      observer.on('analysisCompleted', (analysis) => this.handleAnalysisCompleted(analysis, agentId));
+      observer.on('threatDetected', (threat: any) => this.handleThreatDetection(threat, agentId));
+      observer.on('analysisCompleted', (analysis: any) => this.handleAnalysisCompleted(analysis, agentId));
 
       await observer.start();
     }
@@ -285,8 +297,8 @@ export class SwarmCoordinator extends EventEmitter {
       this.agents.set(agentId, guardian.getAgentState());
 
       // Set up event handlers
-      guardian.on('clockDriftDetected', (anomaly) => this.handleTemporalAnomaly(anomaly, agentId));
-      guardian.on('timestampAnomalyDetected', (anomaly) => this.handleTemporalAnomaly(anomaly, agentId));
+      guardian.on('clockDriftDetected', (anomaly: any) => this.handleTemporalAnomaly(anomaly, agentId));
+      guardian.on('timestampAnomalyDetected', (anomaly: any) => this.handleTemporalAnomaly(anomaly, agentId));
 
       await guardian.start();
     }

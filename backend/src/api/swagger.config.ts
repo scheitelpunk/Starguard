@@ -386,7 +386,7 @@ Current API version: 1.0.0
 export const swaggerUiConfig = {
   routePrefix: '/api/docs',
   uiConfig: {
-    docExpansion: 'list',
+    docExpansion: 'list' as const,
     deepLinking: true,
     displayRequestDuration: true,
     filter: true,
@@ -394,7 +394,7 @@ export const swaggerUiConfig = {
     showCommonExtensions: true,
     syntaxHighlight: {
       activate: true,
-      theme: 'monokai'
+      theme: 'monokai' as const
     },
     tryItOutEnabled: true
   },

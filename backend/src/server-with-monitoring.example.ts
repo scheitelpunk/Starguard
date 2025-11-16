@@ -54,10 +54,10 @@ async function initializeMonitoring(): Promise<HealthCheckManager> {
   // 3. Initialize health checks
   const healthCheckManager = new HealthCheckManager({
     // Configure dependencies here
-    redis: {
-      // client: redisClient, // Add your Redis client
-      timeout: 1000,
-    },
+    // redis: {
+    //   client: null as any, // Add your Redis client
+    //   timeout: 1000,
+    // },
     database: {
       checkQuery: async () => {
         // Implement database health check

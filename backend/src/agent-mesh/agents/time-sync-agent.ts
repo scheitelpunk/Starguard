@@ -634,4 +634,6 @@ export class TemporalGuardian extends EventEmitter {
   }
 }
 
+// B2B Export Alias
+export const TimeSyncAgent = TemporalGuardian;
 export default TemporalGuardian;

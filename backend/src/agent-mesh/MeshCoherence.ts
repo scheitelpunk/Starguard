@@ -963,3 +963,5 @@ export class QuantumCoherence extends EventEmitter {
     this.removeAllListeners();
   }
 }
+// B2B Export Alias - already has correct name MeshCoherence
+export const MeshCoherence = QuantumCoherence;

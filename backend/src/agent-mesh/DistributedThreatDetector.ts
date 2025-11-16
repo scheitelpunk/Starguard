@@ -1018,3 +1018,5 @@ export class QuantumThreatDetector extends EventEmitter {
     this.removeAllListeners();
   }
 }
+// B2B Export Alias
+export const DistributedThreatDetector = QuantumThreatDetector;

@@ -11,10 +11,10 @@ import { Logger } from '../utils/logger.js';
 
 export class AgentRoutes {
   private agentMesh: AgentMeshOrchestrator;
-  private neuralProcessor: DistributedNeuralProcessor;
-  private securityAnalyzer: DistributedSecurityAnalyzer;
-  private threatDetector: DistributedThreatDetector;
-  private meshCoherence: MeshCoherence;
+  private neuralProcessor: InstanceType<typeof DistributedNeuralProcessor>;
+  private securityAnalyzer: InstanceType<typeof DistributedSecurityAnalyzer>;
+  private threatDetector: InstanceType<typeof DistributedThreatDetector>;
+  private meshCoherence: InstanceType<typeof MeshCoherence>;
   private cryptoAnalysis: CryptoAnalysisCoordinator;
   private wsConnections: Map<string, WebSocketConnection> = new Map();
   private heartbeatInterval: NodeJS.Timeout;

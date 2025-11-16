@@ -57,7 +57,7 @@ export class CompressionPlugin {
    */
   async register(fastify: FastifyInstance): Promise<void> {
     try {
-      await fastify.register(fastifyCompress, {
+      await fastify.register(fastifyCompress as any, {
         global: true,
         threshold: this.config.threshold,
         encodings: this.config.encodings,
