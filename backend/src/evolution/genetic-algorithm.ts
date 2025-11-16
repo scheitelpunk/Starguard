@@ -4,7 +4,7 @@
  */
 
 import * as crypto from 'crypto';
-import { DefenseOrganism, DefenseGene, PerformanceMetrics } from './defense-dna-types';
+import { DefenseOrganism, DefenseGene, PerformanceMetrics } from '../ml-security/adaptive-policies-types';
 
 export class GeneticAlgorithm {
   constructor(private logger = console) {}

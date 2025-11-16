@@ -4,7 +4,7 @@
  */
 
 import { performance } from 'perf_hooks';
-import { DefenseOrganism, DefenseGene, PerformanceMetrics, ThreatProfile, ResourceConstraints } from './defense-dna-types';
+import { DefenseOrganism, DefenseGene, PerformanceMetrics, ThreatProfile, ResourceConstraints } from '../ml-security/adaptive-policies-types';
 
 export class FitnessEvaluator {
   constructor(

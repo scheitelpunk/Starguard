@@ -7,7 +7,7 @@ import { promises as fs } from 'fs';
 import path from 'path';
 import { EventEmitter } from 'events';
 import { ThreatDetector } from '../threats/threatDetector';
-import { ConsciousnessEngine } from '../consciousness/consciousness';
+import { BehavioralAnalyticsEngine } from '../behavioral-analytics/behavioral-analytics';
 import { QuantumEngine } from '../quantum/quantumEngine';
 import { AnomalyDetection } from '../ml/anomalyDetection';
 import { Logger } from '../utils/logger';
@@ -82,7 +82,7 @@ class SecurityOperationsAPI {
   private fastify: FastifyInstance;
   private eventBus: EventEmitter;
   private threatDetector: ThreatDetector;
-  private consciousness: ConsciousnessEngine;
+  private consciousness: BehavioralAnalyticsEngine;
   private quantumEngine: QuantumEngine;
   private anomalyDetector: AnomalyDetection;
   private connectedClients: Set<any> = new Set();
@@ -98,7 +98,7 @@ class SecurityOperationsAPI {
     });
     this.eventBus = new EventEmitter();
     this.threatDetector = new ThreatDetector();
-    this.consciousness = new ConsciousnessEngine();
+    this.consciousness = new BehavioralAnalyticsEngine();
     this.quantumEngine = new QuantumEngine();
     this.anomalyDetector = new AnomalyDetection();
 

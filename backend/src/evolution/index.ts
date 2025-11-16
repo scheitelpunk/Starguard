@@ -1,5 +1,5 @@
 // Export main class from refactored version
-export { DefenseDNA } from './defense-dna-refactored';
+export { DefenseDNA } from '../ml-security/adaptive-policies-refactored';
 
 // Export all types from types module
 export type {
@@ -14,7 +14,7 @@ export type {
   YARAString,
   EvolutionResult,
   DefenseDNAConfig
-} from './defense-dna-types';
+} from '../ml-security/adaptive-policies-types';
 
 // Export component modules for advanced usage
 export { GeneticAlgorithm } from './genetic-algorithm';

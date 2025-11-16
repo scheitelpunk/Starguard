@@ -16,11 +16,11 @@ import {
   MutationStrategy,
   YARARule,
   EvolutionResult
-} from './defense-dna-types';
-import { GeneticAlgorithm } from './genetic-algorithm';
-import { FitnessEvaluator } from './fitness-evaluator';
-import { MutationEngine } from './mutation-engine';
-import { YARAGenerator } from './yara-generator';
+} from './adaptive-policies-types';
+import { GeneticAlgorithm } from '../evolution/genetic-algorithm';
+import { FitnessEvaluator } from '../evolution/fitness-evaluator';
+import { MutationEngine } from '../evolution/mutation-engine';
+import { YARAGenerator } from '../evolution/yara-generator';
 
 export class DefenseDNA extends EventEmitter {
   private readonly config: DefenseDNAConfig = {

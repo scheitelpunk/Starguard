@@ -3,8 +3,8 @@ import * as winston from 'winston';
 import Redis from 'ioredis';
 import { v4 as uuidv4 } from 'uuid';
 import * as CryptoJS from 'crypto-js';
-import { NullstelleObserver } from './agents/nullstelle-observer';
-import { TemporalGuardian } from './agents/temporal-guardian';
+import { NetworkMonitoringAgent } from './agents/network-monitoring-agent';
+import { TimeSyncAgent } from './agents/time-sync-agent';
 import {
   ConsciousnessState,
   DefenseStrategy,
@@ -59,8 +59,8 @@ export class SwarmCoordinator extends EventEmitter {
   private threatConsensus: Map<string, SwarmConsensus> = new Map();
   
   // Core swarm components
-  private nullstelleObservers: Map<string, NullstelleObserver> = new Map();
-  private temporalGuardians: Map<string, TemporalGuardian> = new Map();
+  private nullstelleObservers: Map<string, NetworkMonitoringAgent> = new Map();
+  private temporalGuardians: Map<string, TimeSyncAgent> = new Map();
   
   private monitoringIntervals: NodeJS.Timeout[] = [];
   private scheduledTimeouts: NodeJS.Timeout[] = [];
@@ -245,7 +245,7 @@ export class SwarmCoordinator extends EventEmitter {
    * Initialize swarm agents
    */
   private async initializeSwarmAgents(): Promise<void> {
-    // Create NullstelleObserver instances with resource limits
+    // Create NetworkMonitoringAgent instances with resource limits
     const observerConfig = {
       entropyThreshold: 6.5,
       timingThreshold: 2.0,
@@ -255,7 +255,7 @@ export class SwarmCoordinator extends EventEmitter {
 
     const observerCount = Math.min(3, this.resourceLimits.maxObservers);
     for (let i = 0; i < observerCount; i++) {
-      const observer = new NullstelleObserver(observerConfig);
+      const observer = new NetworkMonitoringAgent(observerConfig);
       const agentId = observer.getAgentState().id;
 
       this.nullstelleObservers.set(agentId, observer);
@@ -268,7 +268,7 @@ export class SwarmCoordinator extends EventEmitter {
       await observer.start();
     }
 
-    // Create TemporalGuardian instances with resource limits
+    // Create TimeSyncAgent instances with resource limits
     const guardianConfig = {
       clockDriftThreshold: 500,
       timestampAnomalyThreshold: 3000,
@@ -278,7 +278,7 @@ export class SwarmCoordinator extends EventEmitter {
 
     const guardianCount = Math.min(2, this.resourceLimits.maxGuardians);
     for (let i = 0; i < guardianCount; i++) {
-      const guardian = new TemporalGuardian(undefined, guardianConfig);
+      const guardian = new TimeSyncAgent(undefined, guardianConfig);
       const agentId = guardian.getAgentState().id;
 
       this.temporalGuardians.set(agentId, guardian);

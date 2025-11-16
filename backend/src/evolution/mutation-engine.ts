@@ -4,7 +4,7 @@
  */
 
 import * as crypto from 'crypto';
-import { DefenseOrganism, DefenseGene, MutationStrategy } from './defense-dna-types';
+import { DefenseOrganism, DefenseGene, MutationStrategy } from '../ml-security/adaptive-policies-types';
 
 export class MutationEngine {
   constructor(private logger = console) {}

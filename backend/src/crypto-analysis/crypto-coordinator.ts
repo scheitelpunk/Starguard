@@ -1,6 +1,6 @@
-import { RiemannZetaAnalyzer } from './riemann-analyzer';
-import { QuantumCryptoDefense } from './quantum-crypto-defense';
-import { HilbertPolyaScanner } from './hilbert-polya-scanner';
+import { RiemannZetaAnalyzer } from './cryptographic-analyzer';
+import { QuantumCryptoDefense } from './distributed-crypto-defense';
+import { HilbertPolyaScanner } from './mathematical-scanner';
 import { EventEmitter } from 'events';
 import { Logger } from '../utils/logger.js';
 import type {

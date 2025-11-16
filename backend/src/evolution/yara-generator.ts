@@ -3,7 +3,7 @@
  * Converts defense organisms into YARA detection rules
  */
 
-import { DefenseOrganism, DefenseGene, YARARule, YARAString } from './defense-dna-types';
+import { DefenseOrganism, DefenseGene, YARARule, YARAString } from '../ml-security/adaptive-policies-types';
 
 export class YARAGenerator {
   constructor(

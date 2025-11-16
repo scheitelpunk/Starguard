@@ -21,11 +21,11 @@
  */
 
 // Core Agents
-export { NullstelleObserver } from './agents/nullstelle-observer';
-export { TemporalGuardian } from './agents/temporal-guardian';
+export { NullstelleObserver } from './agents/network-monitoring-agent';
+export { TemporalGuardian } from './agents/time-sync-agent';
 
 // Central Coordinator
-export { SwarmCoordinator } from './swarm-coordinator';
+export { SwarmCoordinator } from './mesh-coordinator';
 
 // Utility Classes
 export { EntropyCalculator } from './utils/entropy';
@@ -279,9 +279,9 @@ export const CONSCIOUSNESS_PROTOCOLS = {
 };
 
 // Default export for convenience
-import { SwarmCoordinator } from './swarm-coordinator';
-import { NullstelleObserver } from './agents/nullstelle-observer';
-import { TemporalGuardian } from './agents/temporal-guardian';
+import { SwarmCoordinator } from './mesh-coordinator';
+import { NullstelleObserver } from './agents/network-monitoring-agent';
+import { TemporalGuardian } from './agents/time-sync-agent';
 import { EntropyCalculator } from './utils/entropy';
 import { TimingAnalyzer } from './utils/timing';
 
