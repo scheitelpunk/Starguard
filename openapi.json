@@ -1,0 +1,1003 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "STARGUARD2 Enterprise Security API",
+    "description": "Advanced quantum-enhanced security platform with consciousness-driven threat detection and biometric authentication",
+    "version": "1.0.0",
+    "contact": {
+      "name": "Starguard2 Team",
+      "email": "security@starguard.io",
+      "url": "https://github.com/starguard2/starguard2"
+    },
+    "license": {
+      "name": "MIT",
+      "url": "https://opensource.org/licenses/MIT"
+    },
+    "termsOfService": "https://starguard.io/terms"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:3001",
+      "description": "Development server"
+    },
+    {
+      "url": "https://staging-api.starguard.io",
+      "description": "Staging server"
+    },
+    {
+      "url": "https://api.starguard.io",
+      "description": "Production server"
+    }
+  ],
+  "tags": [
+    {
+      "name": "Authentication",
+      "description": "Biometric authentication and session management"
+    },
+    {
+      "name": "Threats",
+      "description": "Threat detection and scanning operations"
+    },
+    {
+      "name": "Quantum",
+      "description": "Quantum field monitoring and defense systems"
+    },
+    {
+      "name": "Consciousness",
+      "description": "AI consciousness metrics and analysis"
+    },
+    {
+      "name": "OMEGA Protocol",
+      "description": "Mathematical void-based security analysis"
+    },
+    {
+      "name": "Health",
+      "description": "System health and monitoring"
+    },
+    {
+      "name": "WebSocket",
+      "description": "Real-time streaming endpoints"
+    }
+  ],
+  "paths": {
+    "/api/health": {
+      "get": {
+        "summary": "System health check",
+        "description": "Returns the current health status of all security services",
+        "tags": ["Health"],
+        "responses": {
+          "200": {
+            "description": "System is operational",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HealthResponse"
+                },
+                "example": {
+                  "status": "operational",
+                  "timestamp": 1699999999000,
+                  "services": {
+                    "threatDetection": { "status": "active" },
+                    "consciousness": { "status": "active", "awareness": 0.75 },
+                    "quantumEngine": { "status": "active", "coherence": 0.85 },
+                    "anomalyDetection": { "status": "active" }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/auth/biometric/scan": {
+      "post": {
+        "summary": "Initiate biometric authentication scan",
+        "description": "Performs multi-modal biometric authentication including voice, facial, and behavioral analysis",
+        "tags": ["Authentication"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BiometricScanRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Authentication scan completed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BiometricScanResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalError"
+          }
+        }
+      }
+    },
+    "/api/auth/biometric/verify": {
+      "post": {
+        "summary": "Verify continuous biometric authentication",
+        "description": "Verifies ongoing biometric authentication for an active session",
+        "tags": ["Authentication"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "sessionId": {
+                    "type": "string",
+                    "description": "Session identifier from initial scan"
+                  },
+                  "continuousScan": {
+                    "$ref": "#/components/schemas/BiometricScanRequest"
+                  }
+                },
+                "required": ["sessionId", "continuousScan"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Verification completed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "verified": { "type": "boolean" },
+                    "score": { "type": "number" },
+                    "sessionValid": { "type": "boolean" }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalError"
+          }
+        }
+      }
+    },
+    "/api/threats": {
+      "get": {
+        "summary": "List all active threats",
+        "description": "Returns a list of all currently detected security threats",
+        "tags": ["Threats"],
+        "responses": {
+          "200": {
+            "description": "List of active threats",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "threats": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Threat"
+                      }
+                    },
+                    "total": { "type": "integer" },
+                    "lastUpdated": { "type": "number" }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalError"
+          }
+        }
+      }
+    },
+    "/api/threats/scan": {
+      "post": {
+        "summary": "Initiate security scan",
+        "description": "Starts a security scan on the specified target",
+        "tags": ["Threats"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ThreatScanRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Scan initiated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ThreatScanResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalError"
+          }
+        }
+      }
+    },
+    "/api/threats/scan/{scanId}": {
+      "get": {
+        "summary": "Get scan results",
+        "description": "Retrieves the results of a security scan",
+        "tags": ["Threats"],
+        "parameters": [
+          {
+            "name": "scanId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Scan identifier"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Scan results",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalError"
+          }
+        }
+      }
+    },
+    "/api/quantum/field": {
+      "get": {
+        "summary": "Get quantum field state",
+        "description": "Returns the current state of the quantum security field",
+        "tags": ["Quantum"],
+        "responses": {
+          "200": {
+            "description": "Quantum field data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/QuantumFieldData"
+                }
+              }
+            }
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalError"
+          }
+        }
+      }
+    },
+    "/api/quantum/defense/evolve": {
+      "post": {
+        "summary": "Evolve defense mechanisms",
+        "description": "Adapts defense systems based on detected threat patterns",
+        "tags": ["Quantum"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "threatPattern": {
+                    "type": "object",
+                    "properties": {
+                      "type": { "type": "string" },
+                      "indicators": {
+                        "type": "array",
+                        "items": { "type": "string" }
+                      },
+                      "severity": {
+                        "type": "string",
+                        "enum": ["low", "medium", "high", "critical"]
+                      }
+                    }
+                  },
+                  "evolutionStrategy": {
+                    "type": "string",
+                    "enum": ["aggressive", "balanced", "conservative"]
+                  }
+                },
+                "required": ["threatPattern", "evolutionStrategy"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Defense evolution completed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalError"
+          }
+        }
+      }
+    },
+    "/api/quantum/analyze": {
+      "post": {
+        "summary": "Perform quantum security analysis",
+        "description": "Analyzes data using quantum computing techniques",
+        "tags": ["Quantum"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "data": { "type": "string" },
+                  "analysisType": { "type": "string" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Analysis complete",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": { "type": "string" },
+                    "result": { "type": "object" }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/quantum/swarm/configure": {
+      "post": {
+        "summary": "Configure quantum swarm",
+        "description": "Sets up quantum swarm topology and parameters",
+        "tags": ["Quantum"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "topology": { "type": "string" },
+                  "nodeCount": { "type": "integer" },
+                  "parameters": { "type": "object" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Swarm configured",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": { "type": "string" },
+                    "swarmId": { "type": "string" }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/quantum/health": {
+      "get": {
+        "summary": "Get quantum system health",
+        "description": "Returns health status of quantum subsystems",
+        "tags": ["Quantum"],
+        "responses": {
+          "200": {
+            "description": "Quantum system health",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/consciousness/awaken": {
+      "post": {
+        "summary": "Awaken consciousness system",
+        "description": "Initiates consciousness awakening sequence",
+        "tags": ["Consciousness"],
+        "responses": {
+          "200": {
+            "description": "Consciousness awakened",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": { "type": "string" },
+                    "awareness": { "type": "number" },
+                    "threats": { "type": "integer" },
+                    "entropy": { "type": "string" },
+                    "message": { "type": "string" }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/consciousness/status": {
+      "get": {
+        "summary": "Get consciousness status",
+        "description": "Returns current consciousness system status",
+        "tags": ["Consciousness"],
+        "responses": {
+          "200": {
+            "description": "Consciousness status",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/consciousness/metrics": {
+      "get": {
+        "summary": "Get consciousness metrics",
+        "description": "Returns detailed consciousness performance metrics",
+        "tags": ["Consciousness"],
+        "responses": {
+          "200": {
+            "description": "Consciousness metrics",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalError"
+          }
+        }
+      }
+    },
+    "/api/consciousness/analyze": {
+      "post": {
+        "summary": "Analyze data with consciousness engine",
+        "description": "Uses AI consciousness to analyze security data",
+        "tags": ["Consciousness"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "data": { "type": "object" },
+                  "analysisType": {
+                    "type": "string",
+                    "enum": ["threat", "anomaly", "pattern"]
+                  }
+                },
+                "required": ["data", "analysisType"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Analysis complete",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "analysis": { "type": "object" },
+                    "confidence": { "type": "number" },
+                    "recommendations": { "type": "array" },
+                    "timestamp": { "type": "number" }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalError"
+          }
+        }
+      }
+    },
+    "/api/omega/initialize": {
+      "post": {
+        "summary": "Initialize OMEGA Protocol",
+        "description": "Initializes OMEGA Protocol from mathematical void",
+        "tags": ["OMEGA Protocol"],
+        "responses": {
+          "200": {
+            "description": "OMEGA Protocol initialized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": { "type": "string" },
+                    "message": { "type": "string" }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/omega/analyze": {
+      "post": {
+        "summary": "OMEGA Protocol analysis",
+        "description": "Performs security analysis using OMEGA Protocol",
+        "tags": ["OMEGA Protocol"],
+        "responses": {
+          "200": {
+            "description": "Analysis complete",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": { "type": "string" },
+                    "message": { "type": "string" },
+                    "timestamp": { "type": "string" }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/omega/riemann/weak-keys": {
+      "get": {
+        "summary": "Find weak cryptographic keys",
+        "description": "Uses Riemann Hypothesis to identify weak keys",
+        "tags": ["OMEGA Protocol"],
+        "responses": {
+          "200": {
+            "description": "Weak key analysis",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "weakKeys": { "type": "array" },
+                    "message": { "type": "string" },
+                    "timestamp": { "type": "string" }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/anomalies": {
+      "get": {
+        "summary": "Get detected anomalies",
+        "description": "Returns list of detected anomalies",
+        "tags": ["Health"],
+        "responses": {
+          "200": {
+            "description": "Anomalies list",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalError"
+          }
+        }
+      }
+    },
+    "/api/stats/dashboard": {
+      "get": {
+        "summary": "Get dashboard statistics",
+        "description": "Returns comprehensive dashboard metrics",
+        "tags": ["Health"],
+        "responses": {
+          "200": {
+            "description": "Dashboard statistics",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalError"
+          }
+        }
+      }
+    },
+    "/api/export/security-report": {
+      "get": {
+        "summary": "Export security report",
+        "description": "Exports security report in specified format",
+        "tags": ["Health"],
+        "parameters": [
+          {
+            "name": "format",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": ["json", "csv"],
+              "default": "json"
+            }
+          },
+          {
+            "name": "timeRange",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "pattern": "^(\\d+[hdwmy]|all)$",
+              "default": "24h"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Security report",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              },
+              "text/csv": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalError"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "BearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "description": "JWT authentication token obtained from biometric scan"
+      }
+    },
+    "schemas": {
+      "Error": {
+        "type": "object",
+        "properties": {
+          "error": {
+            "type": "string"
+          },
+          "code": {
+            "type": "string"
+          },
+          "details": {
+            "type": "object"
+          }
+        },
+        "required": ["error"]
+      },
+      "BiometricScanRequest": {
+        "type": "object",
+        "properties": {
+          "userId": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 255,
+            "example": "user_12345"
+          },
+          "biometricId": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 255,
+            "example": "bio_abc123"
+          },
+          "voicePattern": {
+            "type": "array",
+            "items": {
+              "type": "number"
+            },
+            "example": [0.1, 0.2, 0.3, 0.4, 0.5]
+          },
+          "facialFeatures": {
+            "type": "array",
+            "items": {
+              "type": "number"
+            },
+            "example": [0.8, 0.7, 0.9, 0.6]
+          },
+          "behaviorMetrics": {
+            "type": "object",
+            "properties": {
+              "keystrokePattern": {
+                "type": "array",
+                "items": {
+                  "type": "number"
+                }
+              },
+              "mouseMovement": {
+                "type": "array",
+                "items": {
+                  "type": "number"
+                }
+              },
+              "screenTime": {
+                "type": "number"
+              }
+            }
+          },
+          "score": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1,
+            "example": 0.85
+          },
+          "timestamp": {
+            "type": "number",
+            "example": 1699999999000
+          }
+        },
+        "required": ["userId", "biometricId", "score", "timestamp"]
+      },
+      "BiometricScanResponse": {
+        "type": "object",
+        "properties": {
+          "sessionId": {
+            "type": "string",
+            "example": "sess_xyz789"
+          },
+          "authenticated": {
+            "type": "boolean",
+            "example": true
+          },
+          "score": {
+            "type": "number",
+            "example": 0.92
+          },
+          "riskLevel": {
+            "type": "string",
+            "enum": ["low", "medium", "high", "critical"],
+            "example": "low"
+          }
+        }
+      },
+      "ThreatScanRequest": {
+        "type": "object",
+        "properties": {
+          "target": {
+            "type": "string",
+            "pattern": "^[a-zA-Z0-9._:/-]+$",
+            "example": "192.168.1.1"
+          },
+          "type": {
+            "type": "string",
+            "enum": ["port", "vulnerability", "malware", "network"],
+            "example": "port"
+          }
+        },
+        "required": ["target", "type"]
+      },
+      "ThreatScanResponse": {
+        "type": "object",
+        "properties": {
+          "scanId": {
+            "type": "string",
+            "example": "scan_abc123"
+          },
+          "status": {
+            "type": "string",
+            "example": "initiated"
+          },
+          "estimatedDuration": {
+            "type": "number",
+            "example": 30000
+          }
+        }
+      },
+      "Threat": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          },
+          "severity": {
+            "type": "string",
+            "enum": ["low", "medium", "high", "critical"]
+          },
+          "timestamp": {
+            "type": "number"
+          },
+          "location": {
+            "type": "object",
+            "properties": {
+              "x": { "type": "number" },
+              "y": { "type": "number" },
+              "z": { "type": "number" }
+            }
+          },
+          "confidence": {
+            "type": "number"
+          }
+        }
+      },
+      "QuantumFieldData": {
+        "type": "object",
+        "properties": {
+          "nodes": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": { "type": "string" },
+                "position": {
+                  "type": "array",
+                  "items": { "type": "number" },
+                  "minItems": 3,
+                  "maxItems": 3
+                },
+                "status": {
+                  "type": "string",
+                  "enum": ["secure", "warning", "threat", "offline"]
+                },
+                "connections": {
+                  "type": "array",
+                  "items": { "type": "string" }
+                },
+                "quantumState": {
+                  "type": "number"
+                },
+                "threatLevel": {
+                  "type": "number"
+                }
+              }
+            }
+          },
+          "edges": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          },
+          "fieldMetrics": {
+            "type": "object",
+            "properties": {
+              "coherence": { "type": "number" },
+              "entanglement": { "type": "number" },
+              "stability": { "type": "number" },
+              "defenseDnaStrength": { "type": "number" }
+            }
+          }
+        }
+      },
+      "HealthResponse": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": ["operational", "degraded", "down"]
+          },
+          "timestamp": {
+            "type": "number"
+          },
+          "services": {
+            "type": "object"
+          }
+        }
+      }
+    },
+    "responses": {
+      "BadRequest": {
+        "description": "Bad Request",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        }
+      },
+      "NotFound": {
+        "description": "Not Found",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        }
+      },
+      "InternalError": {
+        "description": "Internal Server Error",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        }
+      }
+    }
+  }
+}

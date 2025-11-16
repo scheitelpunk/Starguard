@@ -111,7 +111,11 @@ export class NullstelleObserver extends EventEmitter {
     // Close network sockets
     for (const [key, socket] of this.networkSockets) {
       try {
-        socket.close();
+        if ('close' in socket && typeof socket.close === 'function') {
+          socket.close();
+        } else if ('end' in socket && typeof socket.end === 'function') {
+          (socket as any).end();
+        }
         this.networkSockets.delete(key);
       } catch (error) {
         this.logger.warn('Error closing socket', { key, error });
@@ -221,7 +225,8 @@ export class NullstelleObserver extends EventEmitter {
       this.startNetworkStatisticsMonitoring();
       
     } catch (error) {
-      this.logger.warn('Raw socket monitoring unavailable', { error: error.message });
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      this.logger.warn('Raw socket monitoring unavailable', { error: errorMessage });
       this.startNetworkStatisticsMonitoring();
     }
   }

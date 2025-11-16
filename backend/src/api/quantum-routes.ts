@@ -18,7 +18,7 @@ export class QuantumRoutes {
   private omega: OmegaProtocolCoordinator;
   private wsConnections: Map<string, WebSocketConnection> = new Map();
   private heartbeatInterval: NodeJS.Timeout;
-  private logger: Logger;
+  public logger: Logger;
 
   constructor() {
     this.logger = new Logger('quantum-routes');
@@ -88,18 +88,19 @@ export default async function quantumRoutes(fastify: FastifyInstance) {
   });
 
   // WebSocket endpoint for real-time updates
+  const logger = quantumSystem.logger;
   fastify.register(async (fastify) => {
     fastify.get('/api/quantum/ws', { websocket: true }, (connection, request) => {
       const connectionId = Math.random().toString(36).substring(7);
-      
-      connection.socket.on('message', (message) => {
-        this.logger.debug('Received WebSocket message', { message: message.toString() });
+
+      connection.socket.on('message', (message: any) => {
+        logger.debug('Received WebSocket message', { message: message.toString() });
       });
 
       connection.socket.on('close', () => {
-        this.logger.debug('WebSocket connection closed', { connectionId });
+        logger.debug('WebSocket connection closed', { connectionId });
       });
-      
+
       connection.socket.send(JSON.stringify({
         type: 'connection_established',
         connectionId,

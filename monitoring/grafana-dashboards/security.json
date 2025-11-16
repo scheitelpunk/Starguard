@@ -1,0 +1,312 @@
+{
+  "dashboard": {
+    "title": "Starguard2 - Security Metrics",
+    "tags": ["starguard", "security"],
+    "timezone": "browser",
+    "schemaVersion": 16,
+    "version": 1,
+    "refresh": "10s",
+    "panels": [
+      {
+        "id": 1,
+        "title": "Authentication Overview",
+        "type": "row",
+        "gridPos": { "x": 0, "y": 0, "w": 24, "h": 1 }
+      },
+      {
+        "id": 2,
+        "title": "Authentication Success Rate",
+        "type": "gauge",
+        "gridPos": { "x": 0, "y": 1, "w": 6, "h": 6 },
+        "targets": [
+          {
+            "expr": "sum(rate(starguard_auth_success_total[5m])) / (sum(rate(starguard_auth_success_total[5m])) + sum(rate(starguard_auth_failure_total[5m]))) * 100",
+            "refId": "A"
+          }
+        ],
+        "options": {
+          "showThresholdLabels": false,
+          "showThresholdMarkers": true
+        },
+        "fieldConfig": {
+          "defaults": {
+            "unit": "percent",
+            "min": 0,
+            "max": 100,
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                { "value": 0, "color": "red" },
+                { "value": 70, "color": "yellow" },
+                { "value": 90, "color": "green" }
+              ]
+            }
+          }
+        }
+      },
+      {
+        "id": 3,
+        "title": "Authentication by Type",
+        "type": "piechart",
+        "gridPos": { "x": 6, "y": 1, "w": 6, "h": 6 },
+        "targets": [
+          {
+            "expr": "sum(increase(starguard_auth_success_total[1h])) by (biometric_type)",
+            "refId": "A",
+            "legendFormat": "{{biometric_type}}"
+          }
+        ],
+        "options": {
+          "pieType": "pie",
+          "legend": {
+            "display": true,
+            "placement": "right"
+          }
+        }
+      },
+      {
+        "id": 4,
+        "title": "Failed Authentication Attempts",
+        "type": "stat",
+        "gridPos": { "x": 12, "y": 1, "w": 6, "h": 6 },
+        "targets": [
+          {
+            "expr": "sum(increase(starguard_failed_auth_attempts_total[1h]))",
+            "refId": "A"
+          }
+        ],
+        "options": {
+          "graphMode": "area",
+          "colorMode": "value"
+        },
+        "fieldConfig": {
+          "defaults": {
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                { "value": 0, "color": "green" },
+                { "value": 10, "color": "yellow" },
+                { "value": 50, "color": "red" }
+              ]
+            }
+          }
+        }
+      },
+      {
+        "id": 5,
+        "title": "Suspicious Activity Score",
+        "type": "gauge",
+        "gridPos": { "x": 18, "y": 1, "w": 6, "h": 6 },
+        "targets": [
+          {
+            "expr": "starguard_suspicious_activity_score",
+            "refId": "A"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "min": 0,
+            "max": 100,
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                { "value": 0, "color": "green" },
+                { "value": 50, "color": "yellow" },
+                { "value": 80, "color": "red" }
+              ]
+            }
+          }
+        }
+      },
+      {
+        "id": 6,
+        "title": "Threat Detection",
+        "type": "row",
+        "gridPos": { "x": 0, "y": 7, "w": 24, "h": 1 }
+      },
+      {
+        "id": 7,
+        "title": "Threats Detected by Severity",
+        "type": "graph",
+        "gridPos": { "x": 0, "y": 8, "w": 12, "h": 8 },
+        "targets": [
+          {
+            "expr": "sum(rate(starguard_threats_detected_total[5m])) by (severity)",
+            "refId": "A",
+            "legendFormat": "{{severity}}"
+          }
+        ],
+        "yaxes": [
+          { "format": "short", "label": "Threats/sec" },
+          { "format": "short" }
+        ],
+        "legend": {
+          "show": true,
+          "alignAsTable": true,
+          "values": true,
+          "current": true,
+          "total": true
+        },
+        "seriesOverrides": [
+          {
+            "alias": "critical",
+            "color": "#E02F44",
+            "zindex": 3
+          },
+          {
+            "alias": "high",
+            "color": "#FF9830",
+            "zindex": 2
+          },
+          {
+            "alias": "medium",
+            "color": "#FADE2A",
+            "zindex": 1
+          },
+          {
+            "alias": "low",
+            "color": "#73BF69",
+            "zindex": 0
+          }
+        ]
+      },
+      {
+        "id": 8,
+        "title": "Threats by Type",
+        "type": "graph",
+        "gridPos": { "x": 12, "y": 8, "w": 12, "h": 8 },
+        "targets": [
+          {
+            "expr": "sum(increase(starguard_threats_detected_total[1h])) by (threat_type)",
+            "refId": "A",
+            "legendFormat": "{{threat_type}}"
+          }
+        ],
+        "yaxes": [
+          { "format": "short", "label": "Total Threats" },
+          { "format": "short" }
+        ]
+      },
+      {
+        "id": 9,
+        "title": "Rate Limiting & Access Control",
+        "type": "row",
+        "gridPos": { "x": 0, "y": 16, "w": 24, "h": 1 }
+      },
+      {
+        "id": 10,
+        "title": "Rate Limit Violations",
+        "type": "graph",
+        "gridPos": { "x": 0, "y": 17, "w": 12, "h": 8 },
+        "targets": [
+          {
+            "expr": "sum(rate(starguard_rate_limit_violations_total[5m])) by (endpoint)",
+            "refId": "A",
+            "legendFormat": "{{endpoint}}"
+          }
+        ],
+        "yaxes": [
+          { "format": "short", "label": "Violations/sec" },
+          { "format": "short" }
+        ]
+      },
+      {
+        "id": 11,
+        "title": "Failed Auth by IP Subnet",
+        "type": "table",
+        "gridPos": { "x": 12, "y": 17, "w": 12, "h": 8 },
+        "targets": [
+          {
+            "expr": "topk(10, sum(increase(starguard_failed_auth_attempts_total[1h])) by (ip_subnet))",
+            "refId": "A",
+            "format": "table",
+            "instant": true
+          }
+        ],
+        "transformations": [
+          {
+            "id": "organize",
+            "options": {
+              "excludeByName": {},
+              "indexByName": {},
+              "renameByName": {
+                "ip_subnet": "IP Subnet",
+                "Value": "Failed Attempts"
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": 12,
+        "title": "Defense Metrics",
+        "type": "row",
+        "gridPos": { "x": 0, "y": 25, "w": 24, "h": 1 }
+      },
+      {
+        "id": 13,
+        "title": "Defense Effectiveness",
+        "type": "graph",
+        "gridPos": { "x": 0, "y": 26, "w": 12, "h": 8 },
+        "targets": [
+          {
+            "expr": "starguard_defense_effectiveness",
+            "refId": "A",
+            "legendFormat": "Effectiveness Score"
+          }
+        ],
+        "yaxes": [
+          { "format": "percent", "label": "Effectiveness", "min": 0, "max": 100 },
+          { "format": "short" }
+        ]
+      },
+      {
+        "id": 14,
+        "title": "Consensus Failures",
+        "type": "graph",
+        "gridPos": { "x": 12, "y": 26, "w": 12, "h": 8 },
+        "targets": [
+          {
+            "expr": "sum(rate(starguard_consensus_failures_total[5m])) by (reason)",
+            "refId": "A",
+            "legendFormat": "{{reason}}"
+          }
+        ],
+        "yaxes": [
+          { "format": "short", "label": "Failures/sec" },
+          { "format": "short" }
+        ]
+      },
+      {
+        "id": 15,
+        "title": "Threat Intelligence",
+        "type": "row",
+        "gridPos": { "x": 0, "y": 34, "w": 24, "h": 1 }
+      },
+      {
+        "id": 16,
+        "title": "Threat Intel Updates",
+        "type": "graph",
+        "gridPos": { "x": 0, "y": 35, "w": 24, "h": 8 },
+        "targets": [
+          {
+            "expr": "sum(rate(starguard_threat_intel_updates_total[5m])) by (source)",
+            "refId": "A",
+            "legendFormat": "{{source}}"
+          }
+        ],
+        "yaxes": [
+          { "format": "short", "label": "Updates/sec" },
+          { "format": "short" }
+        ],
+        "legend": {
+          "show": true,
+          "alignAsTable": true,
+          "values": true,
+          "current": true,
+          "total": true
+        }
+      }
+    ]
+  }
+}

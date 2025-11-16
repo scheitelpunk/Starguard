@@ -726,12 +726,14 @@ export class QuantumSecurityAnalyzer extends EventEmitter {
         name: 'Data Exfiltration Prevention',
         rules: [
           {
+            id: 'exfil-monitor-1',
             condition: 'data.size > 1MB AND entropy > 6.5',
             action: 'monitor' as const,
             threshold: 0.7,
             quantumWeight: 1.2
           },
           {
+            id: 'exfil-quarantine-1',
             condition: 'suspicious_patterns.detected',
             action: 'quarantine' as const,
             threshold: 0.8,
@@ -746,6 +748,7 @@ export class QuantumSecurityAnalyzer extends EventEmitter {
         name: 'Network Intrusion Detection',
         rules: [
           {
+            id: 'intrusion-deny-1',
             condition: 'network.anomaly_score > 0.6',
             action: 'deny' as const,
             threshold: 0.6,

@@ -2,11 +2,44 @@
 // Production SQLite with optimizations for 8GB RAM
 
 import sqlite3 from 'sqlite3';
-import { promisify } from 'util';
 import { existsSync, mkdirSync } from 'fs';
 import { dirname } from 'path';
 import { dbConfig } from '../config/index.js';
 import type { ThreatDetectionResult, ConsciousnessState, SystemMetrics, AlertConfig } from '../types/index.js';
+
+// Helper function to promisify sqlite3 methods
+function promisifyDbRun(db: sqlite3.Database) {
+  return (sql: string, params: any[]): Promise<void> => {
+    return new Promise((resolve, reject) => {
+      db.run(sql, params, (err: Error | null) => {
+        if (err) reject(err);
+        else resolve();
+      });
+    });
+  };
+}
+
+function promisifyDbGet(db: sqlite3.Database) {
+  return (sql: string, params: any[]): Promise<any> => {
+    return new Promise((resolve, reject) => {
+      db.get(sql, params, (err: Error | null, row: any) => {
+        if (err) reject(err);
+        else resolve(row);
+      });
+    });
+  };
+}
+
+function promisifyDbAll(db: sqlite3.Database) {
+  return (sql: string, params: any[]): Promise<any[]> => {
+    return new Promise((resolve, reject) => {
+      db.all(sql, params, (err: Error | null, rows: any[]) => {
+        if (err) reject(err);
+        else resolve(rows);
+      });
+    });
+  };
+}
 
 // Enable verbose mode in development
 if (process.env.NODE_ENV !== 'production') {
@@ -48,16 +81,16 @@ export class DatabaseManager {
   private async setupDatabase(): Promise<void> {
     if (!this.db) throw new Error('Database not initialized');
 
-    const run = promisify(this.db.run.bind(this.db));
+    const run = promisifyDbRun(this.db);
 
     // Performance optimizations for 8GB RAM
-    await run('PRAGMA journal_mode = WAL'); // Write-Ahead Logging
-    await run('PRAGMA synchronous = NORMAL'); // Balanced safety/speed
-    await run('PRAGMA cache_size = -131072'); // 128MB cache
-    await run('PRAGMA temp_store = MEMORY'); // Use RAM for temp tables
-    await run('PRAGMA mmap_size = 536870912'); // 512MB memory map
-    await run('PRAGMA page_size = 4096'); // Optimal page size
-    await run('PRAGMA foreign_keys = ON'); // Enforce relationships
+    await run('PRAGMA journal_mode = WAL', []); // Write-Ahead Logging
+    await run('PRAGMA synchronous = NORMAL', []); // Balanced safety/speed
+    await run('PRAGMA cache_size = -131072', []); // 128MB cache
+    await run('PRAGMA temp_store = MEMORY', []); // Use RAM for temp tables
+    await run('PRAGMA mmap_size = 536870912', []); // 512MB memory map
+    await run('PRAGMA page_size = 4096', []); // Optimal page size
+    await run('PRAGMA foreign_keys = ON', []); // Enforce relationships
 
     // Create tables
     await this.createTables();
@@ -66,7 +99,7 @@ export class DatabaseManager {
 
   private async createTables(): Promise<void> {
     if (!this.db) throw new Error('Database not initialized');
-    const run = promisify(this.db.run.bind(this.db));
+    const run = promisifyDbRun(this.db);
 
     // Threat detection results
     await run(`
@@ -89,7 +122,7 @@ export class DatabaseManager {
         created_at INTEGER DEFAULT (strftime('%s', 'now')),
         updated_at INTEGER DEFAULT (strftime('%s', 'now'))
       )
-    `);
+    `, []);
 
     // Consciousness states
     await run(`
@@ -105,7 +138,7 @@ export class DatabaseManager {
         learning_metrics TEXT NOT NULL, -- JSON object
         created_at INTEGER DEFAULT (strftime('%s', 'now'))
       )
-    `);
+    `, []);
 
     // System metrics
     await run(`
@@ -120,7 +153,7 @@ export class DatabaseManager {
         security_status TEXT NOT NULL, -- JSON object
         created_at INTEGER DEFAULT (strftime('%s', 'now'))
       )
-    `);
+    `, []);
 
     // Alert configurations
     await run(`
@@ -135,7 +168,7 @@ export class DatabaseManager {
         created_at INTEGER DEFAULT (strftime('%s', 'now')),
         updated_at INTEGER DEFAULT (strftime('%s', 'now'))
       )
-    `);
+    `, []);
 
     // Connection logs
     await run(`
@@ -151,30 +184,30 @@ export class DatabaseManager {
         subscriptions TEXT, -- JSON array
         created_at INTEGER DEFAULT (strftime('%s', 'now'))
       )
-    `);
+    `, []);
   }
 
   private async createIndexes(): Promise<void> {
     if (!this.db) throw new Error('Database not initialized');
-    const run = promisify(this.db.run.bind(this.db));
+    const run = promisifyDbRun(this.db);
 
     // Performance indexes
-    await run('CREATE INDEX IF NOT EXISTS idx_threats_timestamp ON threats(timestamp)');
-    await run('CREATE INDEX IF NOT EXISTS idx_threats_severity ON threats(severity)');
-    await run('CREATE INDEX IF NOT EXISTS idx_threats_status ON threats(status)');
-    await run('CREATE INDEX IF NOT EXISTS idx_threats_type ON threats(type)');
-    
-    await run('CREATE INDEX IF NOT EXISTS idx_consciousness_timestamp ON consciousness(timestamp)');
-    await run('CREATE INDEX IF NOT EXISTS idx_metrics_timestamp ON metrics(timestamp)');
-    await run('CREATE INDEX IF NOT EXISTS idx_connections_ip ON connections(ip_address)');
-    await run('CREATE INDEX IF NOT EXISTS idx_connections_connected_at ON connections(connected_at)');
+    await run('CREATE INDEX IF NOT EXISTS idx_threats_timestamp ON threats(timestamp)', []);
+    await run('CREATE INDEX IF NOT EXISTS idx_threats_severity ON threats(severity)', []);
+    await run('CREATE INDEX IF NOT EXISTS idx_threats_status ON threats(status)', []);
+    await run('CREATE INDEX IF NOT EXISTS idx_threats_type ON threats(type)', []);
+
+    await run('CREATE INDEX IF NOT EXISTS idx_consciousness_timestamp ON consciousness(timestamp)', []);
+    await run('CREATE INDEX IF NOT EXISTS idx_metrics_timestamp ON metrics(timestamp)', []);
+    await run('CREATE INDEX IF NOT EXISTS idx_connections_ip ON connections(ip_address)', []);
+    await run('CREATE INDEX IF NOT EXISTS idx_connections_connected_at ON connections(connected_at)', []);
   }
 
   // Threat operations
   async saveThreat(threat: ThreatDetectionResult): Promise<void> {
     if (!this.db) throw new Error('Database not initialized');
-    
-    const run = promisify(this.db.run.bind(this.db));
+
+    const run = promisifyDbRun(this.db);
     await run(`
       INSERT OR REPLACE INTO threats (
         id, timestamp, severity, type, confidence, source, description,
@@ -202,12 +235,12 @@ export class DatabaseManager {
 
   async getThreats(limit = 100, severity?: string): Promise<ThreatDetectionResult[]> {
     if (!this.db) throw new Error('Database not initialized');
-    
-    const all = promisify(this.db.all.bind(this.db));
-    const query = severity 
+
+    const all = promisifyDbAll(this.db);
+    const query = severity
       ? 'SELECT * FROM threats WHERE severity = ? ORDER BY timestamp DESC LIMIT ?'
       : 'SELECT * FROM threats ORDER BY timestamp DESC LIMIT ?';
-    
+
     const params = severity ? [severity, limit] : [limit];
     const rows = await all(query, params) as any[];
     
@@ -237,8 +270,8 @@ export class DatabaseManager {
   // Consciousness operations
   async saveConsciousnessState(state: ConsciousnessState): Promise<void> {
     if (!this.db) throw new Error('Database not initialized');
-    
-    const run = promisify(this.db.run.bind(this.db));
+
+    const run = promisifyDbRun(this.db);
     await run(`
       INSERT INTO consciousness (
         id, timestamp, awareness_level, quantum_coherence, emotional_state,
@@ -260,8 +293,8 @@ export class DatabaseManager {
   // Metrics operations
   async saveMetrics(metrics: SystemMetrics): Promise<void> {
     if (!this.db) throw new Error('Database not initialized');
-    
-    const run = promisify(this.db.run.bind(this.db));
+
+    const run = promisifyDbRun(this.db);
     await run(`
       INSERT INTO metrics (
         timestamp, cpu_usage, memory_usage, network_activity,
@@ -280,9 +313,9 @@ export class DatabaseManager {
 
   async getLatestMetrics(): Promise<SystemMetrics | null> {
     if (!this.db) throw new Error('Database not initialized');
-    
-    const get = promisify(this.db.get.bind(this.db));
-    const row = await get('SELECT * FROM metrics ORDER BY timestamp DESC LIMIT 1') as any;
+
+    const get = promisifyDbGet(this.db);
+    const row = await get('SELECT * FROM metrics ORDER BY timestamp DESC LIMIT 1', []) as any;
     
     if (!row) return null;
     
@@ -300,16 +333,16 @@ export class DatabaseManager {
   // Cleanup old data to manage memory
   async cleanup(retentionDays = 30): Promise<void> {
     if (!this.db) throw new Error('Database not initialized');
-    
-    const run = promisify(this.db.run.bind(this.db));
+
+    const run = promisifyDbRun(this.db);
     const cutoffTime = Date.now() - (retentionDays * 24 * 60 * 60 * 1000);
-    
+
     await run('DELETE FROM metrics WHERE timestamp < ?', [cutoffTime]);
     await run('DELETE FROM consciousness WHERE timestamp < ?', [cutoffTime]);
     await run('DELETE FROM connections WHERE connected_at < ?', [cutoffTime]);
-    
+
     // Run VACUUM to reclaim space
-    await run('VACUUM');
+    await run('VACUUM', []);
   }
 
   private startBackupSchedule(): void {
@@ -326,11 +359,11 @@ export class DatabaseManager {
 
   private async backup(): Promise<void> {
     if (!this.db) return;
-    
-    const run = promisify(this.db.run.bind(this.db));
+
+    const run = promisifyDbRun(this.db);
     const backupPath = dbConfig.database.replace('.db', `-backup-${Date.now()}.db`);
-    
-    await run(`VACUUM INTO '${backupPath}'`);
+
+    await run(`VACUUM INTO '${backupPath}'`, []);
     console.log(`Database backed up to: ${backupPath}`);
   }
 

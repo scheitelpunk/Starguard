@@ -34,7 +34,7 @@ interface BiometricProfile {
 
 interface KeystrokeDynamicsProfile {
   dwellTimes: Map<string, StatisticalMeasures>; // Key hold times
-  flightTimes: Map<string, StatisticalMeasures>; // Time between key releases and next key presses
+  flightTimes: StatisticalMeasures; // Time between key releases and next key presses
   pressurePatterns: Map<string, StatisticalMeasures>; // Key pressure patterns
   typingRhythm: StatisticalMeasures; // Overall typing rhythm
   commonDigraphs: Map<string, StatisticalMeasures>; // Two-character combinations
@@ -454,12 +454,18 @@ export class ConsciousnessAuth extends EventEmitter {
     }
 
     // Convert to statistical measures
+    const dwellTimesMap = this.convertToStatisticalMeasures(dwellTimes);
+    const flightTimesMeasures = this.calculateStatisticalMeasures(flightTimes);
+    const pressurePatternsMap = this.convertToStatisticalMeasures(pressurePatterns);
+    const typingRhythmMeasures = this.calculateStatisticalMeasures(flightTimes);
+    const commonDigraphsMap = this.convertToStatisticalMeasures(digraphTimes);
+
     return {
-      dwellTimes: this.convertToStatisticalMeasures(dwellTimes),
-      flightTimes: this.calculateStatisticalMeasures(flightTimes),
-      pressurePatterns: this.convertToStatisticalMeasures(pressurePatterns),
-      typingRhythm: this.calculateStatisticalMeasures(flightTimes), // Use flight times as rhythm
-      commonDigraphs: this.convertToStatisticalMeasures(digraphTimes)
+      dwellTimes: dwellTimesMap,
+      flightTimes: flightTimesMeasures,
+      pressurePatterns: pressurePatternsMap,
+      typingRhythm: typingRhythmMeasures,
+      commonDigraphs: commonDigraphsMap
     };
   }
 

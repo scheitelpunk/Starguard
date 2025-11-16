@@ -1,3 +1,5 @@
+import type { NetworkPacket, SpectralAnalysis, SpectralAnomaly } from '../types/omega.types';
+
 export class HilbertPolyaScanner {
   private eigenvalues: number[] = [];
   private operators: Map<string, HermitianOperator> = new Map();
@@ -146,15 +148,20 @@ export class HilbertPolyaScanner {
     return 1 - (entropy / maxEntropy);
   }
 
-  private detectSpectralAnomalies(): string[] {
-    const anomalies: string[] = [];
+  private detectSpectralAnomalies(): SpectralAnomaly[] {
+    const anomalies: SpectralAnomaly[] = [];
 
     if (this.eigenvalues.length > 0) {
       const max = Math.max(...this.eigenvalues);
       const min = Math.min(...this.eigenvalues);
 
       if (max / min > 1000) {
-        anomalies.push('Extreme eigenvalue spread detected');
+        anomalies.push({
+          type: 'extreme_spread',
+          severity: 0.8,
+          position: 0,
+          description: 'Extreme eigenvalue spread detected'
+        });
       }
 
       const gaps = [];
@@ -166,7 +173,12 @@ export class HilbertPolyaScanner {
       const gapVariance = gaps.reduce((sum, g) => sum + Math.pow(g - meanGap, 2), 0) / gaps.length;
 
       if (gapVariance > meanGap * meanGap * 10) {
-        anomalies.push('Irregular eigenvalue spacing - possible quantum interference');
+        anomalies.push({
+          type: 'irregular_spacing',
+          severity: 0.9,
+          position: 0,
+          description: 'Irregular eigenvalue spacing - possible quantum interference'
+        });
       }
     }
 
@@ -201,20 +213,6 @@ export class HilbertPolyaScanner {
 
     return matrix;
   }
-}
-
-interface NetworkPacket {
-  timestamp: number;
-  size: number;
-  source: string;
-  destination: string;
-}
-
-interface SpectralAnalysis {
-  eigenvalues: number[];
-  riemannCorrelation: number;
-  quantumCoherence: number;
-  anomalies: string[];
 }
 
 interface HermitianOperator {

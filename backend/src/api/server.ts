@@ -11,6 +11,7 @@ import { ConsciousnessEngine } from '../consciousness/consciousness';
 import { QuantumEngine } from '../quantum/quantumEngine';
 import { AnomalyDetection } from '../ml/anomalyDetection';
 import { Logger } from '../utils/logger';
+import { registerSwagger } from './swagger.config';
 import {
   BiometricDataSchema,
   BiometricVerifySchema,
@@ -100,11 +101,21 @@ class SecurityOperationsAPI {
     this.consciousness = new ConsciousnessEngine();
     this.quantumEngine = new QuantumEngine();
     this.anomalyDetector = new AnomalyDetection();
-    
+
+    this.setupSwagger();
     this.setupMiddleware();
     this.setupRoutes();
     this.setupWebSockets();
     this.startSecurityServices();
+  }
+
+  private async setupSwagger() {
+    try {
+      await registerSwagger(this.fastify);
+      this.logger.info('Swagger documentation registered at /api/docs');
+    } catch (error) {
+      this.logger.error('Failed to register Swagger:', error instanceof Error ? error : new Error(String(error)));
+    }
   }
 
   private async setupMiddleware() {
@@ -205,7 +216,24 @@ class SecurityOperationsAPI {
 
   private setupRoutes() {
     // Health check
-    this.fastify.get('/api/health', async (request, reply) => {
+    this.fastify.get('/api/health', {
+      schema: {
+        description: 'System health check endpoint',
+        tags: ['Health'],
+        summary: 'Get system health status',
+        response: {
+          200: {
+            description: 'System health status',
+            type: 'object',
+            properties: {
+              status: { type: 'string', enum: ['operational', 'degraded', 'down'] },
+              timestamp: { type: 'number' },
+              services: { type: 'object' }
+            }
+          }
+        }
+      }
+    }, async (request, reply) => {
       return {
         status: 'operational',
         timestamp: Date.now(),
@@ -221,19 +249,35 @@ class SecurityOperationsAPI {
     // Authentication routes
     this.fastify.post('/api/auth/biometric/scan', {
       schema: {
+        description: 'Initiate biometric authentication scan',
+        tags: ['Authentication'],
+        summary: 'Perform biometric authentication',
         body: BiometricDataSchema,
         response: {
           200: {
+            description: 'Authentication scan completed',
             type: 'object',
             properties: {
-              sessionId: { type: 'string' },
-              authenticated: { type: 'boolean' },
-              score: { type: 'number' },
-              riskLevel: { type: 'string' }
+              sessionId: { type: 'string', description: 'Generated session ID' },
+              authenticated: { type: 'boolean', description: 'Authentication status' },
+              score: { type: 'number', description: 'Confidence score (0-1)' },
+              riskLevel: { type: 'string', enum: ['low', 'medium', 'high', 'critical'], description: 'Risk level' }
             }
           },
-          400: { $ref: 'ErrorResponse' },
-          500: { $ref: 'ErrorResponse' }
+          400: {
+            description: 'Bad Request',
+            type: 'object',
+            properties: {
+              error: { type: 'string' }
+            }
+          },
+          500: {
+            description: 'Internal Server Error',
+            type: 'object',
+            properties: {
+              error: { type: 'string' }
+            }
+          }
         }
       }
     }, async (request: FastifyRequest<{
@@ -277,18 +321,34 @@ class SecurityOperationsAPI {
 
     this.fastify.post('/api/auth/biometric/verify', {
       schema: {
+        description: 'Verify continuous biometric authentication',
+        tags: ['Authentication'],
+        summary: 'Verify ongoing authentication',
         body: BiometricVerifySchema,
         response: {
           200: {
+            description: 'Verification completed',
             type: 'object',
             properties: {
-              verified: { type: 'boolean' },
-              score: { type: 'number' },
-              sessionValid: { type: 'boolean' }
+              verified: { type: 'boolean', description: 'Verification status' },
+              score: { type: 'number', description: 'Verification score' },
+              sessionValid: { type: 'boolean', description: 'Session validity' }
             }
           },
-          404: { $ref: 'ErrorResponse' },
-          500: { $ref: 'ErrorResponse' }
+          404: {
+            description: 'Session not found',
+            type: 'object',
+            properties: {
+              error: { type: 'string' }
+            }
+          },
+          500: {
+            description: 'Internal Server Error',
+            type: 'object',
+            properties: {
+              error: { type: 'string' }
+            }
+          }
         }
       }
     }, async (request: FastifyRequest<{
@@ -317,7 +377,24 @@ class SecurityOperationsAPI {
     });
 
     // Threat detection routes
-    this.fastify.get('/api/threats', async (request, reply) => {
+    this.fastify.get('/api/threats', {
+      schema: {
+        description: 'List all active security threats',
+        tags: ['Threats'],
+        summary: 'Get active threats',
+        response: {
+          200: {
+            description: 'List of active threats',
+            type: 'object',
+            properties: {
+              threats: { type: 'array', items: { type: 'object' } },
+              total: { type: 'integer' },
+              lastUpdated: { type: 'number' }
+            }
+          }
+        }
+      }
+    }, async (request, reply) => {
       try {
         const threats: any[] = []; // TODO: implement getActiveThreats
         return {
@@ -337,18 +414,34 @@ class SecurityOperationsAPI {
 
     this.fastify.post('/api/threats/scan', {
       schema: {
+        description: 'Initiate security scan on target',
+        tags: ['Threats'],
+        summary: 'Start security scan',
         body: ThreatScanRequestSchema,
         response: {
           200: {
+            description: 'Scan initiated successfully',
             type: 'object',
             properties: {
-              scanId: { type: 'string' },
-              status: { type: 'string' },
-              estimatedDuration: { type: 'number' }
+              scanId: { type: 'string', description: 'Unique scan identifier' },
+              status: { type: 'string', enum: ['initiated', 'running', 'completed', 'failed'] },
+              estimatedDuration: { type: 'number', description: 'Estimated duration in milliseconds' }
             }
           },
-          400: { $ref: 'ErrorResponse' },
-          500: { $ref: 'ErrorResponse' }
+          400: {
+            description: 'Invalid request',
+            type: 'object',
+            properties: {
+              error: { type: 'string' }
+            }
+          },
+          500: {
+            description: 'Scan failed',
+            type: 'object',
+            properties: {
+              error: { type: 'string' }
+            }
+          }
         }
       }
     }, async (request: FastifyRequest<{
@@ -374,11 +467,30 @@ class SecurityOperationsAPI {
 
     this.fastify.get('/api/threats/scan/:scanId', {
       schema: {
+        description: 'Get security scan results',
+        tags: ['Threats'],
+        summary: 'Retrieve scan results',
         params: ScanIdParamSchema,
         response: {
-          200: { type: 'object', additionalProperties: true },
-          404: { $ref: 'ErrorResponse' },
-          500: { $ref: 'ErrorResponse' }
+          200: {
+            description: 'Scan results',
+            type: 'object',
+            additionalProperties: true
+          },
+          404: {
+            description: 'Scan not found',
+            type: 'object',
+            properties: {
+              error: { type: 'string' }
+            }
+          },
+          500: {
+            description: 'Failed to retrieve results',
+            type: 'object',
+            properties: {
+              error: { type: 'string' }
+            }
+          }
         }
       }
     }, async (request: FastifyRequest<{
@@ -402,7 +514,24 @@ class SecurityOperationsAPI {
     });
 
     // Quantum field routes
-    this.fastify.get('/api/quantum/field', async (request, reply) => {
+    this.fastify.get('/api/quantum/field', {
+      schema: {
+        description: 'Get current quantum field state',
+        tags: ['Quantum'],
+        summary: 'Retrieve quantum field data',
+        response: {
+          200: {
+            description: 'Quantum field state',
+            type: 'object',
+            properties: {
+              nodes: { type: 'array' },
+              edges: { type: 'array' },
+              fieldMetrics: { type: 'object' }
+            }
+          }
+        }
+      }
+    }, async (request, reply) => {
       try {
         const fieldData = await this.generateQuantumFieldData();
         return fieldData;
@@ -415,11 +544,30 @@ class SecurityOperationsAPI {
 
     this.fastify.post('/api/quantum/defense/evolve', {
       schema: {
+        description: 'Evolve defense mechanisms based on threat patterns',
+        tags: ['Quantum'],
+        summary: 'Adapt quantum defenses',
         body: DefenseEvolutionSchema,
         response: {
-          200: { type: 'object', additionalProperties: true },
-          400: { $ref: 'ErrorResponse' },
-          500: { $ref: 'ErrorResponse' }
+          200: {
+            description: 'Defense evolution completed',
+            type: 'object',
+            additionalProperties: true
+          },
+          400: {
+            description: 'Invalid threat pattern',
+            type: 'object',
+            properties: {
+              error: { type: 'string' }
+            }
+          },
+          500: {
+            description: 'Evolution failed',
+            type: 'object',
+            properties: {
+              error: { type: 'string' }
+            }
+          }
         }
       }
     }, async (request: FastifyRequest<{
@@ -449,7 +597,20 @@ class SecurityOperationsAPI {
     });
 
     // Consciousness routes
-    this.fastify.get('/api/consciousness/metrics', async (request, reply) => {
+    this.fastify.get('/api/consciousness/metrics', {
+      schema: {
+        description: 'Get consciousness performance metrics',
+        tags: ['Consciousness'],
+        summary: 'Retrieve consciousness metrics',
+        response: {
+          200: {
+            description: 'Consciousness metrics',
+            type: 'object',
+            additionalProperties: true
+          }
+        }
+      }
+    }, async (request, reply) => {
       try {
         const metrics: any = { awareness: 0.5, coherence: 0.7 }; // TODO: implement getMetrics
         return {
@@ -466,19 +627,35 @@ class SecurityOperationsAPI {
 
     this.fastify.post('/api/consciousness/analyze', {
       schema: {
+        description: 'Analyze data using consciousness engine',
+        tags: ['Consciousness'],
+        summary: 'Perform consciousness analysis',
         body: ConsciousnessAnalysisSchema,
         response: {
           200: {
+            description: 'Analysis completed',
             type: 'object',
             properties: {
               analysis: { type: 'object', additionalProperties: true },
-              confidence: { type: 'number' },
-              recommendations: { type: 'array' },
+              confidence: { type: 'number', description: 'Analysis confidence score' },
+              recommendations: { type: 'array', items: { type: 'string' } },
               timestamp: { type: 'number' }
             }
           },
-          400: { $ref: 'ErrorResponse' },
-          500: { $ref: 'ErrorResponse' }
+          400: {
+            description: 'Invalid analysis request',
+            type: 'object',
+            properties: {
+              error: { type: 'string' }
+            }
+          },
+          500: {
+            description: 'Analysis failed',
+            type: 'object',
+            properties: {
+              error: { type: 'string' }
+            }
+          }
         }
       }
     }, async (request: FastifyRequest<{
@@ -502,7 +679,24 @@ class SecurityOperationsAPI {
     });
 
     // Anomaly detection routes
-    this.fastify.get('/api/anomalies', async (request, reply) => {
+    this.fastify.get('/api/anomalies', {
+      schema: {
+        description: 'Get detected anomalies',
+        tags: ['Health'],
+        summary: 'List anomalies',
+        response: {
+          200: {
+            description: 'Anomalies list',
+            type: 'object',
+            properties: {
+              anomalies: { type: 'array' },
+              total: { type: 'integer' },
+              lastUpdated: { type: 'number' }
+            }
+          }
+        }
+      }
+    }, async (request, reply) => {
       try {
         const anomalies: any[] = []; // TODO: implement getRecentAnomalies
         return {
@@ -521,7 +715,20 @@ class SecurityOperationsAPI {
     });
 
     // System statistics
-    this.fastify.get('/api/stats/dashboard', async (request, reply) => {
+    this.fastify.get('/api/stats/dashboard', {
+      schema: {
+        description: 'Get comprehensive dashboard statistics',
+        tags: ['Health'],
+        summary: 'Dashboard metrics',
+        response: {
+          200: {
+            description: 'Dashboard statistics',
+            type: 'object',
+            additionalProperties: true
+          }
+        }
+      }
+    }, async (request, reply) => {
       try {
         const stats = await this.generateDashboardStats();
         return stats;
@@ -535,11 +742,30 @@ class SecurityOperationsAPI {
     // Export data
     this.fastify.get('/api/export/security-report', {
       schema: {
+        description: 'Export security report in specified format',
+        tags: ['Health'],
+        summary: 'Export security report',
         querystring: ExportQuerySchema,
         response: {
-          200: { type: 'object', additionalProperties: true },
-          400: { $ref: 'ErrorResponse' },
-          500: { $ref: 'ErrorResponse' }
+          200: {
+            description: 'Security report',
+            type: 'object',
+            additionalProperties: true
+          },
+          400: {
+            description: 'Invalid export parameters',
+            type: 'object',
+            properties: {
+              error: { type: 'string' }
+            }
+          },
+          500: {
+            description: 'Export failed',
+            type: 'object',
+            properties: {
+              error: { type: 'string' }
+            }
+          }
         }
       }
     }, async (request: FastifyRequest<{

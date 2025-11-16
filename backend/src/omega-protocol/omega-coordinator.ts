@@ -43,14 +43,17 @@ export class OmegaProtocolCoordinator extends EventEmitter {
 
     // Quantum threat detection
     const quantumThreats = this.quantum.detectQuantumAttack(
-      networkPackets.map((p) => p.payload)
+      networkPackets.map((p) => {
+        const payload = p.payload;
+        return typeof payload === 'string' ? Buffer.from(payload) : payload;
+      })
     );
 
     // Hilbert-Polya spectral analysis
     const spectralAnalysis = this.hilbert.analyzeNetworkSpectrum(networkPackets);
 
     // Prime pattern detection in ports/IPs
-    const primePatterns = this.riemann.detectPrimePatterns(
+    const primePatternArray = this.riemann.detectPrimePatterns(
       networkPackets.map((p) => p.port)
     );
 
@@ -58,7 +61,12 @@ export class OmegaProtocolCoordinator extends EventEmitter {
       timestamp: Date.now(),
       riemannFindings: {
         weakKeys: rsaWeakness.filter((w) => w.isWeak),
-        primePatterns: primePatterns,
+        primePatterns: {
+          detected: primePatternArray.length > 0,
+          patterns: primePatternArray.map(p => p.values[0]),
+          correlation: primePatternArray.reduce((sum, p) => sum + p.rarity, 0) / Math.max(primePatternArray.length, 1),
+          significance: primePatternArray.length > 0 ? 0.8 : 0
+        },
         zetaCorrelation: this.calculateOverallZetaCorrelation(rsaWeakness)
       },
       quantumStatus: {
@@ -67,12 +75,7 @@ export class OmegaProtocolCoordinator extends EventEmitter {
         confidence: quantumThreats.confidence,
         quantumResistantKeyGenerated: false
       },
-      spectralFindings: {
-        eigenvalues: spectralAnalysis.eigenvalues,
-        riemannHypothesisCorrelation: spectralAnalysis.riemannCorrelation,
-        quantumCoherence: spectralAnalysis.quantumCoherence,
-        anomalies: spectralAnalysis.anomalies
-      },
+      spectralFindings: spectralAnalysis,
       overallThreatLevel: this.calculateOmegaThreatLevel(
         rsaWeakness,
         quantumThreats,

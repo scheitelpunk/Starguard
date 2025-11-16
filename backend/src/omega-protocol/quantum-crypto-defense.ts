@@ -1,4 +1,5 @@
 import { randomBytes } from 'crypto';
+import type { QuantumThreat } from '../types/omega.types';
 
 export class QuantumCryptoDefense {
   private latticeKeys: Map<string, LatticeKey> = new Map();
@@ -86,36 +87,36 @@ export class QuantumCryptoDefense {
   public detectQuantumAttack(traffic: Buffer[]): QuantumThreat {
     const threat: QuantumThreat = {
       detected: false,
-      type: 'NONE',
+      type: 'none',
       confidence: 0,
-      indicators: []
+      description: 'No quantum threats detected'
     };
 
     // Detect Shor's algorithm preparation patterns
     const shorPattern = this.detectShorPattern(traffic);
     if (shorPattern > 0.6) {
       threat.detected = true;
-      threat.type = 'SHOR_ALGORITHM_PREP';
+      threat.type = 'shor';
       threat.confidence = shorPattern;
-      threat.indicators.push('Quantum period finding patterns detected');
+      threat.description = 'Quantum period finding patterns detected';
     }
 
     // Detect Grover's algorithm search patterns
     const groverPattern = this.detectGroverPattern(traffic);
     if (groverPattern > 0.5) {
       threat.detected = true;
-      threat.type = 'GROVER_SEARCH';
+      threat.type = 'grover';
       threat.confidence = Math.max(threat.confidence, groverPattern);
-      threat.indicators.push('Quantum amplitude amplification detected');
+      threat.description = 'Quantum amplitude amplification detected';
     }
 
-    // Detect quantum key distribution attempts
+    // Detect quantum annealing attempts
     const qkdPattern = this.detectQKDPattern(traffic);
     if (qkdPattern > 0.7) {
       threat.detected = true;
-      threat.type = 'QKD_INTERCEPT';
+      threat.type = 'quantum_annealing';
       threat.confidence = Math.max(threat.confidence, qkdPattern);
-      threat.indicators.push('BB84 protocol interference detected');
+      threat.description = 'BB84 protocol interference detected';
     }
 
     return threat;
@@ -199,11 +200,4 @@ interface LatticeKey {
   privateKey: { f: number[], g: number[] };
   parameters: { N: number, q: number, p: number };
   timestamp: number;
-}
-
-interface QuantumThreat {
-  detected: boolean;
-  type: string;
-  confidence: number;
-  indicators: string[];
 }

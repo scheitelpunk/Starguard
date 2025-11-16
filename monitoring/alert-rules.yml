@@ -1,0 +1,257 @@
+# Prometheus Alert Rules for Starguard2
+# Enhanced monitoring and alerting configuration
+
+groups:
+  - name: starguard_availability
+    interval: 30s
+    rules:
+      - alert: ServiceDown
+        expr: up{job="starguard2"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          component: availability
+        annotations:
+          summary: "Starguard2 service is down"
+          description: "Service {{ $labels.instance }} has been down for more than 1 minute"
+          runbook_url: "https://docs.starguard2.com/runbooks/service-down"
+
+      - alert: HealthCheckFailing
+        expr: starguard_health_status{check="readiness"} == 0
+        for: 2m
+        labels:
+          severity: critical
+          component: health
+        annotations:
+          summary: "Health check failing"
+          description: "Readiness probe failing on {{ $labels.instance }} for 2 minutes"
+
+  - name: starguard_performance
+    interval: 30s
+    rules:
+      - alert: HighResponseTime
+        expr: histogram_quantile(0.99, sum(rate(starguard_api_response_time_ms_bucket[5m])) by (le, endpoint)) > 1000
+        for: 5m
+        labels:
+          severity: warning
+          component: performance
+        annotations:
+          summary: "High API response time (p99 > 1s)"
+          description: "Endpoint {{ $labels.endpoint }} has p99 response time > 1000ms for 5 minutes"
+          current_value: "{{ $value }}ms"
+          runbook_url: "https://docs.starguard2.com/runbooks/high-latency"
+
+      - alert: HighErrorRate
+        expr: |
+          sum(rate(starguard_api_response_time_ms_count{status_code=~"5.."}[5m]))
+          /
+          sum(rate(starguard_api_response_time_ms_count[5m])) * 100 > 5
+        for: 5m
+        labels:
+          severity: critical
+          component: errors
+        annotations:
+          summary: "High error rate (>5%)"
+          description: "Error rate is {{ $value | humanize }}% for the last 5 minutes"
+          runbook_url: "https://docs.starguard2.com/runbooks/high-error-rate"
+
+      - alert: SlowDatabaseQueries
+        expr: histogram_quantile(0.95, sum(rate(starguard_db_query_duration_ms_bucket[5m])) by (le, table)) > 500
+        for: 10m
+        labels:
+          severity: warning
+          component: database
+        annotations:
+          summary: "Slow database queries detected"
+          description: "Table {{ $labels.table }} has p95 query time > 500ms"
+          current_value: "{{ $value }}ms"
+
+      - alert: LowCacheHitRate
+        expr: |
+          sum(rate(starguard_cache_hit_total[5m]))
+          /
+          (sum(rate(starguard_cache_hit_total[5m])) + sum(rate(starguard_cache_miss_total[5m]))) * 100 < 50
+        for: 15m
+        labels:
+          severity: warning
+          component: cache
+        annotations:
+          summary: "Low cache hit rate (<50%)"
+          description: "Cache hit rate is {{ $value | humanize }}% which is below threshold"
+
+  - name: starguard_resources
+    interval: 30s
+    rules:
+      - alert: HighMemoryUsage
+        expr: |
+          (sum(starguard_memory_usage_bytes) /
+          (node_memory_MemTotal_bytes{job="node"} * 1024 * 1024 * 1024)) * 100 > 90
+        for: 5m
+        labels:
+          severity: critical
+          component: resources
+        annotations:
+          summary: "High memory usage (>90%)"
+          description: "Memory usage is {{ $value | humanize }}%"
+          runbook_url: "https://docs.starguard2.com/runbooks/high-memory"
+
+      - alert: HighCPUUsage
+        expr: rate(process_cpu_seconds_total{job="starguard2"}[5m]) * 100 > 80
+        for: 10m
+        labels:
+          severity: warning
+          component: resources
+        annotations:
+          summary: "High CPU usage (>80%)"
+          description: "CPU usage is {{ $value | humanize }}% on {{ $labels.instance }}"
+
+  - name: starguard_security
+    interval: 30s
+    rules:
+      - alert: HighFailedAuthAttempts
+        expr: sum(rate(starguard_failed_auth_attempts_total[5m])) > 10
+        for: 5m
+        labels:
+          severity: warning
+          component: security
+        annotations:
+          summary: "High rate of failed authentication attempts"
+          description: "{{ $value | humanize }} failed auth attempts per second - possible brute force attack"
+          runbook_url: "https://docs.starguard2.com/runbooks/brute-force"
+
+      - alert: MassiveFailedAuthAttempts
+        expr: sum(rate(starguard_failed_auth_attempts_total[1m])) > 50
+        for: 2m
+        labels:
+          severity: critical
+          component: security
+        annotations:
+          summary: "CRITICAL: Massive failed authentication attempts"
+          description: "{{ $value | humanize }} failed auth attempts per second - ACTIVE ATTACK"
+          runbook_url: "https://docs.starguard2.com/runbooks/active-attack"
+
+      - alert: HighThreatDetectionRate
+        expr: sum(rate(starguard_threats_detected_total{severity=~"critical|high"}[5m])) > 10
+        for: 5m
+        labels:
+          severity: critical
+          component: security
+        annotations:
+          summary: "High rate of critical/high threats detected"
+          description: "{{ $value | humanize }} critical/high threats per second"
+          runbook_url: "https://docs.starguard2.com/runbooks/high-threats"
+
+      - alert: RateLimitViolations
+        expr: sum(rate(starguard_rate_limit_violations_total[5m])) by (endpoint) > 5
+        for: 5m
+        labels:
+          severity: warning
+          component: security
+        annotations:
+          summary: "High rate limit violations"
+          description: "Endpoint {{ $labels.endpoint }} has {{ $value | humanize }} violations/sec"
+
+      - alert: SuspiciousActivity
+        expr: starguard_suspicious_activity_score > 80
+        for: 5m
+        labels:
+          severity: critical
+          component: security
+        annotations:
+          summary: "High suspicious activity score"
+          description: "Suspicious activity score is {{ $value }} (threshold: 80)"
+          runbook_url: "https://docs.starguard2.com/runbooks/suspicious-activity"
+
+      - alert: ConsensusFailures
+        expr: sum(rate(starguard_consensus_failures_total[5m])) > 1
+        for: 5m
+        labels:
+          severity: warning
+          component: quantum_swarm
+        annotations:
+          summary: "Swarm consensus failures detected"
+          description: "{{ $value | humanize }} consensus failures per second"
+
+  - name: starguard_business
+    interval: 1m
+    rules:
+      - alert: LowAuthenticationSuccessRate
+        expr: |
+          sum(rate(starguard_auth_success_total[10m]))
+          /
+          (sum(rate(starguard_auth_success_total[10m])) + sum(rate(starguard_auth_failure_total[10m]))) * 100 < 70
+        for: 15m
+        labels:
+          severity: warning
+          component: authentication
+        annotations:
+          summary: "Low authentication success rate (<70%)"
+          description: "Auth success rate is {{ $value | humanize }}%"
+
+      - alert: SlowSwarmConsensus
+        expr: histogram_quantile(0.95, sum(rate(starguard_swarm_consensus_duration_ms_bucket[5m])) by (le)) > 5000
+        for: 10m
+        labels:
+          severity: warning
+          component: quantum_swarm
+        annotations:
+          summary: "Slow swarm consensus (p95 > 5s)"
+          description: "Swarm consensus time is {{ $value }}ms"
+
+      - alert: LowDefenseEffectiveness
+        expr: starguard_defense_effectiveness < 50
+        for: 10m
+        labels:
+          severity: warning
+          component: defense
+        annotations:
+          summary: "Low defense effectiveness (<50%)"
+          description: "Defense effectiveness score is {{ $value }}"
+          runbook_url: "https://docs.starguard2.com/runbooks/low-defense"
+
+  - name: starguard_dependencies
+    interval: 1m
+    rules:
+      - alert: RedisDown
+        expr: redis_up{job="redis"} == 0
+        for: 2m
+        labels:
+          severity: critical
+          component: dependency
+        annotations:
+          summary: "Redis is down"
+          description: "Redis instance {{ $labels.instance }} is unreachable"
+          runbook_url: "https://docs.starguard2.com/runbooks/redis-down"
+
+      - alert: MLServiceDown
+        expr: up{job="ml-service"} == 0
+        for: 5m
+        labels:
+          severity: warning
+          component: dependency
+        annotations:
+          summary: "ML service is down"
+          description: "ML service is unreachable - anomaly detection degraded"
+
+  - name: starguard_websocket
+    interval: 30s
+    rules:
+      - alert: HighWebSocketLatency
+        expr: histogram_quantile(0.95, sum(rate(starguard_websocket_message_latency_ms_bucket[5m])) by (le)) > 500
+        for: 10m
+        labels:
+          severity: warning
+          component: websocket
+        annotations:
+          summary: "High WebSocket message latency (p95 > 500ms)"
+          description: "WebSocket latency is {{ $value }}ms"
+
+      - alert: WebSocketConnectionDrop
+        expr: rate(starguard_websocket_disconnections_total[5m]) > rate(starguard_websocket_connections_total[5m]) * 1.5
+        for: 5m
+        labels:
+          severity: warning
+          component: websocket
+        annotations:
+          summary: "High WebSocket disconnection rate"
+          description: "Disconnections exceed connections by 50%"

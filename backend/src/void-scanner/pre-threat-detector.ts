@@ -3,7 +3,7 @@ import * as crypto from 'crypto';
 import { performance } from 'perf_hooks';
 
 // Types for network monitoring
-interface NetworkPacket {
+export interface NetworkPacket {
   timestamp: number;
   sourceIP: string;
   destIP: string;
@@ -14,7 +14,7 @@ interface NetworkPacket {
   flags?: string[];
 }
 
-interface ThreatSignature {
+export interface ThreatSignature {
   id: string;
   type: 'VOID_SILENCE' | 'DGA_DOMAIN' | 'PORT_SCAN';
   severity: 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
@@ -23,7 +23,7 @@ interface ThreatSignature {
   timestamp: number;
 }
 
-interface SilenceWindow {
+export interface SilenceWindow {
   startTime: number;
   endTime: number;
   expectedTraffic: number;
@@ -31,7 +31,7 @@ interface SilenceWindow {
   suspiciousSilence: boolean;
 }
 
-interface PortScanPattern {
+export interface PortScanPattern {
   sourceIP: string;
   targetPorts: Set<number>;
   timeWindow: number;

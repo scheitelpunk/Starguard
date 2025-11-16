@@ -137,7 +137,7 @@ export class ConsciousnessEngine extends EventEmitter {
       logger.consciousness(this.state);
       
     } catch (error) {
-      logger.error('Error updating consciousness state', error);
+      logger.error('Error updating consciousness state', error instanceof Error ? error : new Error(String(error)));
     }
   }
 

@@ -375,14 +375,14 @@ export class QuantumSwarmSystem extends EventEmitter {
 
   private calculateTaskWorkload(task: any): number {
     const baseLoad = 0.1;
-    const priorityMultiplier = {
+    const priorityMultiplier: Record<string, number> = {
       low: 1,
       medium: 1.5,
       high: 2,
       critical: 3
     };
-    
-    return baseLoad * (priorityMultiplier[task.priority] || 1);
+
+    return baseLoad * (priorityMultiplier[task.priority as string] || 1);
   }
 
   private calculateEstimatedTime(task: any, agents: SwarmAgent[]): number {

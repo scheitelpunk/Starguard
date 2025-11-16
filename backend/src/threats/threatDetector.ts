@@ -324,8 +324,9 @@ export class ThreatDetector extends EventEmitter {
       this.logger.info('Processed threat indicators from feed', { feedName: feed.name, count: threats.length });
 
     } catch (error) {
-      this.logger.error('Failed to fetch from feed', { feedName: feed.name, error });
-      this.emit('feedError', { feedId, error: error.message });
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      this.logger.error('Failed to fetch from feed', { feedName: feed.name, error: errorMessage });
+      this.emit('feedError', { feedId, error: errorMessage });
     }
   }
 
@@ -499,22 +500,24 @@ export class ThreatDetector extends EventEmitter {
     source?: string;
   }): ThreatIndicator[] {
     let threats = Array.from(this.threats.values());
-    
+
     if (filter) {
       if (filter.type) {
         threats = threats.filter(t => t.type === filter.type);
       }
       if (filter.minSeverity !== undefined) {
-        threats = threats.filter(t => t.severity >= filter.minSeverity);
+        const minSev = filter.minSeverity;
+        threats = threats.filter(t => t.severity >= minSev);
       }
       if (filter.minConfidence !== undefined) {
-        threats = threats.filter(t => t.confidence >= filter.minConfidence);
+        const minConf = filter.minConfidence;
+        threats = threats.filter(t => t.confidence >= minConf);
       }
       if (filter.source) {
         threats = threats.filter(t => t.source === filter.source);
       }
     }
-    
+
     return threats.sort((a, b) => b.severity - a.severity);
   }
 

@@ -309,7 +309,12 @@ export class AnomalyDetection extends EventEmitter {
       };
       
       try {
-        this.pythonProcess.stdin?.write(JSON.stringify(command) + '\n');
+        const stdin = this.pythonProcess?.stdin;
+        if (stdin && !stdin.destroyed) {
+          stdin.write(JSON.stringify(command) + '\n');
+        } else {
+          throw new Error('Python process stdin is not available');
+        }
       } catch (error) {
         // Remove from queue and reject
         const requestIndex = this.requestQueue.findIndex(r => r.data === data);

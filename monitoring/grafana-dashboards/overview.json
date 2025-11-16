@@ -1,0 +1,270 @@
+{
+  "dashboard": {
+    "title": "Starguard2 - System Overview",
+    "tags": ["starguard", "overview"],
+    "timezone": "browser",
+    "schemaVersion": 16,
+    "version": 1,
+    "refresh": "10s",
+    "panels": [
+      {
+        "id": 1,
+        "title": "System Health",
+        "type": "stat",
+        "gridPos": { "x": 0, "y": 0, "w": 6, "h": 4 },
+        "targets": [
+          {
+            "expr": "up{job=\"starguard2\"}",
+            "refId": "A"
+          }
+        ],
+        "options": {
+          "graphMode": "none",
+          "colorMode": "value",
+          "justifyMode": "center",
+          "textMode": "value_and_name"
+        },
+        "fieldConfig": {
+          "defaults": {
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                { "value": 0, "color": "red" },
+                { "value": 1, "color": "green" }
+              ]
+            },
+            "mappings": [
+              { "type": "value", "value": "1", "text": "Healthy" },
+              { "type": "value", "value": "0", "text": "Down" }
+            ]
+          }
+        }
+      },
+      {
+        "id": 2,
+        "title": "Total Requests",
+        "type": "stat",
+        "gridPos": { "x": 6, "y": 0, "w": 6, "h": 4 },
+        "targets": [
+          {
+            "expr": "sum(rate(starguard_api_response_time_ms_count[5m]))",
+            "refId": "A"
+          }
+        ],
+        "options": {
+          "graphMode": "area",
+          "colorMode": "value",
+          "reduceOptions": {
+            "values": false,
+            "calcs": ["lastNotNull"]
+          }
+        }
+      },
+      {
+        "id": 3,
+        "title": "Authentication Success Rate",
+        "type": "gauge",
+        "gridPos": { "x": 12, "y": 0, "w": 6, "h": 4 },
+        "targets": [
+          {
+            "expr": "sum(rate(starguard_auth_success_total[5m])) / (sum(rate(starguard_auth_success_total[5m])) + sum(rate(starguard_auth_failure_total[5m]))) * 100",
+            "refId": "A"
+          }
+        ],
+        "options": {
+          "showThresholdLabels": false,
+          "showThresholdMarkers": true
+        },
+        "fieldConfig": {
+          "defaults": {
+            "unit": "percent",
+            "min": 0,
+            "max": 100,
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                { "value": 0, "color": "red" },
+                { "value": 70, "color": "yellow" },
+                { "value": 90, "color": "green" }
+              ]
+            }
+          }
+        }
+      },
+      {
+        "id": 4,
+        "title": "Active Threats",
+        "type": "stat",
+        "gridPos": { "x": 18, "y": 0, "w": 6, "h": 4 },
+        "targets": [
+          {
+            "expr": "sum(increase(starguard_threats_detected_total[1h]))",
+            "refId": "A"
+          }
+        ],
+        "options": {
+          "graphMode": "area",
+          "colorMode": "value"
+        },
+        "fieldConfig": {
+          "defaults": {
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                { "value": 0, "color": "green" },
+                { "value": 10, "color": "yellow" },
+                { "value": 50, "color": "red" }
+              ]
+            }
+          }
+        }
+      },
+      {
+        "id": 5,
+        "title": "Request Rate (req/s)",
+        "type": "graph",
+        "gridPos": { "x": 0, "y": 4, "w": 12, "h": 8 },
+        "targets": [
+          {
+            "expr": "sum(rate(starguard_api_response_time_ms_count[1m])) by (endpoint)",
+            "refId": "A",
+            "legendFormat": "{{endpoint}}"
+          }
+        ],
+        "yaxes": [
+          { "format": "reqps", "label": "Requests/sec" },
+          { "format": "short" }
+        ],
+        "legend": {
+          "show": true,
+          "alignAsTable": true,
+          "values": true,
+          "current": true,
+          "avg": true
+        }
+      },
+      {
+        "id": 6,
+        "title": "Response Time Percentiles",
+        "type": "graph",
+        "gridPos": { "x": 12, "y": 4, "w": 12, "h": 8 },
+        "targets": [
+          {
+            "expr": "histogram_quantile(0.50, sum(rate(starguard_api_response_time_ms_bucket[5m])) by (le))",
+            "refId": "A",
+            "legendFormat": "p50"
+          },
+          {
+            "expr": "histogram_quantile(0.95, sum(rate(starguard_api_response_time_ms_bucket[5m])) by (le))",
+            "refId": "B",
+            "legendFormat": "p95"
+          },
+          {
+            "expr": "histogram_quantile(0.99, sum(rate(starguard_api_response_time_ms_bucket[5m])) by (le))",
+            "refId": "C",
+            "legendFormat": "p99"
+          }
+        ],
+        "yaxes": [
+          { "format": "ms", "label": "Response Time" },
+          { "format": "short" }
+        ]
+      },
+      {
+        "id": 7,
+        "title": "Memory Usage",
+        "type": "graph",
+        "gridPos": { "x": 0, "y": 12, "w": 12, "h": 8 },
+        "targets": [
+          {
+            "expr": "starguard_memory_usage_bytes",
+            "refId": "A",
+            "legendFormat": "{{component}}"
+          }
+        ],
+        "yaxes": [
+          { "format": "bytes", "label": "Memory" },
+          { "format": "short" }
+        ]
+      },
+      {
+        "id": 8,
+        "title": "Swarm Consensus Time",
+        "type": "graph",
+        "gridPos": { "x": 12, "y": 12, "w": 12, "h": 8 },
+        "targets": [
+          {
+            "expr": "histogram_quantile(0.50, sum(rate(starguard_swarm_consensus_duration_ms_bucket[5m])) by (le, agent_count))",
+            "refId": "A",
+            "legendFormat": "p50 - {{agent_count}} agents"
+          },
+          {
+            "expr": "histogram_quantile(0.95, sum(rate(starguard_swarm_consensus_duration_ms_bucket[5m])) by (le, agent_count))",
+            "refId": "B",
+            "legendFormat": "p95 - {{agent_count}} agents"
+          }
+        ],
+        "yaxes": [
+          { "format": "ms", "label": "Consensus Time" },
+          { "format": "short" }
+        ]
+      },
+      {
+        "id": 9,
+        "title": "Cache Hit Rate",
+        "type": "graph",
+        "gridPos": { "x": 0, "y": 20, "w": 12, "h": 6 },
+        "targets": [
+          {
+            "expr": "sum(rate(starguard_cache_hit_total[5m])) / (sum(rate(starguard_cache_hit_total[5m])) + sum(rate(starguard_cache_miss_total[5m]))) * 100",
+            "refId": "A",
+            "legendFormat": "Hit Rate %"
+          }
+        ],
+        "yaxes": [
+          { "format": "percent", "label": "Hit Rate", "min": 0, "max": 100 },
+          { "format": "short" }
+        ]
+      },
+      {
+        "id": 10,
+        "title": "Error Rate",
+        "type": "graph",
+        "gridPos": { "x": 12, "y": 20, "w": 12, "h": 6 },
+        "targets": [
+          {
+            "expr": "sum(rate(starguard_api_response_time_ms_count{status_code=~\"5..\"}[5m])) / sum(rate(starguard_api_response_time_ms_count[5m])) * 100",
+            "refId": "A",
+            "legendFormat": "5xx Error Rate %"
+          },
+          {
+            "expr": "sum(rate(starguard_api_response_time_ms_count{status_code=~\"4..\"}[5m])) / sum(rate(starguard_api_response_time_ms_count[5m])) * 100",
+            "refId": "B",
+            "legendFormat": "4xx Error Rate %"
+          }
+        ],
+        "yaxes": [
+          { "format": "percent", "label": "Error Rate" },
+          { "format": "short" }
+        ],
+        "alert": {
+          "conditions": [
+            {
+              "evaluator": { "params": [5], "type": "gt" },
+              "operator": { "type": "and" },
+              "query": { "params": ["A", "5m", "now"] },
+              "reducer": { "params": [], "type": "avg" },
+              "type": "query"
+            }
+          ],
+          "executionErrorState": "alerting",
+          "frequency": "1m",
+          "handler": 1,
+          "name": "High Error Rate Alert",
+          "noDataState": "no_data",
+          "notifications": []
+        }
+      }
+    ]
+  }
+}

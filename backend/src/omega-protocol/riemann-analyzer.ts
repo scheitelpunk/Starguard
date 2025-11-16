@@ -31,15 +31,17 @@ export class RiemannZetaAnalyzer {
     this.zetaZeros = knownZeros.map(t => ({ real: 0.5, imag: t }));
   }
 
-  public analyzeRSAKey(modulus: string): RSAWeakness {
-    const n = bigInt.default(modulus, 16);
+  public analyzeRSAKey(modulus: string | Buffer): RSAWeakness {
+    const modulusStr = typeof modulus === 'string' ? modulus : modulus.toString('hex');
+    const n = bigInt.default(modulusStr, 16);
     const bitLength = n.bitLength();
 
     // Check for weak prime generation patterns
     const weakness: RSAWeakness = {
       isWeak: false,
       reasons: [],
-      score: 0
+      score: 0,
+      keySize: bitLength.valueOf()
     };
 
     // Test 1: Small prime factors
@@ -72,7 +74,7 @@ export class RiemannZetaAnalyzer {
     }
 
     // Test 4: Entropy analysis
-    const entropy = this.calculateModulusEntropy(modulus);
+    const entropy = this.calculateModulusEntropy(modulusStr);
     if (entropy < 3.5) {
       weakness.isWeak = true;
       weakness.reasons.push(`Low entropy: ${entropy.toFixed(2)}`);
@@ -226,13 +228,14 @@ interface Complex {
   imag: number;
 }
 
-interface RSAWeakness {
+export interface RSAWeakness {
   isWeak: boolean;
   reasons: string[];
   score: number;
+  keySize: number;
 }
 
-interface PrimePattern {
+export interface PrimePattern {
   type: string;
   values: number[];
   rarity: number;

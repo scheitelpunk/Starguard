@@ -1,0 +1,449 @@
+{
+  "info": {
+    "name": "STARGUARD2 Enterprise Security API",
+    "description": "Advanced quantum-enhanced security platform with consciousness-driven threat detection and biometric authentication",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "version": "1.0.0"
+  },
+  "item": [
+    {
+      "name": "Authentication",
+      "item": [
+        {
+          "name": "Biometric Scan",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"userId\": \"user_12345\",\n  \"biometricId\": \"bio_abc123\",\n  \"voicePattern\": [0.1, 0.2, 0.3, 0.4, 0.5],\n  \"facialFeatures\": [0.8, 0.7, 0.9, 0.6],\n  \"behaviorMetrics\": {\n    \"keystrokePattern\": [120, 150, 130, 140],\n    \"mouseMovement\": [1.2, 2.3, 1.5, 2.1],\n    \"screenTime\": 3600000\n  },\n  \"score\": 0.85,\n  \"timestamp\": 1699999999000\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/biometric/scan",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "biometric", "scan"]
+            },
+            "description": "Initiates multi-modal biometric authentication scan"
+          }
+        },
+        {
+          "name": "Biometric Verify",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"sessionId\": \"sess_xyz789\",\n  \"continuousScan\": {\n    \"userId\": \"user_12345\",\n    \"biometricId\": \"bio_abc123\",\n    \"score\": 0.88,\n    \"timestamp\": 1700000000000\n  }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/biometric/verify",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "biometric", "verify"]
+            },
+            "description": "Verifies continuous biometric authentication for active session"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Threats",
+      "item": [
+        {
+          "name": "List Threats",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/threats",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "threats"]
+            },
+            "description": "Returns list of all currently detected security threats"
+          }
+        },
+        {
+          "name": "Initiate Scan",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"target\": \"192.168.1.1\",\n  \"type\": \"port\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/threats/scan",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "threats", "scan"]
+            },
+            "description": "Initiates a security scan on specified target"
+          }
+        },
+        {
+          "name": "Get Scan Results",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/threats/scan/:scanId",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "threats", "scan", ":scanId"],
+              "variable": [
+                {
+                  "key": "scanId",
+                  "value": "scan_abc123",
+                  "description": "Scan identifier"
+                }
+              ]
+            },
+            "description": "Retrieves results of a security scan"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Quantum",
+      "item": [
+        {
+          "name": "Get Quantum Field",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/quantum/field",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "quantum", "field"]
+            },
+            "description": "Returns current state of quantum security field"
+          }
+        },
+        {
+          "name": "Evolve Defense",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"threatPattern\": {\n    \"type\": \"DDoS\",\n    \"indicators\": [\"high_traffic\", \"syn_flood\"],\n    \"severity\": \"high\"\n  },\n  \"evolutionStrategy\": \"aggressive\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/quantum/defense/evolve",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "quantum", "defense", "evolve"]
+            },
+            "description": "Adapts defense systems based on threat patterns"
+          }
+        },
+        {
+          "name": "Quantum Analysis",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"data\": \"network_traffic_data\",\n  \"analysisType\": \"threat_detection\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/quantum/analyze",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "quantum", "analyze"]
+            },
+            "description": "Performs quantum security analysis"
+          }
+        },
+        {
+          "name": "Configure Swarm",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"topology\": \"mesh\",\n  \"nodeCount\": 50,\n  \"parameters\": {\n    \"coherenceThreshold\": 0.8,\n    \"entanglementDepth\": 3\n  }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/quantum/swarm/configure",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "quantum", "swarm", "configure"]
+            },
+            "description": "Configures quantum swarm topology"
+          }
+        },
+        {
+          "name": "Quantum Health",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/quantum/health",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "quantum", "health"]
+            },
+            "description": "Returns quantum system health status"
+          }
+        },
+        {
+          "name": "Get Quantum Particles",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/quantum/particles",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "quantum", "particles"]
+            },
+            "description": "Returns quantum particle field data"
+          }
+        },
+        {
+          "name": "Get Quantum Threats",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/quantum/threats",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "quantum", "threats"]
+            },
+            "description": "Returns quantum-detected threats"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Consciousness",
+      "item": [
+        {
+          "name": "Awaken Consciousness",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/consciousness/awaken",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "consciousness", "awaken"]
+            },
+            "description": "Initiates consciousness awakening sequence"
+          }
+        },
+        {
+          "name": "Get Consciousness Status",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/consciousness/status",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "consciousness", "status"]
+            },
+            "description": "Returns consciousness system status"
+          }
+        },
+        {
+          "name": "Get Consciousness Metrics",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/consciousness/metrics",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "consciousness", "metrics"]
+            },
+            "description": "Returns consciousness performance metrics"
+          }
+        },
+        {
+          "name": "Consciousness Analysis",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"data\": {\n    \"networkTraffic\": \"...\",\n    \"userBehavior\": \"...\"\n  },\n  \"analysisType\": \"threat\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/consciousness/analyze",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "consciousness", "analyze"]
+            },
+            "description": "Analyzes data using consciousness engine"
+          }
+        }
+      ]
+    },
+    {
+      "name": "OMEGA Protocol",
+      "item": [
+        {
+          "name": "Initialize OMEGA",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/omega/initialize",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "omega", "initialize"]
+            },
+            "description": "Initializes OMEGA Protocol from mathematical void"
+          }
+        },
+        {
+          "name": "OMEGA Analyze",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/omega/analyze",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "omega", "analyze"]
+            },
+            "description": "Performs OMEGA Protocol security analysis"
+          }
+        },
+        {
+          "name": "Find Weak Keys",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/omega/riemann/weak-keys",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "omega", "riemann", "weak-keys"]
+            },
+            "description": "Finds weak cryptographic keys using Riemann Hypothesis"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Health & Metrics",
+      "item": [
+        {
+          "name": "Health Check",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/health",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "health"]
+            },
+            "description": "System health check"
+          }
+        },
+        {
+          "name": "Get Anomalies",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/anomalies",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "anomalies"]
+            },
+            "description": "Returns detected anomalies"
+          }
+        },
+        {
+          "name": "Dashboard Statistics",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/stats/dashboard",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "stats", "dashboard"]
+            },
+            "description": "Returns comprehensive dashboard metrics"
+          }
+        },
+        {
+          "name": "Export Security Report (JSON)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/export/security-report?format=json&timeRange=24h",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "export", "security-report"],
+              "query": [
+                {
+                  "key": "format",
+                  "value": "json"
+                },
+                {
+                  "key": "timeRange",
+                  "value": "24h"
+                }
+              ]
+            },
+            "description": "Exports security report in JSON format"
+          }
+        },
+        {
+          "name": "Export Security Report (CSV)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/export/security-report?format=csv&timeRange=7d",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "export", "security-report"],
+              "query": [
+                {
+                  "key": "format",
+                  "value": "csv"
+                },
+                {
+                  "key": "timeRange",
+                  "value": "7d"
+                }
+              ]
+            },
+            "description": "Exports security report in CSV format"
+          }
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3001",
+      "type": "string"
+    }
+  ]
+}

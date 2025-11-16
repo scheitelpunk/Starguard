@@ -1,0 +1,207 @@
+{
+  "dashboard": {
+    "title": "Starguard2 - Performance Metrics",
+    "tags": ["starguard", "performance"],
+    "timezone": "browser",
+    "schemaVersion": 16,
+    "version": 1,
+    "refresh": "5s",
+    "panels": [
+      {
+        "id": 1,
+        "title": "API Response Time - p50/p95/p99",
+        "type": "graph",
+        "gridPos": { "x": 0, "y": 0, "w": 24, "h": 8 },
+        "targets": [
+          {
+            "expr": "histogram_quantile(0.50, sum(rate(starguard_api_response_time_ms_bucket[5m])) by (le, endpoint))",
+            "refId": "A",
+            "legendFormat": "{{endpoint}} - p50"
+          },
+          {
+            "expr": "histogram_quantile(0.95, sum(rate(starguard_api_response_time_ms_bucket[5m])) by (le, endpoint))",
+            "refId": "B",
+            "legendFormat": "{{endpoint}} - p95"
+          },
+          {
+            "expr": "histogram_quantile(0.99, sum(rate(starguard_api_response_time_ms_bucket[5m])) by (le, endpoint))",
+            "refId": "C",
+            "legendFormat": "{{endpoint}} - p99"
+          }
+        ],
+        "yaxes": [
+          { "format": "ms", "label": "Response Time", "logBase": 1 },
+          { "format": "short" }
+        ],
+        "legend": {
+          "show": true,
+          "alignAsTable": true,
+          "values": true,
+          "current": true,
+          "avg": true,
+          "max": true
+        },
+        "tooltip": {
+          "shared": true,
+          "sort": 2,
+          "value_type": "individual"
+        }
+      },
+      {
+        "id": 2,
+        "title": "Database Query Duration",
+        "type": "graph",
+        "gridPos": { "x": 0, "y": 8, "w": 12, "h": 8 },
+        "targets": [
+          {
+            "expr": "histogram_quantile(0.95, sum(rate(starguard_db_query_duration_ms_bucket[5m])) by (le, query_type, table))",
+            "refId": "A",
+            "legendFormat": "{{query_type}} on {{table}}"
+          }
+        ],
+        "yaxes": [
+          { "format": "ms", "label": "Query Duration" },
+          { "format": "short" }
+        ]
+      },
+      {
+        "id": 3,
+        "title": "Cache Performance",
+        "type": "graph",
+        "gridPos": { "x": 12, "y": 8, "w": 12, "h": 8 },
+        "targets": [
+          {
+            "expr": "sum(rate(starguard_cache_hit_total[5m])) by (cache_type)",
+            "refId": "A",
+            "legendFormat": "{{cache_type}} - Hits"
+          },
+          {
+            "expr": "sum(rate(starguard_cache_miss_total[5m])) by (cache_type)",
+            "refId": "B",
+            "legendFormat": "{{cache_type}} - Misses"
+          }
+        ],
+        "yaxes": [
+          { "format": "ops", "label": "Operations/sec" },
+          { "format": "short" }
+        ]
+      },
+      {
+        "id": 4,
+        "title": "WebSocket Message Latency",
+        "type": "graph",
+        "gridPos": { "x": 0, "y": 16, "w": 12, "h": 8 },
+        "targets": [
+          {
+            "expr": "histogram_quantile(0.95, sum(rate(starguard_websocket_message_latency_ms_bucket[5m])) by (le, message_type))",
+            "refId": "A",
+            "legendFormat": "{{message_type}} - p95"
+          }
+        ],
+        "yaxes": [
+          { "format": "ms", "label": "Latency" },
+          { "format": "short" }
+        ]
+      },
+      {
+        "id": 5,
+        "title": "Memory Usage by Component",
+        "type": "graph",
+        "gridPos": { "x": 12, "y": 16, "w": 12, "h": 8 },
+        "targets": [
+          {
+            "expr": "starguard_memory_usage_bytes",
+            "refId": "A",
+            "legendFormat": "{{component}}"
+          }
+        ],
+        "yaxes": [
+          { "format": "bytes", "label": "Memory Usage" },
+          { "format": "short" }
+        ],
+        "seriesOverrides": [
+          {
+            "alias": "/.*/",
+            "fill": 2,
+            "stack": true
+          }
+        ]
+      },
+      {
+        "id": 6,
+        "title": "Request Throughput by Endpoint",
+        "type": "graph",
+        "gridPos": { "x": 0, "y": 24, "w": 12, "h": 8 },
+        "targets": [
+          {
+            "expr": "sum(rate(starguard_api_response_time_ms_count[1m])) by (endpoint, method)",
+            "refId": "A",
+            "legendFormat": "{{method}} {{endpoint}}"
+          }
+        ],
+        "yaxes": [
+          { "format": "reqps", "label": "Requests/sec" },
+          { "format": "short" }
+        ],
+        "legend": {
+          "show": true,
+          "alignAsTable": true,
+          "values": true,
+          "current": true,
+          "sort": "current",
+          "sortDesc": true
+        }
+      },
+      {
+        "id": 7,
+        "title": "ML Inference Time",
+        "type": "graph",
+        "gridPos": { "x": 12, "y": 24, "w": 12, "h": 8 },
+        "targets": [
+          {
+            "expr": "histogram_quantile(0.95, sum(rate(starguard_ml_inference_time_ms_bucket[5m])) by (le, model))",
+            "refId": "A",
+            "legendFormat": "{{model}} - p95"
+          }
+        ],
+        "yaxes": [
+          { "format": "ms", "label": "Inference Time" },
+          { "format": "short" }
+        ]
+      },
+      {
+        "id": 8,
+        "title": "Response Time Heatmap",
+        "type": "heatmap",
+        "gridPos": { "x": 0, "y": 32, "w": 24, "h": 8 },
+        "targets": [
+          {
+            "expr": "sum(rate(starguard_api_response_time_ms_bucket[1m])) by (le)",
+            "refId": "A",
+            "format": "heatmap",
+            "legendFormat": "{{le}}"
+          }
+        ],
+        "dataFormat": "tsbuckets",
+        "heatmap": {},
+        "cards": {
+          "cardPadding": 2
+        },
+        "color": {
+          "mode": "spectrum",
+          "cardColor": "#b4ff00",
+          "colorScale": "sqrt",
+          "exponent": 0.5,
+          "colorScheme": "interpolateSpectral"
+        },
+        "legend": {
+          "show": true
+        },
+        "yAxis": {
+          "format": "ms",
+          "label": "Response Time"
+        }
+      }
+    ]
+  }
+}

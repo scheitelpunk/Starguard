@@ -67,7 +67,7 @@ export class ThreatDetectionSystem extends EventEmitter {
         await this.processThreat(threat);
       }
     } catch (error) {
-      securityLogger.error('Error during threat scan', error);
+      securityLogger.error('Error during threat scan', error instanceof Error ? error : new Error(String(error)));
     }
   }
 
@@ -92,7 +92,7 @@ export class ThreatDetectionSystem extends EventEmitter {
       this.emit('threat_detected', threat);
       
     } catch (error) {
-      securityLogger.error('Error processing threat', error);
+      securityLogger.error('Error processing threat', error instanceof Error ? error : new Error(String(error)));
     }
   }
 

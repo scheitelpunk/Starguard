@@ -92,12 +92,14 @@ class QuantumSwarmDemo {
 
     try {
       console.log('🔄 Starting swarm coordinator...');
-      await this.swarm.start();
+      await this.swarm?.start();
       this.isRunning = true;
-      
-      const status = this.swarm.getSwarmStatus();
-      console.log(`✅ Swarm initialized with ${status.agentCount} agents`);
-      console.log(`🆔 Coordinator ID: ${status.coordinatorId}`);
+
+      if (this.swarm) {
+        const status = this.swarm.getSwarmStatus();
+        console.log(`✅ Swarm initialized with ${status.agentCount} agents`);
+        console.log(`🆔 Coordinator ID: ${status.coordinatorId}`);
+      }
       
     } catch (error) {
       console.error('❌ Failed to start swarm:', error);

@@ -122,7 +122,7 @@ export class MetricsCollector extends EventEmitter {
       this.checkPerformanceAlerts(metrics);
       
     } catch (error) {
-      metricsLogger.error('Error collecting metrics', error);
+      metricsLogger.error('Error collecting metrics', error instanceof Error ? error : new Error(String(error)));
     }
   }
 

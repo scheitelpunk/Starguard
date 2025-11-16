@@ -15,6 +15,15 @@ import {
   DefenseAction
 } from './types';
 
+interface PerformanceMetrics {
+  threatsProcessed: number;
+  consensusReached: number;
+  strategiesExecuted: number;
+  avgResponseTime: number;
+  swarmHealth: number;
+  lastUpdate: number;
+}
+
 /**
  * SwarmCoordinator - Central coordination system for quantum swarm consciousness
  * Manages distributed agents, consensus, and defense strategies
@@ -105,7 +114,7 @@ export class SwarmCoordinator extends EventEmitter {
       port: this.config.redis.port,
       password: this.config.redis.password,
       db: this.config.redis.db,
-      retryDelayOnFailover: 100,
+      retryStrategy: (times) => Math.min(times * 100, 3000),
       maxRetriesPerRequest: 3,
       lazyConnect: true
     });
@@ -971,7 +980,7 @@ export class SwarmCoordinator extends EventEmitter {
     agentCount: number;
     activeThreats: number;
     activeStrategies: number;
-    performanceMetrics: typeof this.performanceMetrics;
+    performanceMetrics: PerformanceMetrics;
   } {
     return {
       coordinatorId: this.coordinatorId,
