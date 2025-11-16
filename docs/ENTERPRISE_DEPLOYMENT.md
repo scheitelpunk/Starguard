@@ -1,4 +1,4 @@
-# STARGUARD Enterprise Deployment Guide
+# SENTINEL ENTERPRISE Enterprise Deployment Guide
 ## Production Integration for Data Centers and Security Operations
 
 ### Enterprise Production Deployment
@@ -7,7 +7,7 @@
 
 ### A) Passive Network Monitoring
 ```bash
-# STARGUARD as Network Security Monitor
+# SENTINEL ENTERPRISE as Network Security Monitor
 # Integration via SPAN/Mirror Ports
 sudo tcpdump -i eth0 -w - | node starguard-network-analyzer.js
 ```
@@ -16,7 +16,7 @@ sudo tcpdump -i eth0 -w - | node starguard-network-analyzer.js
 ```json
 {
   "firewall_integration": {
-    "source": "STARGUARD",
+    "source": "SENTINEL ENTERPRISE",
     "action": "BLOCK",
     "threat_feed_url": "/api/threats/blocklist",
     "update_interval": "300s",
@@ -80,9 +80,9 @@ spec:
 ### C) Multi-Site Deployment
 ```bash
 # Centralized Threat Intelligence Hub
-STARGUARD_HUB_URL=https://central-hub.company.com
-STARGUARD_SITE_ID=datacenter-us-east-001
-STARGUARD_REGION=north-america
+SENTINEL ENTERPRISE_HUB_URL=https://central-hub.company.com
+SENTINEL ENTERPRISE_SITE_ID=datacenter-us-east-001
+SENTINEL ENTERPRISE_REGION=north-america
 
 # Distributed coordination with Redis cluster
 REDIS_CLUSTER_NODES=redis-1:6379,redis-2:6379,redis-3:6379
@@ -217,8 +217,8 @@ curl -H "Authorization: Bearer $API_KEY" \
 ### C) API Authentication & Rate Limiting
 ```bash
 # API Key Management
-STARGUARD_API_KEY=sg_prod_xxxxxxxxxxxxxxxxxxxxx
-STARGUARD_API_RATE_LIMIT=1000  # requests per hour
+SENTINEL ENTERPRISE_API_KEY=sg_prod_xxxxxxxxxxxxxxxxxxxxx
+SENTINEL ENTERPRISE_API_RATE_LIMIT=1000  # requests per hour
 
 # OAuth 2.0 for Enterprise SSO
 OAUTH_PROVIDER=okta
@@ -303,7 +303,7 @@ Annual Cost per Datacenter:     $45,000/year
 ## 9. Implementation Roadmap
 
 ### Phase 1: Foundation (Weeks 1-2)
-- [x] STARGUARD Installation and Configuration
+- [x] SENTINEL ENTERPRISE Installation and Configuration
 - [x] Threat Intelligence Feed Integration
 - [x] Basic Monitoring Dashboard Setup
 - [x] Initial Security Baseline Establishment
@@ -479,4 +479,4 @@ spec:
 - **Documentation**: https://docs.starguard-security.com
 - **Security Issues**: security@starguard-security.com
 
-**STARGUARD - Enterprise Security Intelligence Platform**
+**SENTINEL ENTERPRISE - Enterprise Security Intelligence Platform**

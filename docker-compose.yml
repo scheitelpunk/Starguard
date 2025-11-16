@@ -1,7 +1,7 @@
 version: '3.8'
 
 services:
-  starguard-app:
+  sentinel-enterprise-app:
     build:
       context: .
       dockerfile: docker/Dockerfile
@@ -12,12 +12,12 @@ services:
       - NODE_ENV=production
       - PORT=3000
       - WS_PORT=3001
-      - DATABASE_URL=file:./data/starguard.db
+      - DATABASE_URL=file:./data/sentinel-enterprise.db
       - LOG_LEVEL=info
       - CACHE_TYPE=memory
-      - ML_SERVICE_URL=http://starguard-ml:5000
+      - ML_SERVICE_URL=http://sentinel-enterprise-ml:5000
     volumes:
-      - starguard-data:/app/data
+      - sentinel-enterprise-data:/app/data
       - ./config:/app/config:ro
       - ./logs:/app/logs
     restart: unless-stopped
@@ -28,7 +28,7 @@ services:
       retries: 3
       start_period: 40s
     depends_on:
-      starguard-ml:
+      sentinel-enterprise-ml:
         condition: service_healthy
     deploy:
       resources:
@@ -46,7 +46,7 @@ services:
       - /app/logs:size=100M,noexec,nosuid,nodev
     user: "1000:1000"
 
-  starguard-ml:
+  sentinel-enterprise-ml:
     build:
       context: .
       dockerfile: docker/Dockerfile.ml
@@ -83,9 +83,9 @@ services:
     user: "1000:1000"
 
   # Lightweight monitoring service
-  starguard-monitor:
+  sentinel-enterprise-monitor:
     image: prom/node-exporter:latest
-    container_name: starguard-monitor
+    container_name: sentinel-enterprise-monitor
     ports:
       - "9100:9100"
     command:
@@ -108,7 +108,7 @@ services:
     user: "65534:65534"
 
 volumes:
-  starguard-data:
+  sentinel-enterprise-data:
     driver: local
     driver_opts:
       type: none
@@ -123,7 +123,7 @@ volumes:
 
 networks:
   default:
-    name: starguard-network
+    name: sentinel-enterprise-network
     driver: bridge
     ipam:
       config:

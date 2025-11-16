@@ -1,7 +1,7 @@
 {
-  "name": "starguard",
+  "name": "sentinel-enterprise",
   "version": "1.0.0",
-  "description": "STARGUARD - Quantum Security Consciousness System",
+  "description": "SENTINEL ENTERPRISE - Enterprise-Grade Distributed Security Intelligence Platform",
   "main": "dist/server.js",
   "type": "module",
   "engines": {
@@ -36,7 +36,7 @@
     "seed": "node scripts/seed.js",
     "backup": "node scripts/backup.js",
     "restore": "node scripts/restore.js",
-    "logs": "tail -f logs/starguard.log",
+    "logs": "tail -f logs/sentinel.log",
     "monitor": "node scripts/monitor.js",
     "install:ml": "cd ml && pip install -r requirements.txt",
     "prestart": "npm run migrate && npm run install:ml",
@@ -111,10 +111,10 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/your-org/starguard.git"
+    "url": "https://github.com/your-org/sentinel-enterprise.git"
   },
   "bugs": {
-    "url": "https://github.com/your-org/starguard/issues"
+    "url": "https://github.com/your-org/sentinel-enterprise/issues"
   },
-  "homepage": "https://github.com/your-org/starguard#readme"
+  "homepage": "https://github.com/your-org/sentinel-enterprise#readme"
 }
