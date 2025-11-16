@@ -1,0 +1,249 @@
+# SENTINEL ENTERPRISE - Monitoring Stack
+# Grafana + Prometheus + Alertmanager
+
+version: '3.8'
+
+networks:
+  monitoring:
+    driver: bridge
+
+volumes:
+  prometheus_data:
+  grafana_data:
+  alertmanager_data:
+
+services:
+  # Prometheus - Metrics Collection
+  prometheus:
+    image: prom/prometheus:v2.48.0
+    container_name: sentinel-prometheus
+    restart: unless-stopped
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--storage.tsdb.retention.time=30d'
+      - '--web.enable-lifecycle'
+      - '--web.enable-admin-api'
+    ports:
+      - '9090:9090'
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./prometheus/rules:/etc/prometheus/rules:ro
+      - prometheus_data:/prometheus
+    networks:
+      - monitoring
+    labels:
+      - "com.sentinel.service=prometheus"
+      - "com.sentinel.environment=production"
+
+  # Grafana - Visualization & Dashboards
+  grafana:
+    image: grafana/grafana:10.2.2
+    container_name: sentinel-grafana
+    restart: unless-stopped
+    ports:
+      - '3000:3000'
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_ADMIN_PASSWORD:-sentinel2025}
+      - GF_SERVER_ROOT_URL=https://monitoring.sentinel-enterprise.io
+      - GF_INSTALL_PLUGINS=grafana-clock-panel,grafana-piechart-panel,grafana-worldmap-panel
+      - GF_RENDERING_SERVER_URL=http://grafana-renderer:8081/render
+      - GF_RENDERING_CALLBACK_URL=http://grafana:3000/
+      - GF_LOG_FILTERS=rendering:debug
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./grafana/dashboards:/etc/grafana/provisioning/dashboards:ro
+      - ./grafana/datasources:/etc/grafana/provisioning/datasources:ro
+    networks:
+      - monitoring
+    depends_on:
+      - prometheus
+    labels:
+      - "com.sentinel.service=grafana"
+      - "com.sentinel.environment=production"
+
+  # Grafana Image Renderer
+  grafana-renderer:
+    image: grafana/grafana-image-renderer:3.9.0
+    container_name: sentinel-grafana-renderer
+    restart: unless-stopped
+    ports:
+      - '8081:8081'
+    environment:
+      - ENABLE_METRICS=true
+      - HTTP_PORT=8081
+    networks:
+      - monitoring
+
+  # Alertmanager - Alert Management
+  alertmanager:
+    image: prom/alertmanager:v0.26.0
+    container_name: sentinel-alertmanager
+    restart: unless-stopped
+    command:
+      - '--config.file=/etc/alertmanager/alertmanager.yml'
+      - '--storage.path=/alertmanager'
+      - '--web.external-url=https://alerts.sentinel-enterprise.io'
+    ports:
+      - '9093:9093'
+    volumes:
+      - ./alertmanager/alertmanager.yml:/etc/alertmanager/alertmanager.yml:ro
+      - alertmanager_data:/alertmanager
+    networks:
+      - monitoring
+    labels:
+      - "com.sentinel.service=alertmanager"
+      - "com.sentinel.environment=production"
+
+  # Node Exporter - System Metrics
+  node-exporter:
+    image: prom/node-exporter:v1.7.0
+    container_name: sentinel-node-exporter
+    restart: unless-stopped
+    command:
+      - '--path.procfs=/host/proc'
+      - '--path.sysfs=/host/sys'
+      - '--path.rootfs=/rootfs'
+      - '--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)'
+    ports:
+      - '9100:9100'
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+    networks:
+      - monitoring
+    labels:
+      - "com.sentinel.service=node-exporter"
+
+  # cAdvisor - Container Metrics
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor:v0.47.2
+    container_name: sentinel-cadvisor
+    restart: unless-stopped
+    ports:
+      - '8080:8080'
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:ro
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+      - /dev/disk/:/dev/disk:ro
+    privileged: true
+    devices:
+      - /dev/kmsg
+    networks:
+      - monitoring
+    labels:
+      - "com.sentinel.service=cadvisor"
+
+  # Blackbox Exporter - Endpoint Health Checks
+  blackbox-exporter:
+    image: prom/blackbox-exporter:v0.24.0
+    container_name: sentinel-blackbox-exporter
+    restart: unless-stopped
+    ports:
+      - '9115:9115'
+    volumes:
+      - ./blackbox/blackbox.yml:/etc/blackbox_exporter/config.yml:ro
+    networks:
+      - monitoring
+    labels:
+      - "com.sentinel.service=blackbox-exporter"
+
+  # Loki - Log Aggregation
+  loki:
+    image: grafana/loki:2.9.3
+    container_name: sentinel-loki
+    restart: unless-stopped
+    ports:
+      - '3100:3100'
+    command: -config.file=/etc/loki/local-config.yaml
+    networks:
+      - monitoring
+    labels:
+      - "com.sentinel.service=loki"
+
+  # Promtail - Log Shipping
+  promtail:
+    image: grafana/promtail:2.9.3
+    container_name: sentinel-promtail
+    restart: unless-stopped
+    volumes:
+      - /var/log:/var/log:ro
+      - ./promtail/promtail-config.yml:/etc/promtail/config.yml:ro
+    command: -config.file=/etc/promtail/config.yml
+    networks:
+      - monitoring
+    labels:
+      - "com.sentinel.service=promtail"
+
+  # Jaeger - Distributed Tracing
+  jaeger:
+    image: jaegertracing/all-in-one:1.52
+    container_name: sentinel-jaeger
+    restart: unless-stopped
+    environment:
+      - COLLECTOR_ZIPKIN_HOST_PORT=:9411
+      - COLLECTOR_OTLP_ENABLED=true
+    ports:
+      - '5775:5775/udp'
+      - '6831:6831/udp'
+      - '6832:6832/udp'
+      - '5778:5778'
+      - '16686:16686'  # Jaeger UI
+      - '14268:14268'
+      - '14250:14250'
+      - '9411:9411'
+      - '4317:4317'    # OTLP gRPC
+      - '4318:4318'    # OTLP HTTP
+    networks:
+      - monitoring
+    labels:
+      - "com.sentinel.service=jaeger"
+
+  # Tempo - Distributed Tracing (Alternative/Additional)
+  tempo:
+    image: grafana/tempo:2.3.1
+    container_name: sentinel-tempo
+    restart: unless-stopped
+    ports:
+      - '3200:3200'   # Tempo
+      - '9095:9095'   # Tempo gRPC
+    command: [ "-config.file=/etc/tempo.yaml" ]
+    volumes:
+      - ./tempo/tempo.yaml:/etc/tempo.yaml:ro
+    networks:
+      - monitoring
+    labels:
+      - "com.sentinel.service=tempo"
+
+  # Redis Exporter - Redis Metrics
+  redis-exporter:
+    image: oliver006/redis_exporter:v1.55.0
+    container_name: sentinel-redis-exporter
+    restart: unless-stopped
+    ports:
+      - '9121:9121'
+    environment:
+      - REDIS_ADDR=redis:6379
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+    networks:
+      - monitoring
+    labels:
+      - "com.sentinel.service=redis-exporter"
+
+  # PostgreSQL Exporter - Database Metrics
+  postgres-exporter:
+    image: prometheuscommunity/postgres-exporter:v0.15.0
+    container_name: sentinel-postgres-exporter
+    restart: unless-stopped
+    ports:
+      - '9187:9187'
+    environment:
+      - DATA_SOURCE_NAME=postgresql://${PG_USER}:${PG_PASSWORD}@postgres:5432/${PG_DATABASE}?sslmode=disable
+    networks:
+      - monitoring
+    labels:
+      - "com.sentinel.service=postgres-exporter"

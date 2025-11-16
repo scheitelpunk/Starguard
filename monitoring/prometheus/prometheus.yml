@@ -1,0 +1,114 @@
+# SENTINEL ENTERPRISE - Prometheus Configuration
+
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+  external_labels:
+    cluster: 'sentinel-production'
+    environment: 'production'
+
+# Alertmanager configuration
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets:
+            - alertmanager:9093
+
+# Load rules once and periodically evaluate them
+rule_files:
+  - '/etc/prometheus/rules/*.yml'
+
+# Scrape configurations
+scrape_configs:
+  # SENTINEL ENTERPRISE Backend API
+  - job_name: 'sentinel-backend'
+    metrics_path: '/metrics'
+    static_configs:
+      - targets:
+          - 'backend:3001'
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: instance
+        replacement: 'sentinel-backend'
+
+  # Prometheus Exporter for Backend
+  - job_name: 'sentinel-prometheus-exporter'
+    static_configs:
+      - targets:
+          - 'backend:9464'
+
+  # Node Exporter (System Metrics)
+  - job_name: 'node-exporter'
+    static_configs:
+      - targets:
+          - 'node-exporter:9100'
+
+  # cAdvisor (Container Metrics)
+  - job_name: 'cadvisor'
+    static_configs:
+      - targets:
+          - 'cadvisor:8080'
+
+  # PostgreSQL Exporter
+  - job_name: 'postgres-exporter'
+    static_configs:
+      - targets:
+          - 'postgres-exporter:9187'
+
+  # Redis Exporter
+  - job_name: 'redis-exporter'
+    static_configs:
+      - targets:
+          - 'redis-exporter:9121'
+
+  # Blackbox Exporter (Health Checks)
+  - job_name: 'blackbox'
+    metrics_path: /probe
+    params:
+      module: [http_2xx]
+    static_configs:
+      - targets:
+          - http://backend:3001/health
+          - http://frontend:80/
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: __param_target
+      - source_labels: [__param_target]
+        target_label: instance
+      - target_label: __address__
+        replacement: blackbox-exporter:9115
+
+  # SENTINEL Agents (Dynamic Service Discovery)
+  - job_name: 'sentinel-agents'
+    kubernetes_sd_configs:
+      - role: pod
+        namespaces:
+          names:
+            - sentinel-production
+    relabel_configs:
+      - source_labels: [__meta_kubernetes_pod_label_app]
+        regex: sentinel-agent
+        action: keep
+      - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_port]
+        action: replace
+        target_label: __address__
+        regex: (.+)
+        replacement: $1
+
+  # Jaeger Tracing (OpenTelemetry)
+  - job_name: 'jaeger'
+    static_configs:
+      - targets:
+          - 'jaeger:14269'
+
+# Remote Write Configuration (for long-term storage)
+remote_write:
+  - url: 'http://thanos-receive:19291/api/v1/receive'
+    queue_config:
+      capacity: 10000
+      max_shards: 50
+      min_shards: 1
+      max_samples_per_send: 5000
+      batch_send_deadline: 5s
+      min_backoff: 30ms
+      max_backoff: 100ms

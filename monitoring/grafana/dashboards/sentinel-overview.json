@@ -1,0 +1,339 @@
+{
+  "dashboard": {
+    "title": "SENTINEL ENTERPRISE - Security Overview",
+    "tags": ["sentinel", "security", "overview"],
+    "timezone": "browser",
+    "schemaVersion": 38,
+    "version": 1,
+    "refresh": "10s",
+    "panels": [
+      {
+        "id": 1,
+        "type": "stat",
+        "title": "Active Threats",
+        "gridPos": {
+          "x": 0,
+          "y": 0,
+          "w": 6,
+          "h": 4
+        },
+        "targets": [
+          {
+            "expr": "sum(sentinel_threats_total{status=\"active\"})",
+            "refId": "A"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "color": {
+              "mode": "thresholds"
+            },
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {
+                  "color": "green",
+                  "value": null
+                },
+                {
+                  "color": "yellow",
+                  "value": 5
+                },
+                {
+                  "color": "red",
+                  "value": 10
+                }
+              ]
+            },
+            "unit": "short"
+          }
+        }
+      },
+      {
+        "id": 2,
+        "type": "stat",
+        "title": "Network Health",
+        "gridPos": {
+          "x": 6,
+          "y": 0,
+          "w": 6,
+          "h": 4
+        },
+        "targets": [
+          {
+            "expr": "sentinel_network_health",
+            "refId": "A"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "color": {
+              "mode": "thresholds"
+            },
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {
+                  "color": "red",
+                  "value": null
+                },
+                {
+                  "color": "yellow",
+                  "value": 0.7
+                },
+                {
+                  "color": "green",
+                  "value": 0.9
+                }
+              ]
+            },
+            "unit": "percentunit",
+            "min": 0,
+            "max": 1
+          }
+        }
+      },
+      {
+        "id": 3,
+        "type": "stat",
+        "title": "Active Agents",
+        "gridPos": {
+          "x": 12,
+          "y": 0,
+          "w": 6,
+          "h": 4
+        },
+        "targets": [
+          {
+            "expr": "count(sentinel_agent_status{status=\"active\"})",
+            "refId": "A"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "color": {
+              "mode": "palette-classic"
+            },
+            "unit": "short"
+          }
+        }
+      },
+      {
+        "id": 4,
+        "type": "stat",
+        "title": "API Response Time (p95)",
+        "gridPos": {
+          "x": 18,
+          "y": 0,
+          "w": 6,
+          "h": 4
+        },
+        "targets": [
+          {
+            "expr": "histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket[5m])) by (le))",
+            "refId": "A"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "color": {
+              "mode": "thresholds"
+            },
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {
+                  "color": "green",
+                  "value": null
+                },
+                {
+                  "color": "yellow",
+                  "value": 0.5
+                },
+                {
+                  "color": "red",
+                  "value": 1
+                }
+              ]
+            },
+            "unit": "s"
+          }
+        }
+      },
+      {
+        "id": 5,
+        "type": "graph",
+        "title": "Threat Detection Rate",
+        "gridPos": {
+          "x": 0,
+          "y": 4,
+          "w": 12,
+          "h": 8
+        },
+        "targets": [
+          {
+            "expr": "rate(sentinel_threats_detected_total[5m])",
+            "legendFormat": "Detection Rate",
+            "refId": "A"
+          },
+          {
+            "expr": "rate(sentinel_threats_resolved_total[5m])",
+            "legendFormat": "Resolution Rate",
+            "refId": "B"
+          }
+        ],
+        "yaxes": [
+          {
+            "label": "Threats/sec",
+            "format": "short"
+          }
+        ]
+      },
+      {
+        "id": 6,
+        "type": "graph",
+        "title": "API Request Rate",
+        "gridPos": {
+          "x": 12,
+          "y": 4,
+          "w": 12,
+          "h": 8
+        },
+        "targets": [
+          {
+            "expr": "sum(rate(http_requests_total[5m])) by (method)",
+            "legendFormat": "{{method}}",
+            "refId": "A"
+          }
+        ],
+        "yaxes": [
+          {
+            "label": "Requests/sec",
+            "format": "reqps"
+          }
+        ]
+      },
+      {
+        "id": 7,
+        "type": "piechart",
+        "title": "Threats by Severity",
+        "gridPos": {
+          "x": 0,
+          "y": 12,
+          "w": 8,
+          "h": 8
+        },
+        "targets": [
+          {
+            "expr": "sum(sentinel_threats_total) by (severity)",
+            "refId": "A"
+          }
+        ]
+      },
+      {
+        "id": 8,
+        "type": "piechart",
+        "title": "Threats by Type",
+        "gridPos": {
+          "x": 8,
+          "y": 12,
+          "w": 8,
+          "h": 8
+        },
+        "targets": [
+          {
+            "expr": "sum(sentinel_threats_total) by (type)",
+            "refId": "A"
+          }
+        ]
+      },
+      {
+        "id": 9,
+        "type": "table",
+        "title": "Top Threat Sources",
+        "gridPos": {
+          "x": 16,
+          "y": 12,
+          "w": 8,
+          "h": 8
+        },
+        "targets": [
+          {
+            "expr": "topk(10, sum(sentinel_threats_total) by (source_ip))",
+            "refId": "A",
+            "format": "table"
+          }
+        ]
+      },
+      {
+        "id": 10,
+        "type": "graph",
+        "title": "Agent Performance",
+        "gridPos": {
+          "x": 0,
+          "y": 20,
+          "w": 12,
+          "h": 8
+        },
+        "targets": [
+          {
+            "expr": "sentinel_agent_accuracy",
+            "legendFormat": "Accuracy - {{agent_id}}",
+            "refId": "A"
+          },
+          {
+            "expr": "sentinel_agent_response_time_seconds",
+            "legendFormat": "Response Time - {{agent_id}}",
+            "refId": "B"
+          }
+        ]
+      },
+      {
+        "id": 11,
+        "type": "graph",
+        "title": "Network Bandwidth",
+        "gridPos": {
+          "x": 12,
+          "y": 20,
+          "w": 12,
+          "h": 8
+        },
+        "targets": [
+          {
+            "expr": "rate(sentinel_network_bytes_received_total[5m])",
+            "legendFormat": "Inbound",
+            "refId": "A"
+          },
+          {
+            "expr": "rate(sentinel_network_bytes_sent_total[5m])",
+            "legendFormat": "Outbound",
+            "refId": "B"
+          }
+        ],
+        "yaxes": [
+          {
+            "label": "Bytes/sec",
+            "format": "Bps"
+          }
+        ]
+      },
+      {
+        "id": 12,
+        "type": "heatmap",
+        "title": "Threat Detection Latency Distribution",
+        "gridPos": {
+          "x": 0,
+          "y": 28,
+          "w": 24,
+          "h": 8
+        },
+        "targets": [
+          {
+            "expr": "sum(rate(sentinel_threat_detection_duration_seconds_bucket[5m])) by (le)",
+            "refId": "A"
+          }
+        ]
+      }
+    ]
+  }
+}

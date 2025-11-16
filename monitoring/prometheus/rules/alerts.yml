@@ -1,0 +1,146 @@
+# SENTINEL ENTERPRISE - Alert Rules
+
+groups:
+  - name: sentinel_critical_alerts
+    interval: 30s
+    rules:
+      # Critical Threat Alert
+      - alert: CriticalThreatDetected
+        expr: sentinel_threats_total{severity="critical",status="active"} > 0
+        for: 1m
+        labels:
+          severity: critical
+          team: security
+        annotations:
+          summary: "Critical threat detected"
+          description: "{{ $value }} critical threats are currently active"
+
+      # High Threat Volume
+      - alert: HighThreatVolume
+        expr: rate(sentinel_threats_detected_total[5m]) > 10
+        for: 5m
+        labels:
+          severity: warning
+          team: security
+        annotations:
+          summary: "High threat detection rate"
+          description: "Detecting {{ $value }} threats per second over the last 5 minutes"
+
+      # Network Health Degraded
+      - alert: NetworkHealthDegraded
+        expr: sentinel_network_health < 0.7
+        for: 2m
+        labels:
+          severity: warning
+          team: infrastructure
+        annotations:
+          summary: "Network health degraded"
+          description: "Network health score is {{ $value }}"
+
+      # Agent Down
+      - alert: AgentDown
+        expr: up{job="sentinel-agents"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          team: operations
+        annotations:
+          summary: "Sentinel agent is down"
+          description: "Agent {{ $labels.instance }} is not responding"
+
+  - name: sentinel_performance_alerts
+    interval: 1m
+    rules:
+      # High API Latency
+      - alert: HighAPILatency
+        expr: histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket[5m])) by (le)) > 1
+        for: 5m
+        labels:
+          severity: warning
+          team: backend
+        annotations:
+          summary: "High API response time"
+          description: "95th percentile latency is {{ $value }}s"
+
+      # High Error Rate
+      - alert: HighErrorRate
+        expr: rate(http_requests_total{status=~"5.."}[5m]) / rate(http_requests_total[5m]) > 0.05
+        for: 5m
+        labels:
+          severity: critical
+          team: backend
+        annotations:
+          summary: "High API error rate"
+          description: "Error rate is {{ $value | humanizePercentage }}"
+
+      # Database Connection Pool Exhausted
+      - alert: DatabaseConnectionPoolExhausted
+        expr: pg_stat_database_numbackends / pg_settings_max_connections > 0.9
+        for: 2m
+        labels:
+          severity: critical
+          team: database
+        annotations:
+          summary: "Database connection pool nearly exhausted"
+          description: "Using {{ $value | humanizePercentage }} of available connections"
+
+  - name: sentinel_capacity_alerts
+    interval: 2m
+    rules:
+      # High CPU Usage
+      - alert: HighCPUUsage
+        expr: 100 - (avg by(instance) (rate(node_cpu_seconds_total{mode="idle"}[5m])) * 100) > 80
+        for: 10m
+        labels:
+          severity: warning
+          team: infrastructure
+        annotations:
+          summary: "High CPU usage"
+          description: "CPU usage is {{ $value }}% on {{ $labels.instance }}"
+
+      # High Memory Usage
+      - alert: HighMemoryUsage
+        expr: (1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)) * 100 > 85
+        for: 5m
+        labels:
+          severity: warning
+          team: infrastructure
+        annotations:
+          summary: "High memory usage"
+          description: "Memory usage is {{ $value }}% on {{ $labels.instance }}"
+
+      # Disk Space Low
+      - alert: DiskSpaceLow
+        expr: (node_filesystem_avail_bytes{mountpoint="/"} / node_filesystem_size_bytes{mountpoint="/"}) * 100 < 15
+        for: 5m
+        labels:
+          severity: warning
+          team: infrastructure
+        annotations:
+          summary: "Low disk space"
+          description: "Only {{ $value }}% disk space remaining on {{ $labels.instance }}"
+
+  - name: sentinel_business_metrics
+    interval: 5m
+    rules:
+      # Threat Resolution Time SLA
+      - alert: ThreatResolutionTimeSLABreach
+        expr: histogram_quantile(0.95, sum(rate(sentinel_threat_resolution_duration_seconds_bucket[1h])) by (le)) > 3600
+        for: 15m
+        labels:
+          severity: warning
+          team: security
+        annotations:
+          summary: "Threat resolution time SLA breach"
+          description: "95th percentile resolution time is {{ $value | humanizeDuration }}"
+
+      # Detection Accuracy Low
+      - alert: DetectionAccuracyLow
+        expr: avg(sentinel_agent_accuracy) < 0.9
+        for: 30m
+        labels:
+          severity: warning
+          team: security
+        annotations:
+          summary: "Detection accuracy below threshold"
+          description: "Average detection accuracy is {{ $value | humanizePercentage }}"

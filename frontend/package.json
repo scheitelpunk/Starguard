@@ -1,7 +1,7 @@
 {
-  "name": "starguard2-frontend",
+  "name": "sentinel-enterprise-frontend",
   "version": "1.0.0",
-  "description": "Starguard2 Enterprise Security Frontend with Quantum Visualization",
+  "description": "SENTINEL ENTERPRISE - Professional Security Platform with Advanced Threat Intelligence",
   "type": "module",
   "engines": {
     "node": ">=18.0.0"
@@ -238,14 +238,14 @@
     "3d-graphics",
     "webgl"
   ],
-  "author": "Starguard2 Team",
-  "license": "MIT",
+  "author": "Sentinel Enterprise Team",
+  "license": "Commercial",
   "repository": {
     "type": "git",
-    "url": "https://github.com/starguard2/starguard2.git"
+    "url": "https://github.com/sentinel-enterprise/sentinel-platform.git"
   },
   "bugs": {
-    "url": "https://github.com/starguard2/starguard2/issues"
+    "url": "https://github.com/sentinel-enterprise/sentinel-platform/issues"
   },
-  "homepage": "https://github.com/starguard2/starguard2#readme"
+  "homepage": "https://sentinel-enterprise.io"
 }

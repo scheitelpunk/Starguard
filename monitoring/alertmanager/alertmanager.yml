@@ -1,0 +1,111 @@
+# SENTINEL ENTERPRISE - Alertmanager Configuration
+
+global:
+  resolve_timeout: 5m
+  slack_api_url: ${SLACK_WEBHOOK_URL}
+  pagerduty_url: 'https://events.pagerduty.com/v2/enqueue'
+
+# Alert routing
+route:
+  receiver: 'default'
+  group_by: ['alertname', 'severity', 'team']
+  group_wait: 30s
+  group_interval: 5m
+  repeat_interval: 4h
+
+  routes:
+    # Critical alerts go to PagerDuty + Slack
+    - match:
+        severity: critical
+      receiver: 'critical-alerts'
+      continue: true
+
+    # Security team alerts
+    - match:
+        team: security
+      receiver: 'security-team'
+      continue: true
+
+    # Infrastructure team alerts
+    - match:
+        team: infrastructure
+      receiver: 'infrastructure-team'
+
+    # Backend team alerts
+    - match:
+        team: backend
+      receiver: 'backend-team'
+
+# Inhibition rules (suppress certain alerts when others fire)
+inhibit_rules:
+  # Suppress warning if critical is firing
+  - source_match:
+      severity: 'critical'
+    target_match:
+      severity: 'warning'
+    equal: ['alertname', 'instance']
+
+  # Suppress individual agent alerts if cluster is down
+  - source_match:
+      alertname: 'ClusterDown'
+    target_match_re:
+      alertname: 'AgentDown'
+
+# Alert receivers
+receivers:
+  - name: 'default'
+    email_configs:
+      - to: 'ops@sentinel-enterprise.io'
+        from: 'alerts@sentinel-enterprise.io'
+        smarthost: 'smtp.gmail.com:587'
+        auth_username: 'alerts@sentinel-enterprise.io'
+        auth_password: ${SMTP_PASSWORD}
+        headers:
+          Subject: '[SENTINEL] {{ .GroupLabels.alertname }}'
+
+  - name: 'critical-alerts'
+    pagerduty_configs:
+      - service_key: ${PAGERDUTY_SERVICE_KEY}
+        description: '{{ .GroupLabels.alertname }} - {{ .CommonAnnotations.summary }}'
+        severity: '{{ .GroupLabels.severity }}'
+        details:
+          firing: '{{ template "pagerduty.default.instances" . }}'
+    slack_configs:
+      - channel: '#sentinel-critical-alerts'
+        title: '🚨 CRITICAL ALERT'
+        text: >-
+          *Alert:* {{ .GroupLabels.alertname }}
+          *Severity:* {{ .GroupLabels.severity }}
+          *Summary:* {{ .CommonAnnotations.summary }}
+          *Description:* {{ .CommonAnnotations.description }}
+        color: danger
+        send_resolved: true
+
+  - name: 'security-team'
+    slack_configs:
+      - channel: '#sentinel-security'
+        title: '🛡️ Security Alert'
+        text: >-
+          *Alert:* {{ .GroupLabels.alertname }}
+          *Severity:* {{ .GroupLabels.severity }}
+          *Summary:* {{ .CommonAnnotations.summary }}
+          *Description:* {{ .CommonAnnotations.description }}
+        send_resolved: true
+
+  - name: 'infrastructure-team'
+    slack_configs:
+      - channel: '#sentinel-infrastructure'
+        title: '⚙️ Infrastructure Alert'
+        text: >-
+          *Alert:* {{ .GroupLabels.alertname }}
+          *Summary:* {{ .CommonAnnotations.summary }}
+        send_resolved: true
+
+  - name: 'backend-team'
+    slack_configs:
+      - channel: '#sentinel-backend'
+        title: '💻 Backend Alert'
+        text: >-
+          *Alert:* {{ .GroupLabels.alertname }}
+          *Summary:* {{ .CommonAnnotations.summary }}
+        send_resolved: true
